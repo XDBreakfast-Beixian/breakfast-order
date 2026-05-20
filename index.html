@@ -248,6 +248,10 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 <script>
 'use strict';
 var UN=['中和','精明','通化','正宗','賢德','其他'];
+/* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
+var GAS_URL   = 'https://script.google.com/macros/s/AKfycbx1m0Zjed_g6Bf6FzimGTbU2rzFDNV5hp3AVJ79t1LhyFEjJ-W0bo75JG8OWd86JABe/exec'; /* <-- Paste your GAS deployment URL here */
+var GAS_SHEET = 'TEST'; /* <-- Your Google Sheet tab name */
+/* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
 var IKH='bfv5imgH',IKS='bfv5imgS',IKN='bfv5imgN';
 var GK='bfv5gas',GS='bfv5gsheet'; /* GAS URL + sheet name */
@@ -316,13 +320,46 @@ rOrd();
 var isProduction = (location.protocol === 'https:' && location.hostname !== 'claude.ai' && !location.hostname.includes('claude')) || location.protocol === 'file:';
 
 (async function(){
-  var s=await ldSt(SK);if(s&&s.sat&&s.sun)S=s;
-  var o=await ldSt(OK);if(Array.isArray(o))orders=o.filter(function(x){return x&&typeof x==='object';});
+  /* Priority 1: hardcoded GAS_URL in HTML (set once, works for all devices) */
+  if(GAS_URL){gasUrl=GAS_URL;gasSheet=GAS_SHEET;}
+  else{
+    /* Priority 2: localStorage (same device, backwards compat) */
+    var gv=await ldSt(GK);if(gv)gasUrl=gv;
+    var gs2=await ldSt(GS);if(gs2)gasSheet=gs2;
+  }
+
+  /* Load images from localStorage (device-local, too large for GAS) */
   var h=await ldSt(IKH);if(h)heroB64=h;
-  var gv=await ldSt(GK);if(gv)gasUrl=gv;
-  var gs2=await ldSt(GS);if(gs2)gasSheet=gs2;
-  var si=await ldSt(IKS);if(si)satImgB64=si;
-  var ni=await ldSt(IKN);if(ni)sunImgB64=ni;
+  var si2=await ldSt(IKS);if(si2)satImgB64=si2;
+  var ni2=await ldSt(IKN);if(ni2)sunImgB64=ni2;
+
+  /* Load settings (S) from GAS first — this syncs menu/titles across all devices */
+  if(gasUrl){
+    try{
+      var cfgResp=await fetch(gasUrl+'?action=getConfig&t='+Date.now(),{credentials:'omit',cache:'no-store'});
+      var cfgData=await cfgResp.json();
+      if(cfgData.ok&&cfgData.config){
+        if(cfgData.config.sat&&cfgData.config.sun)S=cfgData.config;
+        /* Also sync gasSheet from GAS (set by admin on any device) */
+        if(cfgData.config.gasSheet){gasSheet=cfgData.config.gasSheet;await svSt(GS,gasSheet);}
+        await svSt(SK,S); /* Cache locally */
+      } else {
+        var ls=await ldSt(SK);if(ls&&ls.sat&&ls.sun)S=ls;
+      }
+    }catch(e){
+      var ls2=await ldSt(SK);if(ls2&&ls2.sat&&ls2.sun)S=ls2;
+    }
+  } else {
+    var ls3=await ldSt(SK);if(ls3&&ls3.sat&&ls3.sun)S=ls3;
+  }
+
+  /* Load orders from GAS (all devices see same orders) */
+  var fetched=await fetchFromGAS();
+  if(!fetched){
+    var o=await ldSt(OK);
+    if(Array.isArray(o))orders=o.filter(function(x){return x&&typeof x==='object';});
+  }
+
   rAll();updBar();
   document.getElementById('pS').addEventListener('click',onSumClick);
 })();
@@ -330,7 +367,7 @@ async function fetchFromGAS(){
   if(!gasUrl)return false;
   try{
     var url=gasUrl+'?action=read&sheet='+encodeURIComponent(gasSheet||'訂單')+'&t='+Date.now();
-    var resp=await fetch(url);
+    var resp=await fetch(url,{credentials:'omit',cache:'no-store'});
     var data=await resp.json();
     if(data.ok&&Array.isArray(data.orders)&&data.orders.length>0){
       var sm=satM(),nm=sunM();
@@ -382,14 +419,20 @@ async function fetchFromGAS(){
         return true;
       }
     }
-  }catch(e){console.warn('fetchFromGAS error:',e);}
+  }catch(e){/* fetch failed — local data retained */}
   return false;
 }
 setInterval(async function(){
   if(pg==='S'){
     var fetched=await fetchFromGAS();
-    if(!fetched){var o=await ldSt(OK);if(Array.isArray(o))orders=o.filter(function(x){return x&&x.name;});}
+    if(!fetched){
+      var o=await ldSt(OK);
+      if(Array.isArray(o))orders=o.filter(function(x){return x&&x.name;});
+    }
     rSum();
+    /* Update sync indicator */
+    var si=document.getElementById('gasSync');
+    if(si)si.style.background=fetched?'#00C9A7':'#F59E0B';
   }
 },10000); /* 10s — spreadsheet changes sync within 10s */
 function rAll(){rOrd();rSum();adIn?rAdm():rLog();}
@@ -852,7 +895,9 @@ function addI(k){iDr();if(!draft[k]||!Array.isArray(draft[k].items))return;var i
 function delI(k,id){if(!draft||!draft[k]||!Array.isArray(draft[k].items))return;draft[k].items=draft[k].items.filter(function(m){return m.id!==id;});rAdm();}
 function shSv(){var w=document.getElementById('W');if(!w)return;var d=document.createElement('div');d.className='smov';d.id='svM';d.innerHTML='<div class="smbx"><div style="text-align:center;font-size:2.2rem;margin-bottom:10px">💾</div><div class="smttl">確認儲存設定？</div><div class="smsub">儲存後，所有裝置將立即看到最新菜單。</div><div class="smbt"><button class="btn" style="background:#F3F4F6;color:var(--tx)" onclick="clSv()">取消</button><button class="btn bor" onclick="doSv()">✓ 確定儲存</button></div></div>';w.appendChild(d);}
 function clSv(){var m=document.getElementById('svM');if(m)m.remove();}
-async function doSv(){clSv();S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);rOrd();rSum();var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ 已儲存！所有裝置即時更新。</div>';setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},3000);}
+async function doSv(){clSv();S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);
+  /* Sync settings to GAS so ALL devices get updated menu/titles */
+  if(gasUrl){try{var _cd=encodeURIComponent(JSON.stringify(S));fetch(gasUrl+'?action=saveConfig&data='+_cd,{credentials:'omit'}).catch(function(){});}catch(e){}}rOrd();rSum();var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ 已儲存！所有裝置即時更新。</div>';setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},3000);}
 
 /* ── DELETE ORDER ── */
 function delO(id){
@@ -1005,10 +1050,17 @@ function testGasPing(){
 async function saveGas(){
   var inp=document.getElementById('gasInp');if(inp)gasUrl=inp.value.trim();
   var inp2=document.getElementById('gsInp');if(inp2)gasSheet=inp2.value.trim();
-  if(!gasSheet)gasSheet='訂單';
+  if(!gasSheet)gasSheet='TEST';
   await svSt(GK,gasUrl);await svSt(GS,gasSheet);
-  var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ GAS 設定已儲存！</div>';
-  setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';rAdm();},1800);
+  /* Push gasUrl + gasSheet to GAS config so ALL devices use the same sheet */
+  if(gasUrl){
+    try{
+      var cfg={gasSheet:gasSheet};
+      fetch(gasUrl+'?action=saveGasConfig&data='+encodeURIComponent(JSON.stringify(cfg)),{credentials:'omit'}).catch(function(){});
+    }catch(e){}
+  }
+  var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ GAS 設定已儲存！所有裝置將在 10 秒內同步使用分頁：'+eh(gasSheet)+'</div>';
+  setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';rAdm();},3000);
 }
 async function clearGas(){
   gasUrl='';gasSheet='';await delSt(GK);await delSt(GS);rAdm();

@@ -332,18 +332,48 @@ async function fetchFromGAS(){
     var url=gasUrl+'?action=read&sheet='+encodeURIComponent(gasSheet||'訂單')+'&t='+Date.now();
     var resp=await fetch(url);
     var data=await resp.json();
-    if(data.ok&&Array.isArray(data.orders)){
+    if(data.ok&&Array.isArray(data.orders)&&data.orders.length>0){
       var sm=satM(),nm=sunM();
-      orders=data.orders.map(function(row){
+      var mapped=data.orders.map(function(row){
         var satItems={},sunItems={};
-        sm.forEach(function(m){var k='週六_'+m.name+'($'+m.price+')';if(row[k]!==undefined)satItems[m.id]=Number(row[k])||0;});
-        nm.forEach(function(m){var k='週日_'+m.name+'($'+m.price+')';if(row[k]!==undefined)sunItems[m.id]=Number(row[k])||0;});
-        return{id:String(row['訂單ID']||''),unit:row['單位']||'',area:row['區域']||'',name:row['姓名']||'',phone:row['聯絡電話']||'',satItems:satItems,sunItems:sunItems,timestamp:row['訂購時間']||''};
-      }).filter(function(o){return o.name;});
-      await svSt(OK,orders);
-      return true;
+        var hasSat=false,hasSun=false;
+        /* Map using exact column names */
+        sm.forEach(function(m){
+          var k='週六_'+m.name+'($'+m.price+')';
+          if(row[k]!==undefined&&row[k]!==''){satItems[m.id]=Number(row[k])||0;hasSat=true;}
+        });
+        nm.forEach(function(m){
+          var k='週日_'+m.name+'($'+m.price+')';
+          if(row[k]!==undefined&&row[k]!==''){sunItems[m.id]=Number(row[k])||0;hasSun=true;}
+        });
+        /* Fallback: scan ALL columns for any sat/sun pattern */
+        if(!hasSat&&!hasSun){
+          Object.keys(row).forEach(function(k){
+            var v=Number(row[k]);if(!v||isNaN(v))return;
+            if(k.indexOf('週六_')===0){
+              sm.forEach(function(m){if(k.indexOf(m.name)>0)satItems[m.id]=(satItems[m.id]||0)+v;});
+            }
+            if(k.indexOf('週日_')===0){
+              nm.forEach(function(m){if(k.indexOf(m.name)>0)sunItems[m.id]=(sunItems[m.id]||0)+v;});
+            }
+          });
+        }
+        return{
+          id:String(row['訂單ID']||''),
+          unit:row['單位']||'',area:row['區域']||'',
+          name:row['姓名']||'',phone:row['聯絡電話']||'',
+          satItems:satItems,sunItems:sunItems,
+          timestamp:row['訂購時間']||''
+        };
+      }).filter(function(o){return o.name&&o.id;});
+
+      if(mapped.length>0){
+        orders=mapped;
+        await svSt(OK,orders);
+        return true;
+      }
     }
-  }catch(e){}
+  }catch(e){console.warn('fetchFromGAS error:',e);}
   return false;
 }
 setInterval(async function(){
@@ -352,7 +382,7 @@ setInterval(async function(){
     if(!fetched){var o=await ldSt(OK);if(Array.isArray(o))orders=o.filter(function(x){return x&&x.name;});}
     rSum();
   }
-},10000); /* 10s interval — spreadsheet changes appear within 10s */
+},10000); /* 10s — spreadsheet changes sync within 10s */
 function rAll(){rOrd();rSum();adIn?rAdm():rLog();}
 
 /* ── NAV BAR ── */
@@ -620,7 +650,19 @@ function toggleP(pid){
   for(ci=0;ci<allA.length;ci++){allA[ci].textContent='›';allA[ci].className='parow';}
   if(!isOpen){el.style.display='block';if(arr){arr.textContent='›';arr.className='parow open';}}
 }
-async function doRf(){var ri=document.getElementById('ri');if(ri)ri.classList.add('rsp');var fetched=await fetchFromGAS();if(!fetched){var o=await ldSt(OK);if(Array.isArray(o)){orders=o.filter(function(x){return x&&x.name;});}}rSum();setTimeout(function(){var r=document.getElementById('ri');if(r)r.classList.remove('rsp');},900);}
+async function doRf(){
+  var ri=document.getElementById('ri');if(ri)ri.classList.add('rsp');
+  var fetched=await fetchFromGAS();
+  if(!fetched){
+    /* GAS unavailable: reload from local storage */
+    var o=await ldSt(OK);
+    if(Array.isArray(o))orders=o.filter(function(x){return x&&x.name;});
+  }
+  /* Always save current orders to local storage after refresh */
+  if(orders.length>0)await svSt(OK,orders);
+  rSum();
+  setTimeout(function(){var r=document.getElementById('ri');if(r)r.classList.remove('rsp');},600);
+}
 
 /* ── ADMIN LOGIN ── */
 function rLog(){var el=document.getElementById('pA');if(!el)return;el.innerHTML='<div class="lw"><div class="ll"><div class="lr">🛡️</div><div class="lt">管理員登入</div><div class="ls">請輸入帳號與密碼以進入後台</div></div><div id="lErr"></div><div class="cd"><div class="fi"><label class="fl">帳號</label><input class="inp" id="lId" placeholder="請輸入帳號"></div><div class="fi"><label class="fl">密碼</label><input class="inp" type="password" id="lPw" placeholder="請輸入密碼" onkeydown="if(event.key===\'Enter\')doLogin()"></div><button class="btn bbl" onclick="doLogin()">🔐 登入後台</button></div></div>';}
@@ -897,28 +939,18 @@ async function saveEdit(){
   var latest=await ldSt(OK);if(!Array.isArray(latest))latest=[];
   for(var i=0;i<latest.length;i++){if(latest[i].id===editOrder.id){latest[i].satItems=cx(editOrder.satItems);latest[i].sunItems=cx(editOrder.sunItems);break;}}
   orders=latest;await svSt(OK,orders);
-  /* Sync edit to GAS then re-fetch for both views */
+  /* Sync edit to GAS — fire and forget, local state is already correct */
   if(gasUrl){
     try{
       var _up=gasUrl+'?action=update&sheet='+encodeURIComponent(gasSheet||'訂單')
         +'&id='+encodeURIComponent(editOrder.id)
         +'&data='+encodeURIComponent(JSON.stringify({satItems:editOrder.satItems,sunItems:editOrder.sunItems,satMenu:satM(),sunMenu:sunM()}));
-      fetch(_up).then(function(){
-        /* After GAS confirms update, refresh orders from sheet */
-        setTimeout(async function(){
-          await fetchFromGAS();
-          rSum();rAdm();
-        },800);
-      }).catch(async function(){
-        /* GAS unreachable: update was already saved locally */
-        await fetchFromGAS();
-        rSum();
-      });
+      fetch(_up).catch(function(){});
     }catch(e){}
-  } else {
-    rSum();
   }
-  editOrder=null;rAdm();
+  editOrder=null;
+  rSum(); /* Refresh query view with local (correct) state */
+  rAdm();
 }
 
 /* ── EXPORT EXCEL ── */

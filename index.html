@@ -368,8 +368,17 @@ async function fetchFromGAS(){
       }).filter(function(o){return o.name&&o.id;});
 
       if(mapped.length>0){
-        orders=mapped;
-        await svSt(OK,orders);
+        /* Safety check: if ALL orders have zero quantities, mapping likely failed */
+        var totalQty=0;
+        mapped.forEach(function(o){
+          Object.values(o.satItems||{}).forEach(function(q){totalQty+=Number(q)||0;});
+          Object.values(o.sunItems||{}).forEach(function(q){totalQty+=Number(q)||0;});
+        });
+        /* Only replace local orders if we got real non-zero data */
+        if(totalQty>0||orders.length===0){
+          orders=mapped;
+          await svSt(OK,orders);
+        }
         return true;
       }
     }
@@ -809,7 +818,7 @@ function rAdm(){
       h+='<div class="al" style="background:#FFF8E1;border:1px solid #FFE082;color:#795548;margin-bottom:8px">⚠ 尚未設定 GAS，訂單僅存本機。請先到「⚙️ 基本」設定 Google 試算表。</div>';
     } else {
       h+='<div style="display:flex;gap:8px;margin-bottom:10px">'
-        +'<button onclick="syncAllToGAS()" style="flex:1;padding:10px;border-radius:10px;font-weight:700;font-size:.8rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;font-family:Noto Sans TC,sans-serif">📤 同步所有訂單 → '+eh(gasSheet||'訂單')+' 分頁</button>'
+        +'<button onclick="syncAllToGAS()" style="flex:1;padding:10px;border-radius:10px;font-weight:700;font-size:.8rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;font-family:Noto Sans TC,sans-serif">📤 同步所有訂單 → '+eh(gasSheet||'訂單')+' 分頁</button>'+'<button onclick="rebuildSheet()" style="padding:10px 12px;border-radius:10px;font-weight:700;font-size:.8rem;border:2px solid var(--or);color:var(--or);background:#fff;cursor:pointer;font-family:Noto Sans TC,sans-serif" title="清除試算表後重新建立正確的標題和資料">🔄 重建</button>'
         +'</div>';
     }
     if(!fOrd.length){
@@ -1003,6 +1012,20 @@ async function saveGas(){
 }
 async function clearGas(){
   gasUrl='';gasSheet='';await delSt(GK);await delSt(GS);rAdm();
+}
+function rebuildSheet(){
+  if(!gasUrl){showAlert('未設定','請先設定 GAS 網址');return;}
+  if(!orders||!orders.length){showAlert('無資料','目前沒有訂單');return;}
+  if(!confirm('這會清除「'+( gasSheet||'訂單')+'」分頁所有資料並重新建立，確定嗎？'))return;
+  var sheet=gasSheet||'訂單';
+  var sm=satM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
+  var nm=sunM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
+  var _d=encodeURIComponent(JSON.stringify({orders:orders,satMenu:sm,sunMenu:nm}));
+  var url=gasUrl+'?action=batchAdd&sheet='+encodeURIComponent(sheet)+'&data='+_d;
+  window.open(url,'_blank');
+  var msg=document.getElementById('aSv');
+  if(msg)msg.innerHTML='<div class="al alok">🔄 已開啟重建視窗，新分頁顯示 {"ok":true} 即完成。<br>試算表標題和數量將完全重建。</div>';
+  setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},10000);
 }
 function syncAllToGAS(){
   if(!gasUrl){showAlert('未設定','請先到「⚙️ 基本」設定 GAS 網址');return;}

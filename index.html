@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{--or:#FF6348;--am:#FF9500;--sa:#E65C00;--sb:#F9A825;--stx:#B34700;--na:#1565C0;--nb:#42A5F5;--ntx:#0D47A1;--gr:#00C9A7;--gd:#008870;--bg:#FFFBF5;--sf:#fff;--tx:#1A1A2E;--mu:#6B7280;--bd:#EDE8E3;--re:#EF4444;--nv:62px;}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
+.wrap{display:flex;flex-direction:column;height:100vh;max-width:600px;margin:0 auto;overflow:hidden;}
+.sa{flex:1;overflow-y:auto;}.sa::-webkit-scrollbar{width:3px;}.sa::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
+.nav{flex-shrink:0;height:var(--nv);background:rgba(255,255,255,.97);border-top:1px solid rgba(255,100,72,.08);display:flex;position:relative;box-shadow:0 -2px 16px rgba(0,0,0,.05);}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:.6rem;font-weight:600;color:var(--mu);padding:0;}
+.nb svg{width:19px;height:19px;}.nb.on{color:var(--or);}
+.nink{position:absolute;top:0;height:3px;background:linear-gradient(90deg,var(--or),var(--am));border-radius:0 0 4px 4px;width:33.333%;transition:left .28s cubic-bezier(.4,0,.2,1);}
+#sb{flex-shrink:0;padding:8px 13px;background:rgba(255,251,245,.98);border-top:1px solid rgba(255,100,72,.12);}
+#sbb{width:100%;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(135deg,#FF5733,#FF8C00);display:flex;align-items:center;gap:12px;padding:13px 18px;}
+@keyframes gl{0%,100%{box-shadow:0 6px 22px rgba(255,87,51,.4);}50%{box-shadow:0 8px 30px rgba(255,87,51,.65),0 0 0 5px rgba(255,87,51,.1);}}
+#sbb{animation:gl 2.5s ease-in-out infinite;}
+.sico{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+.stxt{flex:1;text-align:left;}.smain{font-family:'Nunito',sans-serif;font-size:.97rem;font-weight:900;color:#fff;}.ssub{font-size:.67rem;color:rgba(255,255,255,.82);margin-top:2px;}
+.sarr{font-size:1.3rem;color:rgba(255,255,255,.65);}
+@keyframes f1{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-18px) rotate(7deg);}}
+@keyframes f2{0%,100%{transform:translateY(0) rotate(4deg);}50%{transform:translateY(-12px) rotate(-7deg);}}
+@keyframes f3{0%,100%{transform:translateY(0);}50%{transform:translateY(-20px);}}
+@keyframes f4{0%,100%{transform:translateY(0) rotate(6deg);}50%{transform:translateY(-14px) rotate(-5deg);}}
+@keyframes f5{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+@keyframes sRi{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes mFd{from{opacity:0;}to{opacity:1;}}
+@keyframes mUp{from{transform:translateY(72px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes spn{to{transform:rotate(360deg);}}
+@keyframes cIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+/* ── HERO ── */
+.oh{position:relative;overflow:hidden;min-height:240px;background:linear-gradient(148deg,#FF5733,#FF8C00 52%,#FFC300);}
+.oh.has-bg{background:#111;}
+.oh-bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;}
+/* gradient overlay: strong at bottom (text), transparent at top (image shows) */
+.oh-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,rgba(0,0,0,.28) 48%,rgba(0,0,0,.06) 100%);z-index:1;}
+.oh-ov-plain{position:absolute;inset:0;background:radial-gradient(ellipse at 18% 62%,rgba(255,255,255,.14),transparent 54%),radial-gradient(ellipse at 85% 18%,rgba(255,255,255,.15),transparent 46%);z-index:1;}
+.oh-dots{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.08) 1px,transparent 1px);background-size:20px 20px;z-index:2;}
+.ff{position:absolute;pointer-events:none;z-index:3;opacity:.17;}
+/* Text at bottom when bg image is set */
+.oh-txt{position:absolute;z-index:4;display:inline-block;max-width:88%;}
+/* .oh-txt.plain removed - use absolute positioning */
+.oh-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:30px;padding:4px 12px;font-size:.65rem;font-weight:700;color:#fff;letter-spacing:.05em;margin-bottom:9px;backdrop-filter:blur(6px);align-self:flex-start;}
+.oh-badge-tl{position:absolute;top:13px;left:14px;z-index:5;display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:30px;padding:4px 12px;font-size:.65rem;font-weight:700;color:#fff;letter-spacing:.05em;backdrop-filter:blur(6px);}
+.oh-txt-inner{display:inline-block;max-width:100%;margin-top:4px;}
+.ohtit{font-family:'Nunito',sans-serif;font-size:1.38rem;font-weight:900;color:#fff;line-height:1.22;letter-spacing:.01em;}
+.ohsub{font-size:.71rem;color:rgba(255,255,255,.88);margin-top:6px;line-height:1.7;white-space:pre-line;text-shadow:0 1px 8px rgba(0,0,0,.6);}
+.pull{background:var(--bg);border-radius:22px 22px 0 0;margin-top:-18px;padding:16px 12px 10px;position:relative;z-index:5;}
+.cd{background:var(--sf);border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.07);padding:16px;margin-bottom:11px;border:1px solid rgba(0,0,0,.04);}
+.cdh{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.cdic{width:37px;height:37px;border-radius:11px;background:linear-gradient(135deg,#FF6348,#FF9500);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.cdtt{font-size:.87rem;font-weight:700;}.cdst{font-size:.68rem;color:var(--mu);margin-top:1px;}
+.fi{margin-bottom:12px;}.fi:last-child{margin-bottom:0;}
+.fl{display:block;font-size:.75rem;font-weight:600;margin-bottom:6px;}.rq{color:var(--or);}
+.inp{width:100%;padding:10px 12px;border:2px solid var(--bd);border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:.82rem;color:var(--tx);background:#fff;outline:none;transition:border-color .15s;-webkit-appearance:none;}
+.inp:focus{border-color:var(--or);}
+.em{font-size:.67rem;color:var(--re);margin-top:3px;}
+.ug{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.ub{padding:10px 4px;border:2px solid var(--bd);border-radius:10px;background:#fff;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:.8rem;font-weight:500;color:var(--mu);text-align:center;}
+.ub.sl{border-color:var(--or);background:rgba(255,99,72,.05);color:var(--or);font-weight:700;}
+.dc{border-radius:16px;overflow:hidden;margin-bottom:11px;box-shadow:0 4px 18px rgba(0,0,0,.08);}
+.dh{padding:13px 15px;display:flex;align-items:center;justify-content:space-between;}
+.dh.s{background:linear-gradient(120deg,var(--sa),var(--sb));}.dh.n{background:linear-gradient(120deg,var(--na),var(--nb));}
+.dh-l{display:flex;align-items:center;gap:9px;}
+.dh-ej{font-size:1.4rem;display:inline-block;}
+.dh-i{color:#fff;}.dh-d{font-family:'Nunito',sans-serif;font-size:.93rem;font-weight:900;}.dh-s{font-size:.68rem;opacity:.9;margin-top:1px;}
+.dh-p{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 10px;font-size:.65rem;font-weight:700;color:#fff;}
+.db{background:var(--sf);padding:11px;}
+.dbe{text-align:center;padding:14px;color:var(--mu);font-size:.79rem;}
+.day-img-wrap{border-top:1px solid var(--bd);margin-top:4px;}
+.day-img-wrap img{width:100%;height:auto;display:block;}
+.mc{display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:7px;background:var(--sf);border-radius:12px;border:2px solid var(--bd);}
+.mc:last-child{margin-bottom:0;}.mc.hs{border-color:rgba(230,92,0,.3);background:rgba(255,245,230,.4);}.mc.hn{border-color:rgba(21,101,192,.27);background:rgba(230,242,255,.4);}
+.miic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:23px;flex-shrink:0;}
+.ic1{background:linear-gradient(135deg,#FFF3CD,#FFE082);}.ic2{background:linear-gradient(135deg,#E8F5E9,#A5D6A7);}.ic3{background:linear-gradient(135deg,#FBE9E7,#FFAB91);}.ic4{background:linear-gradient(135deg,#EDE7F6,#CE93D8);}
+.mi{flex:1;min-width:0;}.mn{font-size:.83rem;font-weight:700;}.mnt{font-size:.67rem;color:var(--mu);margin-top:1px;}
+.prs{display:inline-flex;background:linear-gradient(135deg,var(--sa),var(--sb));color:#fff;border-radius:20px;padding:2px 9px;font-size:.67rem;font-weight:800;margin-top:3px;}
+.prn{display:inline-flex;background:linear-gradient(135deg,var(--na),var(--nb));color:#fff;border-radius:20px;padding:2px 9px;font-size:.67rem;font-weight:800;margin-top:3px;}
+.qc{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.qbs,.qbn{width:31px;height:31px;border-radius:50%;background:#fff;font-size:1rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;border:2px solid;}
+.qbs{border-color:var(--sa);color:var(--sa);}.qbn{border-color:var(--na);color:var(--na);}
+.qbs:disabled,.qbn:disabled{border-color:#D1D5DB;color:#D1D5DB;cursor:default;}
+.qn{min-width:20px;text-align:center;font-weight:800;font-size:.93rem;}
+.dt{border-radius:11px;padding:11px 14px;margin-top:9px;color:#fff;display:flex;justify-content:space-between;align-items:center;}
+.dt.s{background:linear-gradient(135deg,var(--sa),var(--sb));}.dt.n{background:linear-gradient(135deg,var(--na),var(--nb));}
+.dt-l{font-size:.76rem;opacity:.92;font-weight:600;}.dt-r{font-family:'Nunito',sans-serif;font-size:1.12rem;font-weight:900;}
+.cta{width:100%;padding:13px;border:none;border-radius:13px;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+.ctag{background:linear-gradient(135deg,#00C9A7,#008870);color:#fff;}.ctao{background:#fff;border:2px solid var(--or);color:var(--or);}
+.sw{text-align:center;padding:26px 14px;}
+.sri{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#00C9A7,#008870);display:flex;align-items:center;justify-content:center;font-size:2.1rem;margin:0 auto 13px;box-shadow:0 10px 30px rgba(0,193,167,.32);}
+.stt{font-family:'Nunito',sans-serif;font-size:1.6rem;font-weight:900;color:var(--gr);}.ssu{font-size:.79rem;color:var(--mu);margin-top:4px;}
+.rcp{background:linear-gradient(135deg,#FAFFFD,#E0FBF5);border:2px solid #B2DFDB;border-radius:14px;padding:13px;margin:13px 0;text-align:left;}
+.rct{font-weight:700;font-size:.79rem;color:var(--gd);margin-bottom:9px;}
+.rr{display:flex;justify-content:space-between;font-size:.76rem;padding:3px 0;}
+.rd{padding:6px 0 2px;border-top:1.5px dashed #B2DFDB;margin-top:5px;font-size:.7rem;font-weight:700;color:var(--gd);}
+.rr.tot{border-top:2px dashed #80CBC4;margin-top:6px;padding-top:8px;font-weight:700;}
+.mov{position:absolute;inset:0;background:rgba(10,10,20,.6);z-index:500;display:flex;align-items:flex-end;justify-content:center;animation:mFd .22s;}
+.mbx{background:#fff;border-radius:24px 24px 0 0;width:100%;max-height:90vh;display:flex;flex-direction:column;animation:mUp .28s cubic-bezier(.4,0,.2,1);}
+.mhd{padding:17px 18px 0;flex-shrink:0;}.mpl{width:34px;height:4px;background:#E5E7EB;border-radius:4px;margin:0 auto 13px;}
+.mir{display:flex;align-items:center;gap:10px;}.mic{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--or),var(--am));display:flex;align-items:center;justify-content:center;font-size:19px;}
+.mt2{font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;}.ms{font-size:.7rem;color:var(--mu);margin-top:2px;}
+.mbd{flex:1;overflow-y:auto;padding:13px 18px;display:flex;flex-direction:column;gap:10px;}
+.msec{background:#F9FAFB;border-radius:13px;padding:13px;}
+.mst{font-size:.67rem;font-weight:700;color:var(--mu);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #F0F0F0;}.mrow:last-child{border-bottom:none;}
+.ml{font-size:.77rem;color:var(--mu);}.mv{font-size:.81rem;font-weight:600;}
+.mit{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed #EBEBEB;}.mit:last-child{border-bottom:none;}
+.min{font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:5px;}.mir2{display:flex;align-items:center;gap:6px;}.mpr{font-size:.72rem;color:var(--mu);}
+.mbs{background:linear-gradient(135deg,var(--sa),var(--sb));color:#fff;border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:800;}
+.mbn{background:linear-gradient(135deg,var(--na),var(--nb));color:#fff;border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:800;}
+.mtot{background:linear-gradient(135deg,#E0FBF5,#c8f5ec);border:2px solid #80CBC4;border-radius:12px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center;}
+.mtl{font-size:.79rem;color:var(--gd);font-weight:600;}.mtv{font-family:'Nunito',sans-serif;font-size:1.28rem;font-weight:900;color:var(--gd);}
+.mwn{background:#FFF8E1;border:1.5px solid #FFE082;border-radius:10px;padding:10px 12px;font-size:.72rem;color:#795548;line-height:1.65;}
+.mft{padding:12px 18px 28px;flex-shrink:0;display:flex;gap:9px;border-top:1px solid #F3F4F6;}.mft .cta{flex:1;}
+.sh{background:linear-gradient(148deg,#0F2027,#203A43 55%,#2C5364);padding:20px 14px 18px;color:#fff;position:relative;overflow:hidden;}
+.sh-d{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.07) 1px,transparent 1px);background-size:18px 18px;z-index:1;}
+.sh-g1{position:absolute;top:-35px;right:-35px;width:145px;height:145px;border-radius:50%;background:rgba(0,201,167,.12);z-index:1;}
+.sh-g2{position:absolute;bottom:-25px;left:-25px;width:105px;height:105px;border-radius:50%;background:rgba(66,165,245,.07);z-index:1;}
+.sh-c{position:relative;z-index:2;}
+.shtag{display:inline-flex;align-items:center;gap:4px;background:rgba(0,201,167,.22);border:1px solid rgba(0,201,167,.35);border-radius:20px;padding:3px 11px;font-size:.63rem;font-weight:700;letter-spacing:.06em;margin-bottom:7px;color:#00E5C5;}
+.shttl{font-family:'Nunito',sans-serif;font-size:1.18rem;font-weight:900;}.shsub{font-size:.67rem;opacity:.62;margin-top:2px;}
+.srow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px;}
+.sbi{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:12px;text-align:center;}
+.sbn{font-family:'Nunito',sans-serif;font-size:2.2rem;font-weight:900;}.sbn.s{color:#FFD54F;}.sbn.n{color:#90CAF9;}.sbl{font-size:.72rem;color:rgba(255,255,255,.55);margin-top:4px;}
+.sc{background:var(--bg);border-radius:22px 22px 0 0;margin-top:-16px;padding:14px 12px 0;position:relative;z-index:5;}
+.rbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.rtxt{font-size:.67rem;color:var(--mu);}
+.rbtn{display:flex;align-items:center;gap:4px;border:1.5px solid var(--bd);background:#fff;border-radius:20px;padding:5px 12px;cursor:pointer;font-size:.68rem;color:var(--mu);font-family:'Noto Sans TC',sans-serif;}
+.rsp{animation:spn .7s linear infinite;}
+.uc{background:var(--sf);border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:10px;cursor:pointer;border:1px solid rgba(0,0,0,.04);animation:cIn .4s ease both;opacity:0;}
+.ucico{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,#1a3a4a,#2C5364);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+.uci{flex:1;min-width:0;}.ucn{font-size:1rem;font-weight:700;margin-bottom:7px;}.ucb{display:flex;gap:5px;flex-wrap:wrap;}
+.bs{display:inline-flex;align-items:center;gap:3px;background:rgba(230,92,0,.1);border:1px solid rgba(230,92,0,.2);border-radius:20px;padding:3px 11px;font-size:.76rem;font-weight:700;color:var(--stx);}
+.bn{display:inline-flex;align-items:center;gap:3px;background:rgba(21,101,192,.09);border:1px solid rgba(21,101,192,.19);border-radius:20px;padding:3px 11px;font-size:.76rem;font-weight:700;color:var(--ntx);}
+.uca{font-size:1.3rem;color:#CBD5E1;flex-shrink:0;}
+.ud{animation:sRi .28s cubic-bezier(.4,0,.2,1);}.udtb{display:flex;align-items:center;gap:9px;margin-bottom:13px;}
+.udbk{width:37px;height:37px;border-radius:11px;background:var(--sf);border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;flex-shrink:0;}
+.udm{flex:1;}.udun{font-family:'Nunito',sans-serif;font-size:.99rem;font-weight:900;}.udct{font-size:.69rem;color:var(--mu);margin-top:1px;}
+.plist{background:var(--sf);border-radius:15px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.08);margin-bottom:10px;}
+.prow{display:flex;align-items:center;gap:11px;padding:13px 15px;cursor:pointer;border-bottom:1px solid var(--bd);}.prow:last-of-type{border-bottom:none;}
+.pabd{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0F2027,#2C5364);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;flex-shrink:0;line-height:1;}
+.pabd-a{font-size:1.4rem;font-weight:900;}.pabd-u{font-size:.68rem;opacity:.85;margin-top:2px;}
+.pnwrap{flex:1;min-width:0;}.pnm{font-size:1.05rem;font-weight:700;display:block;}
+.pbdgs{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+.pbdg-s{font-size:.72rem;font-weight:700;color:var(--stx);background:rgba(230,92,0,.1);border-radius:6px;padding:2px 9px;}
+.pbdg-n{font-size:.72rem;font-weight:700;color:var(--ntx);background:rgba(21,101,192,.09);border-radius:6px;padding:2px 9px;}
+.parow{font-size:.9rem;color:#CBD5E1;flex-shrink:0;width:18px;text-align:center;font-weight:700;transition:color .13s,transform .13s;}
+.parow.open{color:var(--or);transform:rotate(90deg);}
+.pdetail{background:#F8F9FB;border-bottom:1px solid var(--bd);padding:12px 15px 14px;}.pdetail:last-child{border-bottom:none;}
+.pdday{display:flex;align-items:center;gap:6px;margin:9px 0 5px;font-size:.72rem;font-weight:700;}.pdday:first-child{margin-top:0;}
+.pdday.s{color:var(--stx);}.pdday.n{color:var(--ntx);}
+.pditem{display:flex;align-items:center;padding:5px 0 5px 20px;border-bottom:1px dashed var(--bd);}.pditem:last-child{border-bottom:none;}
+.pdnm{flex:1;font-size:.93rem;color:var(--tx);font-weight:600;}.pdq{color:var(--mu);font-size:.88rem;margin-right:9px;}.pdp{font-weight:700;color:var(--tx);font-size:.88rem;}
+.adh{background:linear-gradient(135deg,#1e3c72,#2a5298);padding:20px 15px 22px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;position:relative;overflow:hidden;}
+.adh::before{content:'';position:absolute;bottom:-22px;left:-22px;width:95px;height:95px;border-radius:50%;background:rgba(255,255,255,.06);}
+.adhl{position:relative;z-index:1;}.adhtg{font-size:.65rem;font-weight:700;letter-spacing:.09em;opacity:.7;margin-bottom:3px;}.adhtt{font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;}
+.lb{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.26);border-radius:9px;color:#fff;padding:6px 12px;cursor:pointer;font-size:.71rem;font-family:'Noto Sans TC',sans-serif;position:relative;z-index:1;}
+.adc{background:var(--bg);border-radius:22px 22px 0 0;margin-top:-16px;padding:13px 12px;position:relative;z-index:5;}
+.atbs{display:flex;background:var(--sf);border-radius:12px;padding:3px;margin-bottom:11px;box-shadow:0 2px 10px rgba(0,0,0,.06);border:1px solid var(--bd);}
+.atb{flex:1;padding:7px 4px;border:none;background:none;border-radius:9px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:.71rem;font-weight:600;color:var(--mu);white-space:nowrap;}
+.atb.on{background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff;}
+.ac{display:inline-block;background:var(--or);color:#fff;border-radius:20px;padding:1px 5px;font-size:.57rem;font-weight:700;margin-left:3px;}
+.fcd{background:var(--sf);border-radius:15px;box-shadow:0 2px 11px rgba(0,0,0,.07);padding:14px;margin-bottom:10px;border:1px solid rgba(0,0,0,.04);}
+.fcdt{font-size:.69rem;font-weight:700;color:var(--mu);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px;}
+.fcdt::before{content:'';width:3px;height:12px;border-radius:2px;background:linear-gradient(#1e3c72,#2a5298);display:inline-block;}
+.ains{flex:1;padding:8px 10px;border:2px solid var(--bd);border-radius:9px;font-family:'Noto Sans TC',sans-serif;font-size:.76rem;outline:none;background:#fff;}
+.ains:focus{border-color:#2a5298;}
+.meb{background:#F8F9FA;border:2px solid var(--bd);border-radius:11px;padding:11px;margin-bottom:7px;}
+.rw{display:flex;gap:7px;margin-bottom:7px;align-items:center;}
+textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
+.btn{width:100%;padding:12px;border:none;border-radius:12px;font-family:'Noto Sans TC',sans-serif;font-size:.87rem;font-weight:700;cursor:pointer;}
+.bbl{background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff;}.bor{background:linear-gradient(135deg,#FF5733,#FF8C00);color:#fff;}
+.bdr{background:#fff;border:2px solid var(--re);color:var(--re);width:auto;padding:6px 11px;font-size:.71rem;}
+.bsm{padding:6px 11px;font-size:.71rem;width:auto;}
+.bgr{background:#fff;border:2px solid var(--gd);color:var(--gd);width:auto;padding:6px 11px;font-size:.71rem;}
+.al{padding:9px 13px;border-radius:10px;font-size:.76rem;margin-bottom:9px;font-weight:500;}
+.alok{background:#E0FBF5;color:var(--gd);border:1px solid #B2DFDB;}.aler{background:#FEF2F2;color:var(--re);border:1px solid #FECACA;}
+/* Order card */
+.oadm{background:var(--sf);border-radius:13px;padding:13px;margin-bottom:8px;border:1px solid rgba(0,0,0,.04);box-shadow:0 2px 11px rgba(0,0,0,.07);}
+.oadmi{flex:1;}.oadmn{font-weight:700;font-size:.82rem;}.oadmt{font-size:.65rem;color:var(--mu);margin:3px 0 6px;}
+.tw{display:flex;flex-wrap:wrap;gap:4px;}
+.tgs{background:rgba(230,92,0,.1);color:var(--stx);border-radius:6px;padding:2px 7px;font-size:.66rem;font-weight:600;}
+.tgn{background:rgba(21,101,192,.09);color:var(--ntx);border-radius:6px;padding:2px 7px;font-size:.66rem;font-weight:600;}
+/* Search bar */
+.srch{background:var(--sf);border-radius:13px;padding:12px;margin-bottom:10px;border:1px solid rgba(0,0,0,.04);box-shadow:0 2px 11px rgba(0,0,0,.07);}
+.srch-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;}
+.srch-sel{width:100%;padding:8px 10px;border:1.5px solid var(--bd);border-radius:9px;font-family:'Noto Sans TC',sans-serif;font-size:.75rem;background:#fff;color:var(--tx);outline:none;}
+.srch-sel:focus{border-color:#2a5298;}
+/* Edit modal qty row */
+.eqrow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--bd);}
+.eqrow:last-child{border-bottom:none;}
+.eqnm{font-size:.8rem;font-weight:600;flex:1;}
+.eqc{display:flex;align-items:center;gap:8px;}
+.eqb{width:28px;height:28px;border-radius:50%;background:#fff;font-size:.95rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;border:2px solid var(--bd);color:var(--tx);}
+.eqb:active{transform:scale(.88);}
+.eqn{min-width:22px;text-align:center;font-weight:800;font-size:.9rem;}
+/* Export btn */
+.export-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border:2px solid #2a5298;color:#2a5298;background:#fff;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:.77rem;font-weight:700;cursor:pointer;margin-bottom:10px;}
+.export-btn:active{background:#f0f4ff;}
+/* Login */
+.lw{max-width:305px;margin:0 auto;padding:46px 12px;}.ll{text-align:center;margin-bottom:22px;}
+.lr{width:62px;height:62px;border-radius:18px;background:linear-gradient(135deg,#1e3c72,#2a5298);display:flex;align-items:center;justify-content:center;font-size:1.85rem;margin:0 auto 11px;}
+.lt{font-family:'Nunito',sans-serif;font-size:1.22rem;font-weight:900;}.ls{font-size:.71rem;color:var(--mu);margin-top:3px;}
+.smov{position:absolute;inset:0;background:rgba(10,10,20,.52);z-index:600;display:flex;align-items:flex-end;justify-content:center;animation:mFd .2s;}
+.smbx{background:#fff;border-radius:22px 22px 0 0;padding:22px 17px 32px;width:100%;animation:mUp .24s cubic-bezier(.4,0,.2,1);}
+.smttl{font-family:'Nunito',sans-serif;font-size:1.06rem;font-weight:900;text-align:center;margin-bottom:5px;}
+.smsub{font-size:.74rem;color:var(--mu);text-align:center;margin-bottom:17px;line-height:1.58;}
+.smbt{display:flex;gap:8px;}.smbt .btn{flex:1;}
+.empty{text-align:center;padding:32px 14px;color:var(--mu);}.eico{font-size:2.5rem;margin-bottom:10px;}
+/* Image upload */
+.img-up{border:2.5px dashed var(--bd);border-radius:13px;padding:20px 14px;text-align:center;cursor:pointer;background:#FAFAFA;transition:border-color .18s;}
+.img-up:hover{border-color:var(--or);}
+.img-up-ico{font-size:2rem;margin-bottom:7px;}.img-up-ttl{font-size:.83rem;font-weight:700;color:var(--tx);margin-bottom:3px;}.img-up-sub{font-size:.68rem;color:var(--mu);}
+.img-prev-wrap{position:relative;border-radius:12px;overflow:hidden;}
+.img-prev{width:100%;height:auto;display:block;}
+.img-del{position:absolute;top:8px;right:8px;background:rgba(239,68,68,.88);color:#fff;border:none;border-radius:20px;padding:5px 12px;font-size:.68rem;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;}
+.img-prog{background:#F3F4F6;border-radius:9px;height:6px;margin-top:9px;overflow:hidden;display:none;}
+.img-prog-bar{height:100%;background:linear-gradient(90deg,var(--or),var(--am));border-radius:9px;width:0%;transition:width .28s;}
+/* Music status */
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+/* ── MINI MUSIC PLAYER ── */
+</style>
+</head>
+<body>
+<div class="wrap" id="W">
+  <div class="sa" id="sa">
+    <div id="pO"></div>
+    <div id="pS" style="display:none"></div>
+    <div id="pA" style="display:none"></div>
+  </div>
+  <div id="sb">
+    <button id="sbb" onclick="tryS()">
+      <div class="sico" id="sico">🍱</div>
+      <div class="stxt"><div class="smain" id="smain">確認並送出訂單</div><div class="ssub" id="ssub">選好餐點後，點此預覽並送出</div></div>
+      <div class="sarr">›</div>
+    </button>
+  </div>
+  <nav class="nav">
+    <div class="nink" id="ink"></div>
+    <button class="nb on" id="n0" onclick="go('O')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>立即訂購</button>
+    <button class="nb" id="n1" onclick="go('S')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>訂購查詢</button>
+    <button class="nb" id="n2" onclick="go('A')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>管理員</button>
+  </nav>
+</div>
+<script>
+'use strict';
+var UN=['中和','精明','通化','正宗','賢德','其他'];
+var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
+var IKH='bfv5imgH',IKS='bfv5imgS',IKN='bfv5imgN';
+var GK='bfv5gas',GS='bfv5gsheet'; /* GAS URL + sheet name */
+var IX=['ic1','ic2','ic3','ic4','ic5','ic6'],EM=['🥚','🥪','🍳','🍙','🥐','🍞','☕','🥗'];
+var DEF={title:'【早餐訂購】3/14・15 北部心靈講座',description:'★ 班員有提供早餐，訂購不需含班員。\n★ 請確認後再訂購，送出後無法修改。',titleStyle:{size:'1.38rem',color:'#ffffff',bold:true,font:'Nunito',bg:false,bgColor:'#1a1a2e',align:'left'},textPos:{x:0,y:6},descStyle:{size:'0.71rem',color:'#ebebeb',bold:false,font:'Noto Sans TC',bg:false,bgColor:'#1a1a2e',align:'left'},sat:{date:'3/14',dayLabel:'週六',title:'週六早餐菜單',items:[{id:'s1',name:'饅頭夾蛋',price:35,note:'含豆漿',ico:'🥚',ic:'ic1'},{id:'s2',name:'總匯三明治',price:45,note:'含紅茶',ico:'🥪',ic:'ic2'}]},sun:{date:'3/15',dayLabel:'週日',title:'週日早餐菜單',items:[{id:'n1',name:'蛋餅',price:40,note:'含豆漿',ico:'🍳',ic:'ic3'},{id:'n2',name:'飯糰',price:45,note:'含米漿',ico:'🍙',ic:'ic4'}]}};
+var S=JSON.parse(JSON.stringify(DEF));
+var orders=[],pg='O',adIn=false,aTab='gen',draft=null;
+var fU='',fCU='',fA='',fN='',fP='',sQ={},nQ={},done=false,last=null,selU=null;
+/* search/filter state */
+var heroB64='',satImgB64='',sunImgB64='',gasUrl='',gasSheet='';
+var ordSrch='',ordFUnit='',ordFArea='',ordFName='';
+/* edit state */
+var editOrder=null;
+
+
+/* ── MINI MUSIC PLAYER ──
+   Must be triggered by explicit user click (browser autoplay policy).
+──────────────────────────────── */
+
+  /* Remove old */
+  var f=document.createElement('iframe');
+  f.id='ytMusicFrame';
+  f.style.cssText='position:fixed;left:-9999px;top:-9999px;width:4px;height:4px;border:none;';
+
+/* ── STORAGE ── */
+function ldSt(k){
+  /* Try window.storage (Claude.ai), fall back to localStorage (GitHub Pages / browser) */
+  try{
+    if(typeof window.storage!=='undefined'){
+      return window.storage.get(k,true).then(function(r){
+        return r&&r.value?JSON.parse(r.value):null;
+      }).catch(function(){
+        try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(_){return null;}
+      });
+    }
+  }catch(_){}
+  return Promise.resolve((function(){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(_){return null;}})());
+}
+function svSt(k,v){
+  var s=JSON.stringify(v);
+  try{if(typeof window.storage!=='undefined')window.storage.set(k,s,true).catch(function(){});}catch(_){}
+  try{localStorage.setItem(k,s);}catch(_){}
+  return Promise.resolve();
+}
+function delSt(k){
+  try{if(typeof window.storage!=='undefined')window.storage.delete(k,true).catch(function(){});}catch(_){}
+  try{localStorage.removeItem(k);}catch(_){}
+  return Promise.resolve();
+}
+
+/* ── UTILS ── */
+function cx(x){return JSON.parse(JSON.stringify(x));}
+function eh(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function sumO(o){var t=0,k=Object.keys(o);for(var i=0;i<k.length;i++)t+=Number(o[k[i]])||0;return t;}
+function satM(){return S&&S.sat&&Array.isArray(S.sat.items)?S.sat.items:[];}
+function sunM(){return S&&S.sun&&Array.isArray(S.sun.items)?S.sun.items:[];}
+function getSat(o){return o&&o.satItems&&typeof o.satItems==='object'?o.satItems:{};}
+function getSun(o){return o&&o.sunItems&&typeof o.sunItems==='object'?o.sunItems:{};}
+function findFL(id,list){for(var i=0;i<list.length;i++)if(list[i].id===id)return list[i];return null;}
+
+/* ── INIT ── */
+/* Render immediately with defaults so page never blank */
+rOrd();
+
+/* Detect environment: GitHub Pages = true GAS fetch; Claude.ai = window.storage */
+var isProduction = (location.protocol === 'https:' && location.hostname !== 'claude.ai' && !location.hostname.includes('claude')) || location.protocol === 'file:';
+
+(async function(){
+  var s=await ldSt(SK);if(s&&s.sat&&s.sun)S=s;
+  var o=await ldSt(OK);if(Array.isArray(o))orders=o.filter(function(x){return x&&typeof x==='object';});
+  var h=await ldSt(IKH);if(h)heroB64=h;
+  var gv=await ldSt(GK);if(gv)gasUrl=gv;
+  var gs2=await ldSt(GS);if(gs2)gasSheet=gs2;
+  var si=await ldSt(IKS);if(si)satImgB64=si;
+  var ni=await ldSt(IKN);if(ni)sunImgB64=ni;
+  rAll();updBar();
+  document.getElementById('pS').addEventListener('click',onSumClick);
+})();
+async function fetchFromGAS(){
+  if(!gasUrl)return false;
+  try{
+    var url=gasUrl+'?action=read&sheet='+encodeURIComponent(gasSheet||'訂單')+'&t='+Date.now();
+    var resp=await fetch(url);
+    var data=await resp.json();
+    if(data.ok&&Array.isArray(data.orders)){
+      var sm=satM(),nm=sunM();
+      orders=data.orders.map(function(row){
+        var satItems={},sunItems={};
+        sm.forEach(function(m){var k='週六_'+m.name+'($'+m.price+')';if(row[k]!==undefined)satItems[m.id]=Number(row[k])||0;});
+        nm.forEach(function(m){var k='週日_'+m.name+'($'+m.price+')';if(row[k]!==undefined)sunItems[m.id]=Number(row[k])||0;});
+        return{id:String(row['訂單ID']||''),unit:row['單位']||'',area:row['區域']||'',name:row['姓名']||'',phone:row['聯絡電話']||'',satItems:satItems,sunItems:sunItems,timestamp:row['訂購時間']||''};
+      }).filter(function(o){return o.name;});
+      await svSt(OK,orders);
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+setInterval(async function(){
+  if(pg==='S'){
+    var fetched=await fetchFromGAS();
+    if(!fetched){var o=await ldSt(OK);if(Array.isArray(o))orders=o.filter(function(x){return x&&x.name;});}
+    rSum();
+  }
+},10000); /* 10s interval — spreadsheet changes appear within 10s */
+function rAll(){rOrd();rSum();adIn?rAdm():rLog();}
+
+/* ── NAV BAR ── */
+function updBar(){
+  var tq=sumO(sQ)+sumO(nQ),sm=satM(),nm=sunM(),tp=0;
+  for(var i=0;i<sm.length;i++)tp+=(sQ[sm[i].id]||0)*(sm[i].price||0);
+  for(var i=0;i<nm.length;i++)tp+=(nQ[nm[i].id]||0)*(nm[i].price||0);
+  var ic=document.getElementById('sico'),mn=document.getElementById('smain'),ss=document.getElementById('ssub');
+  if(ic)ic.textContent=tq>0?'👀':'🍱';
+  if(mn)mn.textContent=tq>0?'預覽並確認訂單':'確認並送出訂單';
+  if(ss)ss.textContent=tq>0?('共 '+tq+' 份・合計 $'+tp+' 元'):'選好餐點後，點此預覽並送出';
+  var bar=document.getElementById('sb');if(bar)bar.style.display=(pg==='O'&&!done)?'block':'none';
+}
+function go(p){
+  pg=p;
+  ['O','S','A'].forEach(function(id,i){var el=document.getElementById('p'+id),btn=document.getElementById('n'+i);if(el)el.style.display=id===p?'block':'none';if(btn)btn.className='nb'+(id===p?' on':'');});
+  var ink=document.getElementById('ink');if(ink)ink.style.left=p==='O'?'0':p==='S'?'33.333%':'66.666%';
+  var sa=document.getElementById('sa');if(sa)sa.scrollTop=0;
+  updBar();
+  if(p==='S'){ldSt(OK).then(function(o){if(Array.isArray(o)){orders=o;}rSum();});}
+  if(p==='A'){adIn?rAdm():rLog();}
+}
+
+/* ── HERO ── */
+function _posStyle(pos){
+  var p=pos||{x:0,y:6};
+  var lp=Math.round(p.x/8*82);   /* 0-82% left */
+  var tp=Math.round(p.y/8*74)+6; /* 6-80% top  */
+  return 'left:'+lp+'%;top:'+tp+'%;';
+}
+function _tsCss(ts,def){
+  var t=ts||def, d=def;
+  return 'font-size:'+(t.size||d.size)
+    +';color:'+(t.color||d.color)
+    +';font-weight:'+(t.bold?'900':'400')
+    +';font-family:'+(t.font||d.font)+',sans-serif'
+    +';text-align:'+(t.align||'left')
+    +';';
+}
+function illus(){
+  return'<svg viewBox="0 0 360 178" style="width:100%;display:block;position:relative;z-index:3;margin-top:-6px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="308" cy="22" r="70" fill="rgba(255,255,255,.06)"/><circle cx="28" cy="166" r="50" fill="rgba(255,255,255,.05)"/><ellipse cx="218" cy="172" rx="100" ry="15" fill="rgba(0,0,0,.12)"/><circle cx="218" cy="152" r="90" fill="rgba(255,255,255,.93)" stroke="rgba(255,255,255,.6)" stroke-width="6"/><path d="M188 140 Q178 128 188 118 Q198 105 213 112 Q230 103 246 117 Q261 130 254 147 Q244 165 228 165 Q205 169 188 140Z" fill="white" opacity=".95"/><circle cx="218" cy="137" r="27" fill="#FFD54F"/><circle cx="207" cy="127" r="10" fill="#FFE97A" opacity=".6"/><rect x="248" y="100" width="50" height="62" rx="11" fill="#C07840"/><rect x="248" y="100" width="50" height="13" rx="11" fill="#A05E28"/><rect x="241" y="93" width="50" height="62" rx="11" fill="#D89060"/><rect x="241" y="93" width="50" height="13" rx="11" fill="#C07840"/><rect x="248" y="108" width="30" height="7" rx="3.5" fill="#FFF176" opacity=".84"/><ellipse cx="82" cy="163" rx="60" ry="12" fill="rgba(0,0,0,.11)"/><path d="M53 100 L47 155 Q47 166 57 166 L107 166 Q118 166 118 155 L112 100Z" fill="rgba(255,255,255,.92)"/><ellipse cx="82" cy="100" rx="29" ry="9" fill="rgba(255,255,255,.72)"/><ellipse cx="82" cy="100" rx="23" ry="7" fill="#2C1206" opacity=".87"/><path d="M120 114 Q140 114 140 131 Q140 148 120 148" stroke="rgba(255,255,255,.86)" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M62 84 Q56 68 63 54" stroke="rgba(255,255,255,.43)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M82 79 Q76 60 83 44" stroke="rgba(255,255,255,.43)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M102 84 Q96 66 103 52" stroke="rgba(255,255,255,.43)" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="313" cy="145" rx="14" ry="18" fill="#FF5252" opacity=".9"/><path d="M304 133 Q310 124 315 132 Q320 124 324 133" fill="#4CAF50" opacity=".87"/><circle cx="308" cy="142" r="2" fill="rgba(255,255,255,.54)"/><circle cx="155" cy="169" r="13" fill="#FF7043" opacity=".87"/><path d="M149 158 Q155 152 161 158" fill="#4CAF50" opacity=".81"/><line x1="159" y1="95" x2="157" y2="173" stroke="rgba(255,255,255,.36)" stroke-width="3.5" stroke-linecap="round"/><line x1="153" y1="95" x2="153" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/><line x1="159" y1="95" x2="159" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/><line x1="165" y1="95" x2="165" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/><line x1="153" y1="117" x2="165" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/></svg>';
+}
+function heroH(){
+  if(heroB64){
+    /* Custom hero: image fills, gradient from bottom, text at bottom-left */
+    return'<div class="oh has-bg">'
+      +'<img class="oh-bg-img" src="'+heroB64+'" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0">'
+      +'<div class="oh-ov"></div>'
+      +'<div class="oh-dots"></div>'
+      +'<span class="ff" style="top:14px;left:8px;font-size:1.7rem;animation:f1 3.8s ease-in-out infinite">☕</span>'
+      +'<span class="ff" style="top:10px;right:9px;font-size:1.6rem;animation:f2 4.4s ease-in-out infinite">🥐</span>'
+      +'<span class="ff" style="bottom:58px;left:11px;font-size:1.5rem;animation:f3 5.2s ease-in-out infinite">🍳</span>'
+      +'<span class="ff" style="top:42px;left:43%;font-size:1.25rem;animation:f5 6.1s ease-in-out infinite">🥚</span>'
+      +'<div class="oh-badge-tl">☀️ 早安！早餐訂購系統</div>'
+      +'<div class="oh-txt" style="'+_posStyle(S.textPos)+'text-align:'+(S.titleStyle&&S.titleStyle.align?S.titleStyle.align:'left')+'">'
+        +'<div class="oh-txt-inner" style="display:inline-block;max-width:100%;'+(S.titleStyle&&S.titleStyle.bg?'background:'+S.titleStyle.bgColor+';border-radius:12px;padding:10px 15px 12px;border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(10px);':'')+'">'
+          +'<div style="'+_tsCss(S.titleStyle||DEF.titleStyle,DEF.titleStyle)+'line-height:1.24;text-shadow:0 2px 18px rgba(0,0,0,.65);">'+eh(S.title)+'</div>'
+          +(S.description?'<div style="'+_tsCss(S.descStyle||DEF.descStyle,DEF.descStyle)+'margin-top:6px;line-height:1.7;white-space:pre-line;text-shadow:0 1px 8px rgba(0,0,0,.55);">'+eh(S.description)+'</div>':'')
+        +'</div>'
+      +'</div></div>';
+  }
+  /* Default orange gradient + SVG illustration */
+  return'<div class="oh"><div class="oh-dots"></div><div class="oh-ov-plain"></div>'
+    +'<span class="ff" style="top:19px;left:9px;font-size:1.8rem;animation:f1 3.5s ease-in-out infinite">☕</span>'
+    +'<span class="ff" style="top:12px;right:10px;font-size:1.65rem;animation:f2 4.2s ease-in-out infinite">🥐</span>'
+    +'<span class="ff" style="bottom:50px;left:13px;font-size:1.55rem;animation:f3 5s ease-in-out infinite">🍞</span>'
+    +'<span class="ff" style="bottom:54px;right:15px;font-size:1.45rem;animation:f4 4.8s ease-in-out infinite">🍳</span>'
+    +'<span class="ff" style="top:46px;left:44%;font-size:1.35rem;animation:f5 6s ease-in-out infinite">🥚</span>'
+    +'<span class="ff" style="top:34px;left:26%;font-size:1.1rem;animation:f2 5.8s ease-in-out infinite">✨</span>'
+    +'<div class="oh-badge-tl">☀️ 早安！早餐訂購系統</div>'
+    +'<div class="oh-txt" style="'+_posStyle(S.textPos)+'text-align:'+(S.titleStyle&&S.titleStyle.align?S.titleStyle.align:'left')+'">'
+    +'<div style="display:inline-block;max-width:100%;margin-top:6px;'+(S.titleStyle&&S.titleStyle.bg?'background:'+S.titleStyle.bgColor+';border-radius:10px;padding:9px 13px 11px;border:1px solid rgba(255,255,255,.12);':'')+'">'
+    +'<div style="'+_tsCss(S.titleStyle||DEF.titleStyle,DEF.titleStyle)+'line-height:1.22;">'+eh(S.title)+'</div>'
+    +(S.description?'<div style="'+_tsCss(S.descStyle||DEF.descStyle,DEF.descStyle)+'margin-top:6px;line-height:1.7;white-space:pre-line">'+eh(S.description)+'</div>':'')
+    +'</div>'+'</div>'
+    +illus()+'</div>';
+}
+
+/* ── ORDER PAGE ── */
+function rOrd(){
+  var el=document.getElementById('pO');if(!el)return;
+  if(done&&last){el.innerHTML=succH();updBar();return;}
+  var sm=satM(),nm=sunM(),stq=sumO(sQ),ntq=sumO(nQ),stp=0,ntp=0;
+  for(var i=0;i<sm.length;i++)stp+=(sQ[sm[i].id]||0)*(sm[i].price||0);
+  for(var i=0;i<nm.length;i++)ntp+=(nQ[nm[i].id]||0)*(nm[i].price||0);
+  el.innerHTML=heroH()+'<div class="pull">'+basicH()+dayH('s',sm,stq,stp)+dayH('n',nm,ntq,ntp)+'<div id="emm" class="al aler" style="display:none;margin-bottom:6px">⚠ 請至少選擇一份餐點</div></div>';
+  updBar();
+}
+function basicH(){
+  return'<div class="cd"><div class="cdh"><div class="cdic">👤</div><div><div class="cdtt">基本資料</div><div class="cdst">請填寫訂購資訊</div></div></div>'
+  +'<div class="fi"><label class="fl">所屬單位 <span class="rq">*</span></label><div class="ug">'+UN.map(function(u){return'<button class="ub'+(fU===u?' sl':'')+'" onclick="pickU(\''+u+'\')">'+u+'</button>';}).join('')+'</div>'+(fU==='其他'?'<input class="inp" style="margin-top:8px" placeholder="請填寫單位名稱" value="'+eh(fCU)+'" oninput="fCU=this.value">':'')+'<div id="emu" class="em" style="display:none">⚠ 請選擇所屬單位</div></div>'
+  +'<div class="fi"><label class="fl">區域編號 <span class="rq">*</span></label><input class="inp" placeholder="請填寫數字，不需打「區」" value="'+eh(fA)+'" oninput="fA=this.value" inputmode="numeric"><div id="ema" class="em" style="display:none">⚠ 請填寫區域</div></div>'
+  +'<div class="fi"><label class="fl">姓名 <span class="rq">*</span></label><input class="inp" placeholder="請輸入姓名" value="'+eh(fN)+'" oninput="fN=this.value"><div id="emn" class="em" style="display:none">⚠ 請填寫姓名</div></div>'
+  +'<div class="fi"><label class="fl">聯絡電話 <span class="rq">*</span></label><input class="inp" type="tel" inputmode="tel" placeholder="請輸入聯絡電話" value="'+eh(fP)+'" oninput="fP=this.value"><div id="emp" class="em" style="display:none">⚠ 請填寫電話</div></div></div>';
+}
+function dayH(day,items,tq,tp){
+  var isSat=day==='s',d=isSat?S.sat:S.sun;if(!d)return'';
+  var imgB64=isSat?satImgB64:sunImgB64;
+  var h='<div class="dc"><div class="dh '+day+'"><div class="dh-l"><span class="dh-ej" style="animation:'+(isSat?'f1':'f2')+' 4s ease-in-out infinite;display:inline-block">'+(isSat?'🌅':'🌄')+'</span><div class="dh-i"><div class="dh-d">'+eh(d.dayLabel)+'・'+eh(d.date)+'</div><div class="dh-s">'+eh(d.title)+'</div></div></div>'+'<div id="dhp_'+day+'" class="dh-p" style="'+(tq>0?'':'display:none')+'">'+tq+' 份</div>'+'</div><div class="db">';
+  if(!items||!items.length){h+='<div class="dbe">尚未設定菜單</div>';}
+  else{for(var i=0;i<items.length;i++){var m=items[i],q=isSat?(sQ[m.id]||0):(nQ[m.id]||0),hc=q>0?(isSat?' hs':' hn'):'',ic=m.ic||IX[i%6],ico=m.ico||EM[i%8];
+    h+='<div class="mc'+hc+'" id="mc_'+day+'_'+m.id+'"><div class="miic '+ic+'">'+ico+'</div><div class="mi"><div class="mn">'+eh(m.name)+'</div>'+(m.note?'<div class="mnt">🍵 '+eh(m.note)+'</div>':'')+'<div class="pr'+(isSat?'s':'n')+'">$ '+m.price+' 元</div></div><div class="qc"><button id="qm_'+day+'_'+m.id+'" class="qb'+(isSat?'s':'n')+'" onclick="adjQ(\''+day+'\',\''+m.id+'\',-1)" '+(q===0?'disabled':'')+'>−</button><span id="qn_'+day+'_'+m.id+'" class="qn">'+q+'</span><button class="qb'+(isSat?'s':'n')+'" onclick="adjQ(\''+day+'\',\''+m.id+'\',1)">+</button></div></div>';}}
+  h+='<div class="dt '+day+'" id="dt_'+day+'" style="'+(tq>0?'':'display:none')+'"><span id="dtl_'+day+'" class="dt-l">'+(isSat?'週六':'週日')+' 共 '+tq+' 份</span><span id="dtr_'+day+'" class="dt-r">$ '+tp+' 元</span></div>';
+  if(imgB64)h+='<div class="day-img-wrap"><img src="'+imgB64+'" alt="菜單圖片" style="width:100%;height:auto;display:block"></div>';
+  h+='</div></div>';return h;
+}
+function succH(){
+  var sm=satM(),nm=sunM(),siK=Object.keys(getSat(last)).filter(function(k){return(getSat(last)[k]||0)>0;}),niK=Object.keys(getSun(last)).filter(function(k){return(getSun(last)[k]||0)>0;}),st=0,nt=0,i,id,qty,m;
+  for(i=0;i<siK.length;i++){id=siK[i];qty=getSat(last)[id]||0;m=findFL(id,sm);if(m)st+=m.price*qty;}
+  for(i=0;i<niK.length;i++){id=niK[i];qty=getSun(last)[id]||0;m=findFL(id,nm);if(m)nt+=m.price*qty;}
+  var h=heroH()+'<div class="pull"><div class="cd"><div class="sw"><div class="sri">✓</div><div class="stt">訂購成功！</div><div class="ssu">感謝您的訂購 🎉</div><div class="rcp"><div class="rct">📄 訂購明細</div><div class="rr"><span style="color:var(--mu)">單位・區域・姓名</span><span style="font-weight:700">'+eh(last.unit)+' '+eh(last.area)+'區 '+eh(last.name)+'</span></div>';
+  if(siK.length){h+='<div class="rd">🌅 '+eh(S.sat.dayLabel)+' '+eh(S.sat.date)+'</div>';for(i=0;i<siK.length;i++){id=siK[i];qty=getSat(last)[id]||0;m=findFL(id,sm);if(m)h+='<div class="rr"><span>'+eh(m.name)+' × '+qty+'</span><span style="color:var(--stx);font-weight:700">$'+m.price*qty+'</span></div>';}}
+  if(niK.length){h+='<div class="rd">🌄 '+eh(S.sun.dayLabel)+' '+eh(S.sun.date)+'</div>';for(i=0;i<niK.length;i++){id=niK[i];qty=getSun(last)[id]||0;m=findFL(id,nm);if(m)h+='<div class="rr"><span>'+eh(m.name)+' × '+qty+'</span><span style="color:var(--ntx);font-weight:700">$'+m.price*qty+'</span></div>';}}
+  h+='<div class="rr tot"><span>合計</span><span style="color:var(--gr)">$ '+(st+nt)+' 元</span></div></div><button class="cta ctag" onclick="rFm()">🍽️ 繼續訂購</button></div></div></div>';return h;
+}
+function pickU(u){fU=u;rOrd();}
+function adjQ(day,id,d){
+  /* 1. Update state immediately */
+  if(day==='s')sQ[id]=Math.max(0,(sQ[id]||0)+d);
+  else nQ[id]=Math.max(0,(nQ[id]||0)+d);
+  var q=day==='s'?(sQ[id]||0):(nQ[id]||0);
+  var isSat=(day==='s');
+
+  /* 2. Targeted DOM updates for instant feedback */
+  /* 2a. Update quantity number */
+  var qnEl=document.getElementById('qn_'+day+'_'+id);
+  if(qnEl)qnEl.textContent=q;
+
+  /* 2b. Update minus-button disabled state */
+  var qmEl=document.getElementById('qm_'+day+'_'+id);
+  if(qmEl)qmEl.disabled=(q===0);
+
+  /* 2c. Update card highlight class */
+  var mcEl=document.getElementById('mc_'+day+'_'+id);
+  if(mcEl)mcEl.className='mc'+(q>0?(isSat?' hs':' hn'):'');
+
+  /* 2d. Recalculate day totals */
+  var items=isSat?satM():sunM();
+  var qMap=isSat?sQ:nQ;
+  var tq=0,tp=0;
+  for(var i=0;i<items.length;i++){var qv=Number(qMap[items[i].id])||0;tq+=qv;tp+=qv*items[i].price;}
+
+  /* 2e. Update day header badge */
+  var dhpEl=document.getElementById('dhp_'+day);
+  if(dhpEl){dhpEl.textContent=tq+' 份';dhpEl.style.display=tq>0?'':'none';}
+
+  /* 2f. Update day total bar */
+  var dtEl=document.getElementById('dt_'+day);
+  if(dtEl){
+    dtEl.style.display=tq>0?'flex':'none';
+    var dtlEl=document.getElementById('dtl_'+day);
+    var dtrEl=document.getElementById('dtr_'+day);
+    if(dtlEl)dtlEl.textContent=(isSat?'週六':'週日')+' 共 '+tq+' 份';
+    if(dtrEl)dtrEl.textContent='$ '+tp+' 元';
+  }
+
+  /* 3. Update submit bar */
+  updBar();
+
+  /* 4. Fall back to full re-render if any element is missing (e.g. after succH) */
+  if(!qnEl&&!mcEl)rOrd();
+}
+function rFm(){sQ={};nQ={};fU='';fCU='';fA='';fN='';fP='';done=false;last=null;rOrd();}
+function vld(){
+  var ok=true;
+  function sh(id,v){var el=document.getElementById(id);if(el)el.style.display=v?'':'none';}
+  sh('emu',!fU);if(!fU)ok=false;sh('ema',!fA.trim());if(!fA.trim())ok=false;
+  sh('emn',!fN.trim());if(!fN.trim())ok=false;sh('emp',!fP.trim());if(!fP.trim())ok=false;
+  var tq=sumO(sQ)+sumO(nQ);sh('emm',tq===0);if(tq===0)ok=false;
+  if(!ok){var sa=document.getElementById('sa');if(sa)sa.scrollTop=0;}
+  return ok;
+}
+function tryS(){if(vld())showCm();}
+function showCm(){
+  var unit=fU==='其他'?fCU.trim():fU,sm=satM(),nm=sunM();
+  var sik=Object.keys(sQ).filter(function(k){return(sQ[k]||0)>0;}),nik=Object.keys(nQ).filter(function(k){return(nQ[k]||0)>0;});
+  var st=0,nt=0,i,id,qty,m;
+  for(i=0;i<sik.length;i++){id=sik[i];qty=sQ[id]||0;m=findFL(id,sm);if(m)st+=m.price*qty;}
+  for(i=0;i<nik.length;i++){id=nik[i];qty=nQ[id]||0;m=findFL(id,nm);if(m)nt+=m.price*qty;}
+  var h='<div class="mov" id="cm"><div class="mbx"><div class="mhd"><div class="mpl"></div><div class="mir"><div class="mic">📋</div><div><div class="mt2">確認您的訂單</div><div class="ms">請確認以下資訊正確後再送出</div></div></div></div><div class="mbd"><div class="msec"><div class="mst">👤 基本資料</div><div class="mrow"><span class="ml">所屬單位</span><span class="mv">'+eh(unit)+'</span></div><div class="mrow"><span class="ml">區域</span><span class="mv">'+eh(fA.trim())+' 區</span></div><div class="mrow"><span class="ml">姓名</span><span class="mv">'+eh(fN.trim())+'</span></div><div class="mrow"><span class="ml">聯絡電話</span><span class="mv">'+eh(fP.trim())+'</span></div></div>';
+  if(sik.length){h+='<div class="msec"><div class="mst">🌅 '+eh(S.sat.dayLabel)+' '+eh(S.sat.date)+' 早餐</div>';for(i=0;i<sik.length;i++){id=sik[i];qty=sQ[id]||0;m=findFL(id,sm);if(m)h+='<div class="mit"><span class="min">'+(m.ico||'🍽')+' <span>'+eh(m.name)+'</span></span><div class="mir2"><span class="mpr">$'+m.price+' × '+qty+'</span><span class="mbs">'+qty+' 份</span></div></div>';}h+='</div>';}
+  if(nik.length){h+='<div class="msec"><div class="mst">🌄 '+eh(S.sun.dayLabel)+' '+eh(S.sun.date)+' 早餐</div>';for(i=0;i<nik.length;i++){id=nik[i];qty=nQ[id]||0;m=findFL(id,nm);if(m)h+='<div class="mit"><span class="min">'+(m.ico||'🍽')+' <span>'+eh(m.name)+'</span></span><div class="mir2"><span class="mpr">$'+m.price+' × '+qty+'</span><span class="mbn">'+qty+' 份</span></div></div>';}h+='</div>';}
+  if(st+nt>0)h+='<div class="mtot"><span class="mtl">💰 合計金額</span><span class="mtv">$ '+(st+nt)+' 元</span></div>';
+  h+='<div class="mwn">⚠️ 訂單送出後即無法修改，請確認以上資訊完全正確。</div></div><div class="mft"><button class="cta ctao" onclick="clCm()">✏️ 修改訂單</button><button class="cta ctag" onclick="subO()">✅ 確認送出</button></div></div></div>';
+  var w=document.getElementById('W');if(w){var d=document.createElement('div');d.innerHTML=h;w.appendChild(d.firstChild);}
+  var cm=document.getElementById('cm');if(cm)cm.addEventListener('click',function(e){if(e.target===cm)clCm();});
+}
+function clCm(){var m=document.getElementById('cm');if(m)m.remove();}
+async function subO(){
+  clCm();var unit=fU==='其他'?fCU.trim():fU;
+  var order={unit:unit,area:fA.trim(),name:fN.trim(),phone:fP.trim(),satItems:cx(sQ),sunItems:cx(nQ),id:String(Date.now()),timestamp:new Date().toISOString()};
+  /* Save locally first */
+  var latest=await ldSt(OK);if(!Array.isArray(latest))latest=[];
+  orders=latest.concat([order]);await svSt(OK,orders);
+  /* Write to GAS — fetch() works on GitHub Pages / any real browser */
+  if(gasUrl){
+    try{
+      var _sm=satM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
+      var _nm=sunM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
+      var _d=encodeURIComponent(JSON.stringify({order:order,satMenu:_sm,sunMenu:_nm}));
+      var _url=gasUrl+'?action=add&sheet='+encodeURIComponent(gasSheet||'訂單')+'&data='+_d;
+      fetch(_url).catch(function(){});
+    }catch(e){}
+  }
+  last=order;done=true;rOrd();rSum();
+}
+
+/* ── SUMMARY ── */
+var UA=[];
+function onSumClick(e){
+  var t=e.target,uc=null;
+  while(t&&t!==e.currentTarget){if(t.getAttribute&&t.getAttribute('data-i')!==null){uc=t;break;}t=t.parentElement;}
+  if(!uc&&e.target.closest)uc=e.target.closest('[data-i]');
+  if(uc){var idx=parseInt(uc.getAttribute('data-i'),10);if(!isNaN(idx)&&idx>=0&&idx<UA.length){selU=UA[idx];rSum();var sa=document.getElementById('sa');if(sa)sa.scrollTop=0;}}
+}
+function rSum(){var el=document.getElementById('pS');if(!el)return;if(selU!==null){rUD(el);}else{rUL(el);}}
+function rUL(el){
+  var satT=0,sunT=0,um={},i,o,u;
+  for(i=0;i<orders.length;i++){o=orders[i];u=o.unit||'未知';if(!um[u])um[u]={s:0,n:0};um[u].s+=sumO(getSat(o));um[u].n+=sumO(getSun(o));satT+=sumO(getSat(o));sunT+=sumO(getSun(o));}
+  UA=Object.keys(um);
+  var ts=new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  var h='<div class="sh"><div class="sh-d"></div><div class="sh-g1"></div><div class="sh-g2"></div><div class="sh-c"><div class="shtag">📊 即時訂單查詢</div><div class="shttl">'+eh(S.title)+'</div><div class="shsub">點選單位，查看各成員訂購明細</div><div class="srow"><div class="sbi"><div class="sbn s">'+satT+'</div><div class="sbl">🌅 週六訂購數量</div></div><div class="sbi"><div class="sbn n">'+sunT+'</div><div class="sbl">🌄 週日訂購數量</div></div></div></div></div><div class="sc"><div class="rbar"><span class="rtxt">⏱ '+ts+'</span><button class="rbtn" onclick="doRf()"><svg id="ri" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> 重新整理</button></div>';
+  if(!UA.length){h+='<div class="cd"><div class="empty"><div class="eico">📭</div>目前尚無訂單</div></div>';}
+  else{for(i=0;i<UA.length;i++){u=UA[i];var c=um[u];h+='<div class="uc" data-i="'+i+'" style="animation-delay:'+(i*.07)+'s"><div class="ucico">🏢</div><div class="uci"><div class="ucn">'+eh(u)+'</div><div class="ucb">'+(c.s>0?'<span class="bs">🌅 週六 '+c.s+' 份</span>':'')+(c.n>0?'<span class="bn">🌄 週日 '+c.n+' 份</span>':'')+'</div></div><div class="uca">›</div></div>';}}
+  h+='</div>';el.innerHTML=h;
+}
+function bkL(){selU=null;rSum();}
+function rUD(el){
+  var unit=selU,smItems=satM(),nmItems=sunM(),uOrd=[],i,j;
+  for(i=0;i<orders.length;i++)if(orders[i].unit===unit)uOrd.push(orders[i]);
+  uOrd.sort(function(a,b){var an=parseInt(a.area,10),bn=parseInt(b.area,10),av=!isNaN(an),bv=!isNaN(bn);if(av&&bv&&an!==bn)return an-bn;if(av&&!bv)return-1;if(!av&&bv)return 1;return String(a.name||'').localeCompare(String(b.name||''),'zh-TW');});
+  var satPpl=0,sunPpl=0,satO,sunO,satK,sunK;
+  for(i=0;i<uOrd.length;i++){satO=getSat(uOrd[i]);sunO=getSun(uOrd[i]);satK=Object.keys(satO);sunK=Object.keys(sunO);var hs=false,hn=false;for(j=0;j<satK.length;j++)if((satO[satK[j]]||0)>0){hs=true;break;}for(j=0;j<sunK.length;j++)if((sunO[sunK[j]]||0)>0){hn=true;break;}if(hs)satPpl++;if(hn)sunPpl++;}
+  var h='<div class="sh"><div class="sh-d"></div><div class="sh-g1"></div><div class="sh-g2"></div><div class="sh-c"><div class="shtag">📊 單位詳細訂單</div><div class="shttl">🏢 '+eh(unit)+'</div><div class="shsub">共 '+uOrd.length+' 人 · 週六 '+satPpl+' 人 · 週日 '+sunPpl+' 人</div></div></div><div class="sc"><div class="ud"><div class="udtb"><button class="udbk" onclick="bkL()">‹</button><div class="udm"><div class="udun">'+eh(unit)+'</div><div class="udct">依區域排序・點名字展開訂購明細</div></div></div>';
+  if(!uOrd.length){h+='<div class="cd"><div class="empty"><div class="eico">📭</div>本單位尚無訂單</div></div>';}
+  else{
+    h+='<div class="plist">';
+    var pid,satO2,sunO2,satK2,sunK2,hasSat,hasSun,satList,sunList,sid,sqty,sm2,nid,nqty,nm2;
+    for(i=0;i<uOrd.length;i++){
+      var o=uOrd[i];pid=String(o.id||('p'+i));
+      satO2=getSat(o);sunO2=getSun(o);satK2=Object.keys(satO2);sunK2=Object.keys(sunO2);
+      hasSat=false;hasSun=false;
+      for(j=0;j<satK2.length;j++)if((satO2[satK2[j]]||0)>0){hasSat=true;break;}
+      for(j=0;j<sunK2.length;j++)if((sunO2[sunK2[j]]||0)>0){hasSun=true;break;}
+      h+='<div><div class="prow" onclick="toggleP(\''+pid+'\')">'
+        +'<div class="pabd"><div class="pabd-a">'+eh(o.area)+'</div><div class="pabd-u">區</div></div>'
+        +'<div class="pnwrap"><span class="pnm">'+eh(o.name)+'</span><div class="pbdgs">'+(hasSat?'<span class="pbdg-s">🌅 週六</span>':'')+(hasSun?'<span class="pbdg-n">🌄 週日</span>':'')+'</div></div>'
+        +'<div class="parow" id="pa-'+pid+'">›</div></div>';
+      h+='<div class="pdetail" id="pd-'+pid+'" style="display:none">';
+      satList=[];for(j=0;j<satK2.length;j++){sid=satK2[j];sqty=Number(satO2[sid])||0;if(sqty<=0)continue;sm2=findFL(sid,smItems);satList.push({name:sm2?sm2.name:sid,qty:sqty,price:sm2?sm2.price:0});}
+      if(satList.length){h+='<div class="pdday s"><span>🌅</span><span>'+eh(S.sat.dayLabel)+' '+eh(S.sat.date)+'</span></div>';for(j=0;j<satList.length;j++)h+='<div class="pditem"><span class="pdnm">'+eh(satList[j].name)+'</span><span class="pdq">× '+satList[j].qty+' 份</span><span class="pdp">$'+satList[j].price*satList[j].qty+'</span></div>';}
+      sunList=[];for(j=0;j<sunK2.length;j++){nid=sunK2[j];nqty=Number(sunO2[nid])||0;if(nqty<=0)continue;nm2=findFL(nid,nmItems);sunList.push({name:nm2?nm2.name:nid,qty:nqty,price:nm2?nm2.price:0});}
+      if(sunList.length){h+='<div class="pdday n"><span>🌄</span><span>'+eh(S.sun.dayLabel)+' '+eh(S.sun.date)+'</span></div>';for(j=0;j<sunList.length;j++)h+='<div class="pditem"><span class="pdnm">'+eh(sunList[j].name)+'</span><span class="pdq">× '+sunList[j].qty+' 份</span><span class="pdp">$'+sunList[j].price*sunList[j].qty+'</span></div>';}
+      h+='</div></div>';
+    }
+    h+='</div>';
+  }
+  h+='</div></div>';el.innerHTML=h;
+}
+function toggleP(pid){
+  var el=document.getElementById('pd-'+pid),arr=document.getElementById('pa-'+pid);if(!el)return;
+  var isOpen=el.style.display!=='none';
+  var allD=document.querySelectorAll('.pdetail'),allA=document.querySelectorAll('.parow'),ci;
+  for(ci=0;ci<allD.length;ci++)allD[ci].style.display='none';
+  for(ci=0;ci<allA.length;ci++){allA[ci].textContent='›';allA[ci].className='parow';}
+  if(!isOpen){el.style.display='block';if(arr){arr.textContent='›';arr.className='parow open';}}
+}
+async function doRf(){var ri=document.getElementById('ri');if(ri)ri.classList.add('rsp');var fetched=await fetchFromGAS();if(!fetched){var o=await ldSt(OK);if(Array.isArray(o)){orders=o.filter(function(x){return x&&x.name;});}}rSum();setTimeout(function(){var r=document.getElementById('ri');if(r)r.classList.remove('rsp');},900);}
+
+/* ── ADMIN LOGIN ── */
+function rLog(){var el=document.getElementById('pA');if(!el)return;el.innerHTML='<div class="lw"><div class="ll"><div class="lr">🛡️</div><div class="lt">管理員登入</div><div class="ls">請輸入帳號與密碼以進入後台</div></div><div id="lErr"></div><div class="cd"><div class="fi"><label class="fl">帳號</label><input class="inp" id="lId" placeholder="請輸入帳號"></div><div class="fi"><label class="fl">密碼</label><input class="inp" type="password" id="lPw" placeholder="請輸入密碼" onkeydown="if(event.key===\'Enter\')doLogin()"></div><button class="btn bbl" onclick="doLogin()">🔐 登入後台</button></div></div>';}
+function doLogin(){var id=document.getElementById('lId'),pw=document.getElementById('lPw');if(id&&pw&&id.value===AID&&pw.value===APW){adIn=true;draft=null;rAdm();}else{var er=document.getElementById('lErr');if(er)er.innerHTML='<div class="al aler">帳號或密碼錯誤</div>';}}
+function iDr(){if(!draft)draft={title:S.title,description:S.description,titleStyle:cx(S.titleStyle||DEF.titleStyle),descStyle:cx(S.descStyle||DEF.descStyle),textPos:cx(S.textPos||DEF.textPos),sat:{date:S.sat.date,dayLabel:S.sat.dayLabel,title:S.sat.title,items:S.sat.items.map(function(m){return cx(m);})},sun:{date:S.sun.date,dayLabel:S.sun.dayLabel,title:S.sun.title,items:S.sun.items.map(function(m){return cx(m);})}};}
+
+/* ── ADMIN MAIN ── */
+function rAdm(){
+  var el=document.getElementById('pA');if(!el)return;if(!adIn){rLog();return;}iDr();
+  var h='<div class="adh"><div class="adhl"><div class="adhtg">🛡️ ADMIN PANEL</div><div class="adhtt">管理員後台</div></div><button class="lb" onclick="doLogout()">登出</button></div>'
+    +'<div class="adc"><div class="atbs">'
+    +'<button class="atb'+(aTab==='gen'?' on':'')+'" onclick="swT(\'gen\')">⚙️ 基本</button>'
+    +'<button class="atb'+(aTab==='sat'?' on':'')+'" onclick="swT(\'sat\')">🌅 週六</button>'
+    +'<button class="atb'+(aTab==='sun'?' on':'')+'" onclick="swT(\'sun\')">🌄 週日</button>'
+    +'<button class="atb'+(aTab==='ord'?' on':'')+'" onclick="swT(\'ord\')">📋 訂單<span class="ac">'+orders.length+'</span></button>'
+    +'</div><div id="aSv"></div>';
+
+  if(aTab==='gen'){
+    h+='<div class="fcd"><div class="fcdt">基本設定</div>'
+      +'<div class="fi"><label class="fl">主題名稱</label><input class="inp" value="'+eh(draft.title)+'" oninput="draft.title=this.value"></div>'
+      +'<div style="background:#F9FAFB;border-radius:13px;padding:13px;margin-bottom:10px">'
+        +'<div style="font-size:.69rem;font-weight:700;color:var(--mu);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px"><span style="width:3px;height:12px;border-radius:2px;background:linear-gradient(#1e3c72,#2a5298);display:inline-block"></span>標題排版樣式</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
+          +'<div><label class="fl">字體</label><select class="inp" style="padding:7px 8px" onchange="draft.titleStyle.font=this.value"><option value="Nunito"'+(draft.titleStyle.font==='Nunito'?' selected':'')+'>Nunito（預設）</option><option value="Noto Sans TC"'+(draft.titleStyle.font==='Noto Sans TC'?' selected':'')+'>Noto Sans TC</option><option value="Arial"'+(draft.titleStyle.font==='Arial'?' selected':'')+'>Arial</option><option value="serif"'+(draft.titleStyle.font==='serif'?' selected':'')+'>Serif 襯線</option></select></div>'
+          +'<div><label class="fl">大小</label><select class="inp" style="padding:7px 8px" onchange="draft.titleStyle.size=this.value"><option value="1rem"'+(draft.titleStyle.size==='1rem'?' selected':'')+'>小 1rem</option><option value="1.2rem"'+(draft.titleStyle.size==='1.2rem'?' selected':'')+'>中 1.2rem</option><option value="1.38rem"'+(draft.titleStyle.size==='1.38rem'?' selected':'')+'>大 1.38rem</option><option value="1.6rem"'+(draft.titleStyle.size==='1.6rem'?' selected':'')+'>特大 1.6rem</option></select></div>'
+        +'</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
+          +'<div><label class="fl">排版位置</label><select class="inp" style="padding:7px 8px" onchange="draft.titleStyle.align=this.value"><option value="left"'+(draft.titleStyle.align==='left'?' selected':'')+'>靠左</option><option value="center"'+(draft.titleStyle.align==='center'?' selected':'')+'>置中</option><option value="right"'+(draft.titleStyle.align==='right'?' selected':'')+'>靠右</option></select></div>'
+          +'<div><label class="fl">文字顏色</label><div style="display:flex;align-items:center;gap:7px;margin-top:6px"><input type="color" value="'+(draft.titleStyle.color&&draft.titleStyle.color.startsWith('#')?draft.titleStyle.color:'#ffffff')+'" oninput="draft.titleStyle.color=this.value" style="width:38px;height:34px;border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;padding:2px;background:#fff"><span style="font-size:.72rem;color:var(--mu)">選色</span></div></div>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:#fff;border-radius:9px;padding:9px 12px;border:1.5px solid var(--bd)">'
+          +'<input type="checkbox" id="titleBold"'+(draft.titleStyle.bold?' checked':'')+' onchange="draft.titleStyle.bold=this.checked" style="width:18px;height:18px;cursor:pointer">'
+          +'<label for="titleBold" style="font-size:.77rem;cursor:pointer">粗體</label>'
+        +'</div>'
+        +'<div style="background:#fff;border-radius:9px;padding:10px 12px;border:1.5px solid var(--bd)">'
+          +'<div style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="titleBg"'+(draft.titleStyle.bg?' checked':'')+' onchange="draft.titleStyle.bg=this.checked;rAdm()" style="width:18px;height:18px;cursor:pointer"><label for="titleBg" style="font-size:.77rem;cursor:pointer;flex:1">啟用底色色塊</label></div>'
+          +(draft.titleStyle.bg?'<div style="margin-top:9px;display:flex;align-items:center;gap:9px"><input type="color" value="'+draft.titleStyle.bgColor+'" oninput="draft.titleStyle.bgColor=this.value" style="width:38px;height:34px;border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;padding:2px;background:#fff"><span style="font-size:.72rem;color:var(--mu)">底色顏色</span></div>':'')
+        +'</div>'
+      +'</div>'
+      +'<div class="fi"><label class="fl">說明文字</label><textarea class="inp" oninput="draft.description=this.value">'+eh(draft.description)+'</textarea></div>'
+      +'<div style="background:#F9FAFB;border-radius:13px;padding:13px;margin-bottom:10px">'
+        +'<div style="font-size:.69rem;font-weight:700;color:var(--mu);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px"><span style="width:3px;height:12px;border-radius:2px;background:linear-gradient(#1e3c72,#2a5298);display:inline-block"></span>說明文字排版樣式</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
+          +'<div><label class="fl">字體</label><select class="inp" style="padding:7px 8px" onchange="draft.descStyle.font=this.value"><option value="Noto Sans TC"'+(draft.descStyle.font==='Noto Sans TC'?' selected':'')+'>Noto Sans TC</option><option value="Nunito"'+(draft.descStyle.font==='Nunito'?' selected':'')+'>Nunito</option><option value="Arial"'+(draft.descStyle.font==='Arial'?' selected':'')+'>Arial</option><option value="serif"'+(draft.descStyle.font==='serif'?' selected':'')+'>Serif 襯線</option></select></div>'
+          +'<div><label class="fl">大小</label><select class="inp" style="padding:7px 8px" onchange="draft.descStyle.size=this.value"><option value="0.65rem"'+(draft.descStyle.size==='0.65rem'?' selected':'')+'>小 0.65rem</option><option value="0.71rem"'+(draft.descStyle.size==='0.71rem'?' selected':'')+'>中 0.71rem</option><option value="0.85rem"'+(draft.descStyle.size==='0.85rem'?' selected':'')+'>大 0.85rem</option><option value="1rem"'+(draft.descStyle.size==='1rem'?' selected':'')+'>特大 1rem</option></select></div>'
+        +'</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
+          +'<div><label class="fl">排版位置</label><select class="inp" style="padding:7px 8px" onchange="draft.descStyle.align=this.value"><option value="left"'+(draft.descStyle.align==='left'?' selected':'')+'>靠左</option><option value="center"'+(draft.descStyle.align==='center'?' selected':'')+'>置中</option><option value="right"'+(draft.descStyle.align==='right'?' selected':'')+'>靠右</option></select></div>'
+          +'<div><label class="fl">文字顏色</label><div style="display:flex;align-items:center;gap:7px;margin-top:6px"><input type="color" value="'+(draft.descStyle.color&&draft.descStyle.color.startsWith('#')?draft.descStyle.color:'#ebebeb')+'" oninput="draft.descStyle.color=this.value" style="width:38px;height:34px;border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;padding:2px;background:#fff"><span style="font-size:.72rem;color:var(--mu)">選色</span></div></div>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:#fff;border-radius:9px;padding:9px 12px;border:1.5px solid var(--bd)">'
+          +'<input type="checkbox" id="descBold"'+(draft.descStyle.bold?' checked':'')+' onchange="draft.descStyle.bold=this.checked" style="width:18px;height:18px;cursor:pointer">'
+          +'<label for="descBold" style="font-size:.77rem;cursor:pointer">粗體</label>'
+        +'</div>'
+        +'<div style="background:#fff;border-radius:9px;padding:10px 12px;border:1.5px solid var(--bd)">'
+          +'<div style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="descBg"'+(draft.descStyle.bg?' checked':'')+' onchange="draft.descStyle.bg=this.checked;rAdm()" style="width:18px;height:18px;cursor:pointer"><label for="descBg" style="font-size:.77rem;cursor:pointer;flex:1">啟用底色色塊</label></div>'
+          +(draft.descStyle.bg?'<div style="margin-top:9px;display:flex;align-items:center;gap:9px"><input type="color" value="'+draft.descStyle.bgColor+'" oninput="draft.descStyle.bgColor=this.value" style="width:38px;height:34px;border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;padding:2px;background:#fff"><span style="font-size:.72rem;color:var(--mu)">底色顏色</span></div>':'')
+        +'</div>'
+      +'</div>'
+      +'<div class="fcd"><div class="fcdt">📍 文字排版位置（9×9 格）</div>'
+      +'<div style="font-size:.72rem;color:var(--mu);margin-bottom:11px">點擊格子設定標題及說明文字的位置。橘色為目前選取位置。</div>'
+      +(function(){
+        var px=draft.textPos?draft.textPos.x:0,py=draft.textPos?draft.textPos.y:6;
+        var rows='';
+        for(var r=0;r<9;r++){
+          rows+='<div style="display:flex;gap:2px;margin-bottom:2px">';
+          for(var c=0;c<9;c++){
+            var isSel=(c===px&&r===py);
+            rows+='<div onclick="draft.textPos={x:'+c+',y:'+r+'};rAdm()" style="'
+              +'flex:1;height:22px;border-radius:4px;cursor:pointer;border:1.5px solid '+(isSel?'var(--or)':'rgba(0,0,0,.1)')+';'
+              +'background:'+(isSel?'var(--or)':'#F0F0F0')+';'
+              +'transition:background .1s;"></div>';
+          }
+          rows+='</div>';
+        }
+        return rows;
+      }())
+      +'<div style="margin-top:9px;font-size:.7rem;color:var(--mu)">選取位置：第 '+(draft.textPos?(draft.textPos.x+1):1)+' 欄 · 第 '+(draft.textPos?(draft.textPos.y+1):7)+' 列</div>'
+      +'</div>'
+      +'<div class="fcd"><div class="fcdt">🔗 Google 試算表設定</div>'
+      +'<div class="fi"><label class="fl">GAS 部署網址</label>'+'<input class="inp" id="gasInp" placeholder="https://script.google.com/macros/s/.../exec" value="'+eh(gasUrl)+'" oninput="gasUrl=this.value">'+(gasUrl?'<div style="display:flex;gap:7px;margin-top:8px">'+'<button onclick="testGasPing()" style="flex:1;padding:8px;border-radius:9px;font-size:.73rem;font-weight:600;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer">🔍 連線+寫入測試</button>'+'<button onclick="window.open(gasUrl+\'?action=ping\',\'_blank\')" style="flex:1;padding:8px;border-radius:9px;font-size:.73rem;font-weight:600;border:2px solid var(--mu);color:var(--mu);background:#fff;cursor:pointer">🌐 在新分頁開啟</button>'+'</div>':'')+'</div>'
+      +'<div class="fi"><label class="fl">試算表分頁名稱</label><input class="inp" id="gsInp" placeholder="訂單（預設）" value="'+eh(gasSheet)+'" oninput="gasSheet=this.value"></div>'
+      +'<div style="display:flex;gap:8px;margin-bottom:6px"><button onclick="saveGas()" style="flex:1;padding:9px;border-radius:9px;font-weight:600;font-size:.74rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;font-family:Noto Sans TC,sans-serif">💾 儲存設定</button>'
+      +(gasUrl?'<button onclick="clearGas()" style="flex:1;padding:9px;border-radius:9px;font-weight:600;font-size:.74rem;border:2px solid var(--re);color:var(--re);background:#fff;cursor:pointer;font-family:Noto Sans TC,sans-serif">✕ 移除</button>':'')+' </div>'
+      +(gasUrl?'<div style="font-size:.7rem;color:var(--gd);padding:9px 12px;background:#E0FBF5;border-radius:8px;line-height:1.6">✅ 已連接<br>📋 寫入分頁：<strong>'+eh(gasSheet||'訂單')+'</strong></div>':'<div style="font-size:.68rem;color:var(--mu);padding:7px 10px;background:#F9FAFB;border-radius:8px">⚠ 尚未設定，將使用本機儲存。</div>')
+      +'</div>'
+      +'<div class="fcd"><div class="fcdt">🖼️ 訂購頁面背景圖</div>'
+      +'<div class="fi"><div style="font-size:.71rem;color:var(--mu);margin-bottom:8px;line-height:1.55">建議事先裁切為合適比例。原尺寸上傳不壓縮，跨裝置同步。</div>'
+      +'<input type="file" id="imgHInp" accept="image/png,image/jpeg,image/jpg" style="display:none" onchange="handleImg(this,\'H\',\'progH\',\'progHBar\')">';
+    if(heroB64){h+='<div class="img-prev-wrap"><img class="img-prev" src="'+heroB64+'"><button class="img-del" onclick="delImg(\'H\')">✕ 刪除</button></div><div style="margin-top:8px;text-align:center"><button onclick="document.getElementById(\'imgHInp\').click()" style="font-family:\'Noto Sans TC\',sans-serif;font-size:.73rem;font-weight:600;color:var(--or);background:#fff;border:1.5px solid var(--or);border-radius:9px;padding:6px 14px;cursor:pointer">🔄 更換</button></div>';}
+    else{h+='<div class="img-up" onclick="document.getElementById(\'imgHInp\').click()"><div class="img-up-ico">🌅</div><div class="img-up-ttl">上傳背景圖片</div><div class="img-up-sub">PNG · JPG · JPEG　原尺寸不壓縮</div></div>';}
+    h+='<div id="progH" class="img-prog"><div id="progHBar" class="img-prog-bar"></div></div></div></div>'
+      +'</div>'
+      +'<div style="display:flex;gap:8px">'
+      +'</div></div>'
+      +'<button class="btn bor" onclick="shSv()">💾 儲存基本設定</button>';
+
+  } else if(aTab==='sat'||aTab==='sun'){
+    var dk=aTab,dd=draft[dk],isSatD=(dk==='sat'),colD=isSatD?'var(--sa)':'var(--na)',ejD=isSatD?'🌅':'🌄';
+    var imgVar=isSatD?satImgB64:sunImgB64;
+    var imgInpId=isSatD?'imgSInp':'imgNInp';
+    var pId=isSatD?'progS':'progN',pBarId=isSatD?'progSBar':'progNBar';
+    var imgKey=isSatD?'S':'N';
+    if(dd){
+      h+='<div class="fcd"><div class="fcdt">'+ejD+(isSatD?' 週六':' 週日')+'設定</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px"><div class="fi"><label class="fl">日期</label><input class="inp" value="'+eh(dd.date)+'" oninput="draft.'+dk+'.date=this.value"></div><div class="fi"><label class="fl">標籤</label><input class="inp" value="'+eh(dd.dayLabel)+'" oninput="draft.'+dk+'.dayLabel=this.value"></div></div>'
+        +'<div class="fi"><label class="fl">菜單標題</label><input class="inp" value="'+eh(dd.title)+'" oninput="draft.'+dk+'.title=this.value"></div></div>'
+        +'<div class="fcd"><div class="fcdt">'+ejD+' 餐點品項</div>';
+      for(var ai=0;ai<dd.items.length;ai++){var am=dd.items[ai];h+='<div class="meb"><div class="rw"><input class="ains" placeholder="餐點名稱" value="'+eh(am.name)+'" oninput="upI(\''+dk+'\',\''+am.id+'\',\'name\',this.value)" style="flex:2"><input class="ains" type="number" placeholder="$" value="'+am.price+'" oninput="upI(\''+dk+'\',\''+am.id+'\',\'price\',Number(this.value))" style="flex:1;max-width:66px"></div><div class="rw" style="margin-bottom:0"><input class="ains" placeholder="備註（如：含豆漿）" value="'+eh(am.note||'')+'" oninput="upI(\''+dk+'\',\''+am.id+'\',\'note\',this.value)"><button class="btn bdr bsm" onclick="delI(\''+dk+'\',\''+am.id+'\')">刪除</button></div></div>';}
+      h+='<button style="width:100%;padding:9px;border-radius:9px;font-family:\'Noto Sans TC\',sans-serif;font-weight:600;font-size:.75rem;border:2px solid '+colD+';color:'+colD+';background:#fff;cursor:pointer;margin-top:2px" onclick="addI(\''+dk+'\')">+ 新增品項</button></div>'
+        +'<div class="fcd"><div class="fcdt">'+ejD+(isSatD?' 週六':' 週日')+'菜單圖片</div>'
+        +'<div class="fi"><div style="font-size:.71rem;color:var(--mu);margin-bottom:8px">顯示在點餐品項下方。原尺寸不壓縮，跨裝置同步。</div>'
+        +'<input type="file" id="'+imgInpId+'" accept="image/png,image/jpeg,image/jpg" style="display:none" onchange="handleImg(this,\''+imgKey+'\',\''+pId+'\',\''+pBarId+'\')">';
+      if(imgVar){h+='<div class="img-prev-wrap"><img class="img-prev" src="'+imgVar+'"><button class="img-del" onclick="delImg(\''+imgKey+'\')">✕ 刪除</button></div><div style="margin-top:8px;text-align:center"><button onclick="document.getElementById(\''+imgInpId+'\').click()" style="font-family:\'Noto Sans TC\',sans-serif;font-size:.73rem;font-weight:600;color:'+colD+';background:#fff;border:1.5px solid '+colD+';border-radius:9px;padding:6px 14px;cursor:pointer">🔄 更換圖片</button></div>';}
+      else{h+='<div class="img-up" onclick="document.getElementById(\''+imgInpId+'\').click()"><div class="img-up-ico">'+(isSatD?'🌅':'🌄')+'</div><div class="img-up-ttl">上傳'+(isSatD?'週六':'週日')+'菜單圖片</div><div class="img-up-sub">PNG · JPG · JPEG　原尺寸不壓縮</div></div>';}
+      h+='<div id="'+pId+'" class="img-prog"><div id="'+pBarId+'" class="img-prog-bar"></div></div></div></div>'
+        +'<button class="btn bor" onclick="shSv()">💾 儲存所有設定</button>';
+    }
+
+  } else if(aTab==='ord'){
+    /* ── Orders tab: search + filter + export + list ── */
+    var unitOpts='<option value="">全部單位</option>'+UN.map(function(u){return'<option value="'+eh(u)+'"'+(ordFUnit===u?' selected':'')+'>'+eh(u)+'</option>';}).join('');
+    /* collect unique areas */
+    var areaSet={};for(var oi=0;oi<orders.length;oi++)areaSet[orders[oi].area||'']='';
+    var areaOpts='<option value="">全部區域</option>'+Object.keys(areaSet).sort(function(a,b){var na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;}).map(function(a){return'<option value="'+eh(a)+'"'+(ordFArea===a?' selected':'')+'>'+eh(a)+' 區</option>';}).join('');
+
+    h+='<div class="srch">'
+      +'<input class="inp" placeholder="🔍 搜尋姓名 / 電話 / 單位…" value="'+eh(ordSrch)+'" oninput="ordSrch=this.value;rAdm()" style="margin-bottom:0">'
+      +'<div class="srch-row">'
+      +'<select class="srch-sel" onchange="ordFUnit=this.value;rAdm()">'+unitOpts+'</select>'
+      +'<select class="srch-sel" onchange="ordFArea=this.value;rAdm()">'+areaOpts+'</select>'
+      +'</div></div>';
+
+    /* Filter orders */
+    var fOrd=orders.filter(function(o){
+      var q=ordSrch.trim().toLowerCase();
+      if(q&&!((o.unit||'').toLowerCase().includes(q)||(o.name||'').toLowerCase().includes(q)||(o.phone||'').toLowerCase().includes(q)))return false;
+      if(ordFUnit&&o.unit!==ordFUnit)return false;
+      if(ordFArea&&o.area!==ordFArea)return false;
+      return true;
+    });
+
+    if(!gasUrl){
+      h+='<div class="al" style="background:#FFF8E1;border:1px solid #FFE082;color:#795548;margin-bottom:8px">⚠ 尚未設定 GAS，訂單僅存本機。請先到「⚙️ 基本」設定 Google 試算表。</div>';
+    } else {
+      h+='<div style="display:flex;gap:8px;margin-bottom:10px">'
+        +'<button onclick="syncAllToGAS()" style="flex:1;padding:10px;border-radius:10px;font-weight:700;font-size:.8rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;font-family:Noto Sans TC,sans-serif">📤 同步所有訂單 → '+eh(gasSheet||'訂單')+' 分頁</button>'
+        +'</div>';
+    }
+    if(!fOrd.length){
+      h+='<div class="cd"><div class="empty"><div class="eico">📭</div>'+(orders.length?'沒有符合條件的訂單':'目前尚無訂單')+'</div></div>';
+    } else {
+      var rev=fOrd.slice().reverse(),sm2=satM(),nm2=sunM(),oo,ts,siK,niK;
+      for(var oi2=0;oi2<rev.length;oi2++){
+        oo=rev[oi2];
+        ts=new Date(oo.timestamp||Date.now()).toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+        var satOO=getSat(oo),sunOO=getSun(oo);
+        siK=Object.keys(satOO).filter(function(k){return(satOO[k]||0)>0;});
+        niK=Object.keys(sunOO).filter(function(k){return(sunOO[k]||0)>0;});
+        h+='<div class="oadm">'
+          +'<div><div class="oadmn">'+eh(oo.unit)+'・'+eh(oo.area)+'區・'+eh(oo.name)+'</div><div class="oadmt">📞 '+eh(oo.phone)+'　🕐 '+ts+'</div>';
+        if(siK.length){h+='<div class="tw" style="margin-bottom:4px">';for(var sii=0;sii<siK.length;sii++){var siid=siK[sii],si2=findFL(siid,sm2);h+='<span class="tgs">'+(si2?eh(si2.name):siid)+' ×'+(satOO[siid]||0)+'</span>';}h+='</div>';}
+        if(niK.length){h+='<div class="tw">';for(var nii=0;nii<niK.length;nii++){var niid=niK[nii],ni2=findFL(niid,nm2);h+='<span class="tgn">'+(ni2?eh(ni2.name):niid)+' ×'+(sunOO[niid]||0)+'</span>';}h+='</div>';}
+        h+='</div>'
+          +'<div style="display:flex;flex-direction:column;gap:5px;margin-left:9px;flex-shrink:0">'
+          +'<button class="btn bgr bsm" onclick="openEdit(\''+oo.id+'\')">✏️ 修改</button>'
+          +'<button class="btn bdr bsm" onclick="delO(\''+oo.id+'\')">🗑 刪除</button>'
+          +'</div></div>';
+      }
+    }
+  }
+  h+='</div>';el.innerHTML=h;
+}
+function swT(t){aTab=t;rAdm();}
+function doLogout(){adIn=false;aTab='gen';draft=null;rLog();}
+function upI(k,id,field,val){if(!draft||!draft[k]||!Array.isArray(draft[k].items))return;for(var i=0;i<draft[k].items.length;i++){if(draft[k].items[i].id===id){draft[k].items[i][field]=val;return;}}}
+function addI(k){iDr();if(!draft[k]||!Array.isArray(draft[k].items))return;var i=draft[k].items.length;draft[k].items.push({id:'i'+Date.now(),name:'',price:0,note:'',ico:EM[i%8],ic:IX[i%6]});rAdm();}
+function delI(k,id){if(!draft||!draft[k]||!Array.isArray(draft[k].items))return;draft[k].items=draft[k].items.filter(function(m){return m.id!==id;});rAdm();}
+function shSv(){var w=document.getElementById('W');if(!w)return;var d=document.createElement('div');d.className='smov';d.id='svM';d.innerHTML='<div class="smbx"><div style="text-align:center;font-size:2.2rem;margin-bottom:10px">💾</div><div class="smttl">確認儲存設定？</div><div class="smsub">儲存後，所有裝置將立即看到最新菜單。</div><div class="smbt"><button class="btn" style="background:#F3F4F6;color:var(--tx)" onclick="clSv()">取消</button><button class="btn bor" onclick="doSv()">✓ 確定儲存</button></div></div>';w.appendChild(d);}
+function clSv(){var m=document.getElementById('svM');if(m)m.remove();}
+async function doSv(){clSv();S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);rOrd();rSum();var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ 已儲存！所有裝置即時更新。</div>';setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},3000);}
+
+/* ── DELETE ORDER ── */
+function delO(id){
+  var w=document.getElementById('W');if(!w)return;
+  var ov=document.createElement('div');ov.id='dov';ov.style.cssText='position:absolute;inset:0;background:rgba(10,10,20,.56);z-index:700;display:flex;align-items:flex-end;justify-content:center;animation:mFd .2s';
+  var box=document.createElement('div');box.style.cssText='background:#fff;border-radius:20px 20px 0 0;padding:24px 18px 32px;width:100%;animation:mUp .22s cubic-bezier(.4,0,.2,1)';
+  var ttl=document.createElement('div');ttl.style.cssText='font-family:Nunito,sans-serif;font-size:1.08rem;font-weight:900;text-align:center;margin-bottom:7px';ttl.textContent='確定要刪除？';
+  var sub=document.createElement('div');sub.style.cssText='font-size:.77rem;color:#6B7280;text-align:center;margin-bottom:20px';sub.textContent='此筆訂單將永久刪除，無法復原。';
+  var row=document.createElement('div');row.style.cssText='display:flex;gap:10px';
+  var btnC=document.createElement('button');btnC.style.cssText='flex:1;padding:12px;border:none;border-radius:12px;background:#F3F4F6;color:#1A1A2E;font-family:Noto Sans TC,sans-serif;font-weight:700;font-size:.88rem;cursor:pointer';btnC.textContent='取消';btnC.onclick=function(){ov.remove();};
+  var btnD=document.createElement('button');btnD.style.cssText='flex:1;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;font-family:Noto Sans TC,sans-serif;font-weight:700;font-size:.88rem;cursor:pointer';btnD.textContent='確定刪除';btnD.onclick=function(){ov.remove();doDelO(id);};
+  row.appendChild(btnC);row.appendChild(btnD);box.appendChild(ttl);box.appendChild(sub);box.appendChild(row);ov.appendChild(box);w.appendChild(ov);
+}
+async function doDelO(id){var latest=await ldSt(OK);if(!Array.isArray(latest))latest=[];orders=latest.filter(function(o){return o.id!==id;});await svSt(OK,orders);if(gasUrl){try{fetch(gasUrl+'?action=delete&sheet='+encodeURIComponent(gasSheet||'訂單')+'&id='+encodeURIComponent(id)).catch(function(){});}catch(e){}}rAdm();}
+
+/* ── EDIT ORDER ── */
+function openEdit(id){
+  var o=null;
+  for(var i=0;i<orders.length;i++)if(orders[i]&&orders[i].id===id){o=cx(orders[i]);break;}
+  if(!o)return;
+  /* Ensure satItems/sunItems are always objects */
+  if(!o.satItems||typeof o.satItems!=='object')o.satItems={};
+  if(!o.sunItems||typeof o.sunItems!=='object')o.sunItems={};
+  editOrder=o;
+  var sm=satM(),nm=sunM();
+  var w=document.getElementById('W');if(!w)return;
+  /* Build edit modal */
+  var ov=document.createElement('div');ov.id='editOv';
+  ov.style.cssText='position:absolute;inset:0;background:rgba(10,10,20,.6);z-index:700;display:flex;align-items:flex-end;justify-content:center;animation:mFd .22s';
+  var box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:24px 24px 0 0;width:100%;max-height:88vh;display:flex;flex-direction:column;animation:mUp .28s cubic-bezier(.4,0,.2,1)';
+  /* Header */
+  var hd=document.createElement('div');hd.style.cssText='padding:16px 18px 0;flex-shrink:0';
+  var pl=document.createElement('div');pl.style.cssText='width:34px;height:4px;background:#E5E7EB;border-radius:4px;margin:0 auto 12px';
+  var htit=document.createElement('div');htit.style.cssText='font-family:Nunito,sans-serif;font-size:1.06rem;font-weight:900;margin-bottom:3px';htit.textContent='修改訂單';
+  var hsub=document.createElement('div');hsub.style.cssText='font-size:.7rem;color:#6B7280;margin-bottom:4px';
+  hsub.textContent=o.unit+' '+o.area+'區 '+o.name;
+  hd.appendChild(pl);hd.appendChild(htit);hd.appendChild(hsub);
+  /* Body */
+  var bd=document.createElement('div');bd.style.cssText='flex:1;overflow-y:auto;padding:12px 18px 8px;display:flex;flex-direction:column;gap:10px';
+  /* Sat items */
+  if(sm.length){
+    var sSec=document.createElement('div');sSec.style.cssText='background:#FFF8F0;border-radius:12px;padding:12px';
+    var sTit=document.createElement('div');sTit.style.cssText='font-size:.7rem;font-weight:700;color:var(--stx);margin-bottom:9px';sTit.textContent='🌅 '+S.sat.dayLabel+' '+S.sat.date;
+    sSec.appendChild(sTit);
+    for(var si=0;si<sm.length;si++){
+      (function(item){
+        var q=(o.satItems&&o.satItems[item.id])||0;
+        var r=document.createElement('div');r.className='eqrow';
+        var nm2=document.createElement('div');nm2.className='eqnm';nm2.textContent=item.ico+' '+item.name+' ($'+item.price+')';
+        var qc=document.createElement('div');qc.className='eqc';
+        var bm=document.createElement('button');bm.className='eqb';bm.textContent='−';
+        var qn=document.createElement('div');qn.className='eqn';qn.textContent=q;
+        var bp=document.createElement('button');bp.className='eqb';bp.textContent='+';
+        bm.onclick=function(){var cur=parseInt(qn.textContent)||0;if(cur>0){cur--;qn.textContent=cur;editOrder.satItems[item.id]=cur;}};
+        bp.onclick=function(){var cur=parseInt(qn.textContent)||0;cur++;qn.textContent=cur;editOrder.satItems[item.id]=cur;};
+        qc.appendChild(bm);qc.appendChild(qn);qc.appendChild(bp);r.appendChild(nm2);r.appendChild(qc);sSec.appendChild(r);
+      })(sm[si]);
+    }
+    bd.appendChild(sSec);
+  }
+  /* Sun items */
+  if(nm.length){
+    var nSec=document.createElement('div');nSec.style.cssText='background:#F0F4FF;border-radius:12px;padding:12px';
+    var nTit=document.createElement('div');nTit.style.cssText='font-size:.7rem;font-weight:700;color:var(--ntx);margin-bottom:9px';nTit.textContent='🌄 '+S.sun.dayLabel+' '+S.sun.date;
+    nSec.appendChild(nTit);
+    for(var ni=0;ni<nm.length;ni++){
+      (function(item){
+        var q=(o.sunItems&&o.sunItems[item.id])||0;
+        var r=document.createElement('div');r.className='eqrow';
+        var nm2=document.createElement('div');nm2.className='eqnm';nm2.textContent=item.ico+' '+item.name+' ($'+item.price+')';
+        var qc=document.createElement('div');qc.className='eqc';
+        var bm=document.createElement('button');bm.className='eqb';bm.textContent='−';
+        var qn=document.createElement('div');qn.className='eqn';qn.textContent=q;
+        var bp=document.createElement('button');bp.className='eqb';bp.textContent='+';
+        bm.onclick=function(){var cur=parseInt(qn.textContent)||0;if(cur>0){cur--;qn.textContent=cur;editOrder.sunItems[item.id]=cur;}};
+        bp.onclick=function(){var cur=parseInt(qn.textContent)||0;cur++;qn.textContent=cur;editOrder.sunItems[item.id]=cur;};
+        qc.appendChild(bm);qc.appendChild(qn);qc.appendChild(bp);r.appendChild(nm2);r.appendChild(qc);nSec.appendChild(r);
+      })(nm[ni]);
+    }
+    bd.appendChild(nSec);
+  }
+  /* Footer */
+  var ft=document.createElement('div');ft.style.cssText='padding:11px 18px 28px;flex-shrink:0;display:flex;gap:9px;border-top:1px solid #F3F4F6';
+  var btnCancel=document.createElement('button');btnCancel.style.cssText='flex:1;padding:12px;border:none;border-radius:12px;background:#F3F4F6;color:#1A1A2E;font-family:Noto Sans TC,sans-serif;font-weight:700;font-size:.88rem;cursor:pointer';btnCancel.textContent='取消';btnCancel.onclick=function(){ov.remove();editOrder=null;};
+  var btnSave=document.createElement('button');btnSave.style.cssText='flex:1;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#00C9A7,#008870);color:#fff;font-family:Noto Sans TC,sans-serif;font-weight:700;font-size:.88rem;cursor:pointer';btnSave.textContent='✅ 儲存修改';btnSave.onclick=function(){ov.remove();saveEdit();};
+  ft.appendChild(btnCancel);ft.appendChild(btnSave);
+  box.appendChild(hd);box.appendChild(bd);box.appendChild(ft);ov.appendChild(box);w.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov){ov.remove();editOrder=null;}});
+}
+async function saveEdit(){
+  if(!editOrder)return;
+  var latest=await ldSt(OK);if(!Array.isArray(latest))latest=[];
+  for(var i=0;i<latest.length;i++){if(latest[i].id===editOrder.id){latest[i].satItems=cx(editOrder.satItems);latest[i].sunItems=cx(editOrder.sunItems);break;}}
+  orders=latest;await svSt(OK,orders);
+  /* Sync edit to GAS then re-fetch for both views */
+  if(gasUrl){
+    try{
+      var _up=gasUrl+'?action=update&sheet='+encodeURIComponent(gasSheet||'訂單')
+        +'&id='+encodeURIComponent(editOrder.id)
+        +'&data='+encodeURIComponent(JSON.stringify({satItems:editOrder.satItems,sunItems:editOrder.sunItems,satMenu:satM(),sunMenu:sunM()}));
+      fetch(_up).then(function(){
+        /* After GAS confirms update, refresh orders from sheet */
+        setTimeout(async function(){
+          await fetchFromGAS();
+          rSum();rAdm();
+        },800);
+      }).catch(async function(){
+        /* GAS unreachable: update was already saved locally */
+        await fetchFromGAS();
+        rSum();
+      });
+    }catch(e){}
+  } else {
+    rSum();
+  }
+  editOrder=null;rAdm();
+}
+
+/* ── EXPORT EXCEL ── */
+
+/* ── IMAGE UPLOAD ── */
+function handleImg(input,key,progId,progBarId){
+  var file=input.files[0];if(!file)return;
+  if(!file.type.match(/image\/(png|jpeg)/)){showAlert('格式不支援','請上傳 PNG、JPG 或 JPEG 格式的圖片');input.value='';return;}
+  var prog=document.getElementById(progId),bar=document.getElementById(progBarId);
+  if(prog)prog.style.display='block';if(bar)bar.style.width='40%';
+  var reader=new FileReader();
+  reader.onload=function(e){
+    if(bar)bar.style.width='80%';
+    var b64=e.target.result;
+    var sk=key==='H'?IKH:key==='S'?IKS:IKN;
+    if(key==='H')heroB64=b64;else if(key==='S')satImgB64=b64;else sunImgB64=b64;
+    svSt(sk,b64).then(function(){if(bar)bar.style.width='100%';setTimeout(function(){if(prog)prog.style.display='none';if(bar)bar.style.width='0%';input.value='';rOrd();rAdm();},300);});
+  };
+  reader.readAsDataURL(file);
+}
+async function delImg(key){
+  var sk=key==='H'?IKH:key==='S'?IKS:IKN;
+  if(key==='H')heroB64='';else if(key==='S')satImgB64='';else sunImgB64='';
+  await delSt(sk);rOrd();rAdm();
+}
+
+/* ── ALERT ── */
+function testGasPing(){
+  if(!gasUrl){showAlert('未設定','請先輸入 GAS 部署網址並儲存');return;}
+  var sheet=gasSheet||'訂單';
+  var msg=document.getElementById('aSv');
+  var _d=encodeURIComponent(JSON.stringify({
+    order:{id:'test_'+Date.now(),unit:'測試',area:'0',name:'TEST_OK',phone:'0000000000',satItems:{},sunItems:{},timestamp:new Date().toISOString()},
+    satMenu:[],sunMenu:[]
+  }));
+  var wUrl=gasUrl+'?action=add&sheet='+encodeURIComponent(sheet)+'&data='+_d;
+  new Image().src=wUrl;
+  /* Also open in new tab so user can see GAS response */
+  window.open(wUrl,'_blank');
+  if(msg)msg.innerHTML='<div class="al alok">✅ 已送出測試寫入！<br>目標分頁：<strong>'+eh(sheet)+'</strong><br>新視窗應顯示 {"ok":true,...}，請到試算表確認「'+eh(sheet)+'」分頁是否出現「TEST_OK」資料。</div>';
+  setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},12000);
+}
+async function saveGas(){
+  var inp=document.getElementById('gasInp');if(inp)gasUrl=inp.value.trim();
+  var inp2=document.getElementById('gsInp');if(inp2)gasSheet=inp2.value.trim();
+  if(!gasSheet)gasSheet='訂單';
+  await svSt(GK,gasUrl);await svSt(GS,gasSheet);
+  var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ GAS 設定已儲存！</div>';
+  setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';rAdm();},1800);
+}
+async function clearGas(){
+  gasUrl='';gasSheet='';await delSt(GK);await delSt(GS);rAdm();
+}
+function syncAllToGAS(){
+  if(!gasUrl){showAlert('未設定','請先到「⚙️ 基本」設定 GAS 網址');return;}
+  if(!orders||!orders.length){showAlert('無資料','目前沒有任何訂單可同步');return;}
+  var sheet=gasSheet||'訂單';
+  var sm=satM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
+  var nm=sunM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
+  /* Use window.open() — same mechanism as "open in new tab", guaranteed to work */
+  var _d=encodeURIComponent(JSON.stringify({orders:orders,satMenu:sm,sunMenu:nm}));
+  var url=gasUrl+'?action=batchAdd&sheet='+encodeURIComponent(sheet)+'&data='+_d;
+  window.open(url,'_blank');
+  var msg=document.getElementById('aSv');
+  if(msg)msg.innerHTML='<div class="al alok">✅ 已開啟同步視窗！<br>新分頁若顯示 {"ok":true,"added":N} 代表成功，<br>請到試算表「'+eh(sheet)+'」確認資料。</div>';
+  setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},12000);
+}
+function showAlert(title,msg){
+  var w=document.getElementById('W');if(!w)return;
+  var ov=document.createElement('div');ov.style.cssText='position:absolute;inset:0;background:rgba(10,10,20,.5);z-index:800;display:flex;align-items:flex-end;justify-content:center;animation:mFd .2s';
+  var bx=document.createElement('div');bx.style.cssText='background:#fff;border-radius:20px 20px 0 0;padding:22px 18px 30px;width:100%';
+  var t1=document.createElement('div');t1.style.cssText='font-family:Nunito,sans-serif;font-size:1rem;font-weight:900;text-align:center;margin-bottom:5px';t1.textContent=title;
+  var t2=document.createElement('div');t2.style.cssText='font-size:.76rem;color:#6B7280;text-align:center;margin-bottom:18px';t2.textContent=msg;
+  var btn=document.createElement('button');btn.style.cssText='width:100%;padding:11px;border:none;border-radius:11px;background:#F3F4F6;font-family:Noto Sans TC,sans-serif;font-weight:700;font-size:.87rem;cursor:pointer';btn.textContent='確定';btn.onclick=function(){ov.remove();};
+  bx.appendChild(t1);bx.appendChild(t2);bx.appendChild(btn);ov.appendChild(bx);w.appendChild(ov);
+}
+</script>
+<!-- Mini music player -->
+</div>
+</body>
+</html>

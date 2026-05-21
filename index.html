@@ -249,7 +249,7 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 'use strict';
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
-var GAS_URL   = 'https://script.google.com/macros/s/AKfycbwsO2n8vdlEJmTrXM1TXzVNj3fgbHmhTEWP_X4JCy6hBGpSrBCd2M_IBlduAeqAAzKz/exec'; /* <-- Paste your GAS deployment URL here */
+var GAS_URL   = 'https://script.google.com/macros/s/AKfycbyzfn9EXw1H1sa2geYHp4qRFhCjnZjm-HcN3E7D9B4nw5UIKa7-6xhzoaVdFiMVrX8/exec'; /* <-- Paste your GAS deployment URL here */
 var GAS_SHEET = '2026-05-3031'; /* <-- Your Google Sheet tab name */
 /* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
@@ -333,8 +333,8 @@ rOrd();
 
 (async function(){
   /* Step 1: Resolve GAS URL (hardcoded wins, then localStorage) */
-  if(GAS_URL){gasUrl=GAS_URL;gasSheet=GAS_SHEET||'TEST';}
-  else{var gv=await _ls('get',GK);if(gv)gasUrl=gv;var gs=await _ls('get',GS);if(gs)gasSheet=gs||'TEST';}
+  if(GAS_URL){gasUrl=GAS_URL;gasSheet=GAS_SHEET||'2026-05-3031';}
+  else{var gv=await _ls('get',GK);if(gv)gasUrl=gv;var gs=await _ls('get',GS);if(gs)gasSheet=gs||'2026-05-3031';}
 
   /* Step 2: Load images from localStorage (device-local only) */
   var h=await _ls('get',IKH);if(h)heroB64=h;
@@ -363,7 +363,7 @@ rOrd();
 async function fetchFromGAS(){
   if(!gasUrl)return false;
   try{
-    var url=gasUrl+'?action=read&sheet='+encodeURIComponent(gasSheet||'訂單')+'&t='+Date.now();
+    var url=gasUrl+'?action=read&sheet='+encodeURIComponent(gasSheet||GAS_SHEET||'2026-05-3031')+'&t='+Date.now();
     var resp=await fetch(url,{credentials:'omit',cache:'no-store'});
     var data=await resp.json();
     if(data.ok&&Array.isArray(data.orders)&&data.orders.length>0){
@@ -420,10 +420,17 @@ async function fetchFromGAS(){
   return false;
 }
 setInterval(async function(){
-  /* Refresh orders from GAS every 10s regardless of current tab */
+  /* Pull latest from GAS every 10s — bidirectional sync */
+  var prevOrders=JSON.stringify(orders);
   var fetched=await fetchFromGAS();
-  if(!fetched){var o=await _ls('get',OK);if(Array.isArray(o))orders=o.filter(function(x){return x&&x.name;});}
+  if(!fetched){
+    var o=await _ls('get',OK);
+    if(Array.isArray(o))orders=o.filter(function(x){return x&&x.name;});
+  }
+  /* Only re-render if orders actually changed */
+  var changed=(JSON.stringify(orders)!==prevOrders);
   if(pg==='S')rSum();
+  if(pg==='A'&&adIn&&changed)rAdm(); /* Update admin order view if data changed */
   var si=document.getElementById('gasSync');
   if(si)si.style.background=fetched?'#00C9A7':'#F59E0B';
 },10000);
@@ -627,7 +634,7 @@ async function subO(){
       var _sm=satM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
       var _nm=sunM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
       var _d=encodeURIComponent(JSON.stringify({order:order,satMenu:_sm,sunMenu:_nm}));
-      var _url=gasUrl+'?action=add&sheet='+encodeURIComponent(gasSheet||'訂單')+'&data='+_d;
+      var _url=gasUrl+'?action=add&sheet='+encodeURIComponent(gasSheet||GAS_SHEET||'2026-05-3031')+'&data='+_d;
       fetch(_url).catch(function(){});
     }catch(e){}
   }
@@ -652,6 +659,7 @@ function rUL(el){
   if(!UA.length){h+='<div class="cd"><div class="empty"><div class="eico">📭</div>目前尚無訂單</div></div>';}
   else{for(i=0;i<UA.length;i++){u=UA[i];var c=um[u];h+='<div class="uc" data-i="'+i+'" style="animation-delay:'+(i*.07)+'s"><div class="ucico">🏢</div><div class="uci"><div class="ucn">'+eh(u)+'</div><div class="ucb">'+(c.s>0?'<span class="bs">🌅 週六 '+c.s+' 份</span>':'')+(c.n>0?'<span class="bn">🌄 週日 '+c.n+' 份</span>':'')+'</div></div><div class="uca">›</div></div>';}}
   h+='</div>';el.innerHTML=h;
+  _markUnsaved();
 }
 function bkL(){selU=null;rSum();}
 function rUD(el){
@@ -716,7 +724,7 @@ function iDr(){if(!draft)draft={title:S.title,description:S.description,titleSty
 /* ── ADMIN MAIN ── */
 function rAdm(){
   var el=document.getElementById('pA');if(!el)return;if(!adIn){rLog();return;}iDr();
-  var h='<div class="adh"><div class="adhl"><div class="adhtg">🛡️ ADMIN PANEL</div><div class="adhtt">管理員後台</div></div><button class="lb" onclick="doLogout()">登出</button></div>'
+  var h='<div class="adh"><div class="adhl"><div class="adhtg">🛡️ ADMIN PANEL</div><div class="adhtt">管理員後台</div></div><div style="display:flex;gap:7px;align-items:center"><button class="btn bbl" style="padding:7px 16px;font-size:.75rem" onclick="shSv()">💾 儲存設定</button><button class="lb" onclick="doLogout()">登出</button></div></div>'
     +'<div class="adc"><div class="atbs">'
     +'<button class="atb'+(aTab==='gen'?' on':'')+'" onclick="swT(\'gen\')">⚙️ 基本</button>'
     +'<button class="atb'+(aTab==='sat'?' on':'')+'" onclick="swT(\'sat\')">🌅 週六</button>'
@@ -801,9 +809,55 @@ function rAdm(){
     h+='<div id="progH" class="img-prog"><div id="progHBar" class="img-prog-bar"></div></div></div></div>'
       +'</div>'
     }
+  if(aTab==='sat'||aTab==='sun'){
+    var dk=aTab==='sat'?'sat':'sun';
+    var dd=draft[dk];
+    h+='<div class="fcd"><div class="fcdt">'+(dk==='sat'?'🌅 週六設定':'🌄 週日設定')+'</div>'
+      +'<div class="fi"><label class="fl">日期</label><input class="inp" value="'+eh(dd.date)+'" oninput="draft[\''+dk+'\'].date=this.value"></div>'
+      +'<div class="fi"><label class="fl">標籤</label><input class="inp" value="'+eh(dd.dayLabel)+'" oninput="draft[\''+dk+'\'].dayLabel=this.value"></div>'
+      +'<div class="fi"><label class="fl">菜單標題</label><input class="inp" value="'+eh(dd.title)+'" oninput="draft[\''+dk+'\'].title=this.value"></div>'
+      +'</div>';
+    /* Menu image */
+    var imgKey=dk==='sat'?'S':'N';
+    var imgB64=dk==='sat'?satImgB64:sunImgB64;
+    var imgInputId='img'+imgKey+'Inp';
+    h+='<div class="fcd"><div class="fcdt">菜單圖片（選填）</div>'
+      +'<input type="file" id="'+imgInputId+'" accept="image/png,image/jpeg,image/jpg" style="display:none" onchange="handleImg(this,\''+imgKey+'\',\'prog'+imgKey+'\',\'prog'+imgKey+'Bar\')">';
+    if(imgB64){
+      h+='<div class="img-prev-wrap"><img class="img-prev" src="'+imgB64+'"><button class="img-del" onclick="delImg(\''+imgKey+'\')">✕ 刪除</button></div>'
+        +'<div style="margin-top:8px;text-align:center"><button onclick="document.getElementById(\''+imgInputId+'\').click()" style="font-family:\'Noto Sans TC\',sans-serif;font-size:.73rem;font-weight:600;color:var(--or);background:#fff;border:1.5px solid var(--or);border-radius:9px;padding:6px 14px;cursor:pointer">🔄 更換</button></div>';
+    } else {
+      h+='<div class="img-up" onclick="document.getElementById(\''+imgInputId+'\').click()"><div class="img-up-ico">'+(dk==='sat'?'🌅':'🌄')+'</div><div class="img-up-ttl">上傳菜單圖片</div><div class="img-up-sub">PNG · JPG · JPEG</div></div>';
+    }
+    h+='<div id="prog'+imgKey+'" class="img-prog"><div id="prog'+imgKey+'Bar" class="img-prog-bar"></div></div></div>';
+    /* Menu items */
+    h+='<div class="fcd"><div class="fcdt">菜單品項</div>';
+    for(var mi=0;mi<dd.items.length;mi++){
+      var it=dd.items[mi];
+      h+='<div class="cd" style="margin-bottom:8px;padding:12px 14px">'
+        +'<div style="display:grid;grid-template-columns:1fr 80px;gap:7px;margin-bottom:6px">'
+        +'<div><label class="fl">品名</label><input class="inp" value="'+eh(it.name)+'" oninput="upI(\''+dk+'\',\''+it.id+'\',\'name\',this.value)"></div>'
+        +'<div><label class="fl">價格</label><input class="inp" type="number" value="'+it.price+'" oninput="upI(\''+dk+'\',\''+it.id+'\',\'price\',Number(this.value))"></div>'
+        +'</div>'
+        +'<div class="fi" style="margin-bottom:6px"><label class="fl">備註</label><input class="inp" value="'+eh(it.note||'')+'" placeholder="例：含豆漿" oninput="upI(\''+dk+'\',\''+it.id+'\',\'note\',this.value)"></div>'
+        +'<button class="btn bdr bsm" onclick="delI(\''+dk+'\',\''+it.id+'\')">🗑 刪除</button>'
+        +'</div>';
+    }
+    h+='<button class="btn bor" style="width:100%;margin-top:4px" onclick="addI(\''+dk+'\')">＋ 新增品項</button></div>';
+  }
+
+  if(aTab==='ord'){
+    /* ── 訂單管理 tab ── */
+    var fOrd=orders.filter(function(o){
+      if(!o||!o.name)return false;
+      if(ordSrch&&o.name.indexOf(ordSrch)<0&&(o.unit||'').indexOf(ordSrch)<0)return false;
+      if(ordFUnit&&o.unit!==ordFUnit)return false;
+      if(ordFArea&&o.area!==ordFArea)return false;
+      return true;
+    });
     if(gasUrl){
       h+='<div style="display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap">'
-        +'<button onclick="syncAllToGAS()" style="flex:1;min-width:100px;padding:9px;border-radius:10px;font-weight:700;font-size:.76rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer">📤 同步 → '+eh(gasSheet||'TEST')+'</button>'
+        +'<button onclick="syncAllToGAS()" style="flex:1;min-width:100px;padding:9px;border-radius:10px;font-weight:700;font-size:.76rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer">📤 同步 → '+eh(gasSheet||'2026-05-3031')+'</button>'
         +'<button onclick="rebuildSheet()" style="padding:9px 11px;border-radius:10px;font-weight:700;font-size:.76rem;border:2px solid var(--or);color:var(--or);background:#fff;cursor:pointer" title="清除並重建">🔄</button>'
         +'<button onclick="clearAllOrders()" style="padding:9px 11px;border-radius:10px;font-weight:700;font-size:.76rem;border:2px solid var(--re);color:var(--re);background:#fff;cursor:pointer" title="刪除所有訂單">🗑</button>'
         +'</div>';
@@ -829,14 +883,26 @@ function rAdm(){
           +'</div></div>';
       }
     }
+  }
   h+='</div>';el.innerHTML=h;
 }
-function swT(t){aTab=t;rAdm();}
+function swT(t){aTab=t;rAdm();_markUnsaved();}
+function _markUnsaved(){
+  /* Show orange dot on save button when draft differs from saved settings */
+  setTimeout(function(){
+    var btn=document.querySelector('.btn.bbl[onclick*=shSv]');
+    if(!btn)return;
+    var changed=(JSON.stringify(draft||{})!==JSON.stringify(S));
+    btn.style.background=changed?'#F59E0B':'';
+    btn.style.color=changed?'#fff':'';
+    btn.textContent=changed?'💾 儲存設定 *':'💾 儲存設定';
+  },50);
+}
 function doLogout(){adIn=false;aTab='gen';draft=null;rLog();}
 function upI(k,id,field,val){if(!draft||!draft[k]||!Array.isArray(draft[k].items))return;for(var i=0;i<draft[k].items.length;i++){if(draft[k].items[i].id===id){draft[k].items[i][field]=val;return;}}}
 function addI(k){iDr();if(!draft[k]||!Array.isArray(draft[k].items))return;var i=draft[k].items.length;draft[k].items.push({id:'i'+Date.now(),name:'',price:0,note:'',ico:EM[i%8],ic:IX[i%6]});rAdm();}
 function delI(k,id){if(!draft||!draft[k]||!Array.isArray(draft[k].items))return;draft[k].items=draft[k].items.filter(function(m){return m.id!==id;});rAdm();}
-function shSv(){var w=document.getElementById('W');if(!w)return;var d=document.createElement('div');d.className='smov';d.id='svM';d.innerHTML='<div class="smbx"><div style="text-align:center;font-size:2.2rem;margin-bottom:10px">💾</div><div class="smttl">確認儲存設定？</div><div class="smsub">儲存後，所有裝置將立即看到最新菜單。</div><div class="smbt"><button class="btn" style="background:#F3F4F6;color:var(--tx)" onclick="clSv()">取消</button><button class="btn bor" onclick="doSv()">✓ 確定儲存</button></div></div>';w.appendChild(d);}
+function shSv(){var w=document.getElementById('W');if(!w)return;var d=document.createElement('div');d.className='smov';d.id='svM';d.innerHTML='<div class="smbx"><div style="text-align:center;font-size:2.2rem;margin-bottom:10px">💾</div><div class="smttl">確認儲存設定？</div><div class="smsub">儲存後，所有裝置將立即看到最新菜單和圖片。</div><div class="smbt"><button class="btn" style="background:#F3F4F6;color:var(--tx)" onclick="clSv()">取消</button><button class="btn bor" onclick="doSv()">✓ 確定儲存</button></div></div>';w.appendChild(d);}
 function clSv(){var m=document.getElementById('svM');if(m)m.remove();}
 async function doSv(){clSv();S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);
   await gasSaveConfig();
@@ -855,7 +921,7 @@ function delO(id){
   var btnD=document.createElement('button');btnD.style.cssText='flex:1;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;font-family:Noto Sans TC,sans-serif;font-weight:700;font-size:.88rem;cursor:pointer';btnD.textContent='確定刪除';btnD.onclick=function(){ov.remove();doDelO(id);};
   row.appendChild(btnC);row.appendChild(btnD);box.appendChild(ttl);box.appendChild(sub);box.appendChild(row);ov.appendChild(box);w.appendChild(ov);
 }
-async function doDelO(id){var latest=await ldSt(OK);if(!Array.isArray(latest))latest=[];orders=latest.filter(function(o){return o.id!==id;});await svSt(OK,orders);if(gasUrl){try{fetch(gasUrl+'?action=delete&sheet='+encodeURIComponent(gasSheet||'訂單')+'&id='+encodeURIComponent(id)).catch(function(){});}catch(e){}}rAdm();}
+async function doDelO(id){var latest=await ldSt(OK);if(!Array.isArray(latest))latest=[];orders=latest.filter(function(o){return o.id!==id;});await svSt(OK,orders);if(gasUrl){try{fetch(gasUrl+'?action=delete&sheet='+encodeURIComponent(gasSheet||GAS_SHEET||'2026-05-3031')+'&id='+encodeURIComponent(id)).catch(function(){});}catch(e){}}rAdm();}
 
 /* ── EDIT ORDER ── */
 function openEdit(id){
@@ -934,21 +1000,34 @@ function openEdit(id){
 }
 async function saveEdit(){
   if(!editOrder)return;
+  /* Update local state immediately */
   var latest=await ldSt(OK);if(!Array.isArray(latest))latest=[];
-  for(var i=0;i<latest.length;i++){if(latest[i].id===editOrder.id){latest[i].satItems=cx(editOrder.satItems);latest[i].sunItems=cx(editOrder.sunItems);break;}}
-  orders=latest;await svSt(OK,orders);
-  /* Sync edit to GAS — fire and forget, local state is already correct */
+  for(var i=0;i<latest.length;i++){
+    if(latest[i].id===editOrder.id){
+      latest[i].satItems=cx(editOrder.satItems);
+      latest[i].sunItems=cx(editOrder.sunItems);
+      break;
+    }
+  }
+  orders=latest;
+  await svSt(OK,orders);
+  /* Push update to GAS spreadsheet */
   if(gasUrl){
     try{
-      var _up=gasUrl+'?action=update&sheet='+encodeURIComponent(gasSheet||'訂單')
+      var _up=gasUrl+'?action=update&sheet='+encodeURIComponent(gasSheet||'2026-05-3031')
         +'&id='+encodeURIComponent(editOrder.id)
-        +'&data='+encodeURIComponent(JSON.stringify({satItems:editOrder.satItems,sunItems:editOrder.sunItems,satMenu:satM(),sunMenu:sunM()}));
-      fetch(_up).catch(function(){});
+        +'&data='+encodeURIComponent(JSON.stringify({
+          satItems:editOrder.satItems,
+          sunItems:editOrder.sunItems,
+          satMenu:satM(),
+          sunMenu:sunM()
+        }));
+      /* Await the fetch so we know GAS processed it */
+      await fetch(_up,{credentials:'omit'}).catch(function(){});
     }catch(e){}
   }
   editOrder=null;
-  rSum(); /* Refresh query view with local (correct) state */
-  rAdm();
+  rSum();rAdm();
 }
 
 /* ── EXPORT EXCEL ── */
@@ -994,7 +1073,7 @@ function testGasPing(){
 async function saveGas(){
   var inp=document.getElementById('gasInp');if(inp)gasUrl=inp.value.trim();
   var inp2=document.getElementById('gsInp');if(inp2)gasSheet=inp2.value.trim();
-  if(!gasSheet)gasSheet='TEST';
+  if(!gasSheet)gasSheet='2026-05-3031';
   await svSt(GK,gasUrl);await svSt(GS,gasSheet);
   await gasSaveConfig(); /* Syncs gasSheet to all devices via GAS */
   var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ GAS 設定已儲存！所有裝置將在 10 秒內同步使用分頁：'+eh(gasSheet)+'</div>';
@@ -1038,7 +1117,7 @@ async function clearAllOrders(){
   /* Also clear orders in GAS sheet */
   if(gasUrl){
     try{
-      await fetch(gasUrl+'?action=clearOrders&sheet='+encodeURIComponent(gasSheet||'TEST'),{credentials:'omit',cache:'no-store'});
+      await fetch(gasUrl+'?action=clearOrders&sheet='+encodeURIComponent(gasSheet||'2026-05-3031'),{credentials:'omit',cache:'no-store'});
     }catch(e){}
   }
   var msg=document.getElementById('aSv');

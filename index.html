@@ -249,7 +249,7 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 'use strict';
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
-var GAS_URL   = 'https://script.google.com/macros/s/AKfycbx0PZgANUMNEyMbu1tb1-YoFprRtBPY7Mwb_Ccz5z2Svynkf1Ccu9-6c5fWTd4wg9S8/exec'; /* <-- Paste your GAS deployment URL here */
+var GAS_URL   = 'https://script.google.com/macros/s/AKfycbx7gQeeI_51KNZvTrQCblhxY7WudUzg5RNjW3Y0v7jRZityMLOvET9F74Zy1y0nid3X/exec'; /* <-- Paste your GAS deployment URL here */
 var GAS_SHEET = '2026-05-3031'; /* <-- Your Google Sheet tab name */
 /* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
@@ -1056,14 +1056,29 @@ function handleImg(input,key,progId,progBarId){
   var file=input.files[0];if(!file)return;
   if(!file.type.match(/image\/(png|jpeg)/)){showAlert('格式不支援','請上傳 PNG、JPG 或 JPEG 格式的圖片');input.value='';return;}
   var prog=document.getElementById(progId),bar=document.getElementById(progBarId);
-  if(prog)prog.style.display='block';if(bar)bar.style.width='40%';
+  if(prog)prog.style.display='block';if(bar)bar.style.width='20%';
   var reader=new FileReader();
   reader.onload=function(e){
-    if(bar)bar.style.width='80%';
-    var b64=e.target.result;
-    var sk=key==='H'?IKH:key==='S'?IKS:IKN;
-    if(key==='H')heroB64=b64;else if(key==='S')satImgB64=b64;else sunImgB64=b64;
-    svSt(sk,b64).then(async function(){if(bar)bar.style.width='100%';await gasSaveConfig();setTimeout(function(){if(prog)prog.style.display='none';if(bar)bar.style.width='0%';input.value='';rOrd();rAdm();},300);});
+    if(bar)bar.style.width='50%';
+    /* Compress: max 800×800px, JPEG quality 0.72 → ~20-40KB */
+    var img=new Image();
+    img.onload=function(){
+      var MAX=800,w=img.width,h=img.height;
+      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+      if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+      var cv=document.createElement('canvas');cv.width=w;cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      var b64=cv.toDataURL('image/jpeg',0.72);
+      if(bar)bar.style.width='80%';
+      var sk=key==='H'?IKH:key==='S'?IKS:IKN;
+      if(key==='H')heroB64=b64;else if(key==='S')satImgB64=b64;else sunImgB64=b64;
+      svSt(sk,b64).then(async function(){
+        if(bar)bar.style.width='100%';
+        await gasSaveConfig();
+        setTimeout(function(){if(prog)prog.style.display='none';if(bar)bar.style.width='0%';input.value='';rOrd();rAdm();},300);
+      });
+    };
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }

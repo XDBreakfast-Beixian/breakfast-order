@@ -249,14 +249,14 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 'use strict';
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
-var GAS_URL   = 'https://script.google.com/macros/s/AKfycbx7gQeeI_51KNZvTrQCblhxY7WudUzg5RNjW3Y0v7jRZityMLOvET9F74Zy1y0nid3X/exec'; /* <-- Paste your GAS deployment URL here */
+var GAS_URL   = 'https://script.google.com/macros/s/AKfycbw_f1-q7AkPV8Mw-P-jU6AXnLVdODHVN9eLmNAs_lP31AXOvAbHIIo-lDac9uSSZeXO/exec'; /* <-- Paste your GAS deployment URL here */
 var GAS_SHEET = '2026-05-3031'; /* <-- Your Google Sheet tab name */
 /* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
 var IKH='bfv5imgH',IKS='bfv5imgS',IKN='bfv5imgN';
 var GK='bfv5gas',GS='bfv5gsheet'; /* GAS URL + sheet name */
 var IX=['ic1','ic2','ic3','ic4','ic5','ic6'],EM=['🥚','🥪','🍳','🍙','🥐','🍞','☕','🥗'];
-var DEF={title:'5/30・31 壇主1班',description:'★ 班員有提供早餐，訂購不需含班員。\n★ 請確認後再訂購，送出後無法修改。',titleStyle:{size:'1.38rem',color:'#ffffff',bold:true,font:'Nunito',bg:false,bgColor:'#1a1a2e',align:'left'},textPos:{x:0,y:6},descStyle:{size:'0.71rem',color:'#ebebeb',bold:false,font:'Noto Sans TC',bg:false,bgColor:'#1a1a2e',align:'left'},sat:{date:'3/14',dayLabel:'週六',title:'週六早餐菜單',items:[{id:'s1',name:'饅頭夾蛋',price:35,note:'含豆漿',ico:'🥚',ic:'ic1'},{id:'s2',name:'總匯三明治',price:45,note:'含紅茶',ico:'🥪',ic:'ic2'}]},sun:{date:'3/15',dayLabel:'週日',title:'週日早餐菜單',items:[{id:'n1',name:'蛋餅',price:40,note:'含豆漿',ico:'🍳',ic:'ic3'},{id:'n2',name:'飯糰',price:45,note:'含米漿',ico:'🍙',ic:'ic4'}]}};
+var DEF={title:' 5/30・31 壇主1班',description:'★ 班員有提供早餐，訂購不需含班員。\n★ 請確認後再訂購，送出後無法修改。',titleStyle:{size:'1.38rem',color:'#ffffff',bold:true,font:'Nunito',bg:false,bgColor:'#1a1a2e',align:'left'},textPos:{x:0,y:6},descStyle:{size:'0.71rem',color:'#ebebeb',bold:false,font:'Noto Sans TC',bg:false,bgColor:'#1a1a2e',align:'left'},sat:{date:'3/14',dayLabel:'週六',title:'週六早餐菜單',items:[{id:'s1',name:'饅頭夾蛋',price:35,note:'含豆漿',ico:'🥚',ic:'ic1'},{id:'s2',name:'總匯三明治',price:45,note:'含紅茶',ico:'🥪',ic:'ic2'}]},sun:{date:'3/15',dayLabel:'週日',title:'週日早餐菜單',items:[{id:'n1',name:'蛋餅',price:40,note:'含豆漿',ico:'🍳',ic:'ic3'},{id:'n2',name:'飯糰',price:45,note:'含米漿',ico:'🍙',ic:'ic4'}]}};
 var S=JSON.parse(JSON.stringify(DEF));
 var orders=[],pg='O',adIn=false,aTab='gen',draft=null;
 var fU='',fCU='',fA='',fN='',fP='',sQ={},nQ={},done=false,last=null,selU=null;
@@ -497,7 +497,7 @@ function heroH(){
   if(heroSrc){
     /* Custom hero: image fills, gradient from bottom, text at bottom-left */
     return'<div class="oh has-bg">'
-      +'<img class="oh-bg-img" src="'+heroB64+'" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0">'
+      +'<img class="oh-bg-img" src="'+heroSrc+'" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0">'
       +'<div class="oh-ov"></div>'
       +'<div class="oh-dots"></div>'
       +'<span class="ff" style="top:14px;left:8px;font-size:1.7rem;animation:f1 3.8s ease-in-out infinite">☕</span>'
@@ -554,7 +554,8 @@ function dayH(day,items,tq,tp){
   else{for(var i=0;i<items.length;i++){var m=items[i],q=isSat?(sQ[m.id]||0):(nQ[m.id]||0),hc=q>0?(isSat?' hs':' hn'):'',ic=m.ic||IX[i%6],ico=m.ico||EM[i%8];
     h+='<div class="mc'+hc+'" id="mc_'+day+'_'+m.id+'"><div class="miic '+ic+'">'+ico+'</div><div class="mi"><div class="mn">'+eh(m.name)+'</div>'+(m.note?'<div class="mnt">🍵 '+eh(m.note)+'</div>':'')+'<div class="pr'+(isSat?'s':'n')+'">$ '+m.price+' 元</div></div><div class="qc"><button id="qm_'+day+'_'+m.id+'" class="qb'+(isSat?'s':'n')+'" onclick="adjQ(\''+day+'\',\''+m.id+'\',-1)" '+(q===0?'disabled':'')+'>−</button><span id="qn_'+day+'_'+m.id+'" class="qn">'+q+'</span><button class="qb'+(isSat?'s':'n')+'" onclick="adjQ(\''+day+'\',\''+m.id+'\',1)">+</button></div></div>';}}
   h+='<div class="dt '+day+'" id="dt_'+day+'" style="'+(tq>0?'':'display:none')+'"><span id="dtl_'+day+'" class="dt-l">'+(isSat?'週六':'週日')+' 共 '+tq+' 份</span><span id="dtr_'+day+'" class="dt-r">$ '+tp+' 元</span></div>';
-  if(imgB64)h+='<div class="day-img-wrap"><img src="'+imgB64+'" alt="菜單圖片" style="width:100%;height:auto;display:block"></div>';
+  var imgSrc=imgB64||(isSat?satUrl:sunUrl)||'';
+  if(imgSrc)h+='<div class="day-img-wrap"><img src="'+imgSrc+'" alt="菜單圖片" style="width:100%;height:auto;display:block"></div>';
   h+='</div></div>';return h;
 }
 function succH(){

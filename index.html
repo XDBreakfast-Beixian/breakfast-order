@@ -256,12 +256,13 @@ var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
 var IKH='bfv5imgH',IKS='bfv5imgS',IKN='bfv5imgN';
 var GK='bfv5gas',GS='bfv5gsheet'; /* GAS URL + sheet name */
 var IX=['ic1','ic2','ic3','ic4','ic5','ic6'],EM=['🥚','🥪','🍳','🍙','🥐','🍞','☕','🥗'];
-var DEF={title:'【早餐訂購】3/14・15 北部心靈講座',description:'★ 班員有提供早餐，訂購不需含班員。\n★ 請確認後再訂購，送出後無法修改。',titleStyle:{size:'1.38rem',color:'#ffffff',bold:true,font:'Nunito',bg:false,bgColor:'#1a1a2e',align:'left'},textPos:{x:0,y:6},descStyle:{size:'0.71rem',color:'#ebebeb',bold:false,font:'Noto Sans TC',bg:false,bgColor:'#1a1a2e',align:'left'},sat:{date:'3/14',dayLabel:'週六',title:'週六早餐菜單',items:[{id:'s1',name:'饅頭夾蛋',price:35,note:'含豆漿',ico:'🥚',ic:'ic1'},{id:'s2',name:'總匯三明治',price:45,note:'含紅茶',ico:'🥪',ic:'ic2'}]},sun:{date:'3/15',dayLabel:'週日',title:'週日早餐菜單',items:[{id:'n1',name:'蛋餅',price:40,note:'含豆漿',ico:'🍳',ic:'ic3'},{id:'n2',name:'飯糰',price:45,note:'含米漿',ico:'🍙',ic:'ic4'}]}};
+var DEF={title:'5/30・31 壇主1班',description:'★ 班員有提供早餐，訂購不需含班員。\n★ 請確認後再訂購，送出後無法修改。',titleStyle:{size:'1.38rem',color:'#ffffff',bold:true,font:'Nunito',bg:false,bgColor:'#1a1a2e',align:'left'},textPos:{x:0,y:6},descStyle:{size:'0.71rem',color:'#ebebeb',bold:false,font:'Noto Sans TC',bg:false,bgColor:'#1a1a2e',align:'left'},sat:{date:'3/14',dayLabel:'週六',title:'週六早餐菜單',items:[{id:'s1',name:'饅頭夾蛋',price:35,note:'含豆漿',ico:'🥚',ic:'ic1'},{id:'s2',name:'總匯三明治',price:45,note:'含紅茶',ico:'🥪',ic:'ic2'}]},sun:{date:'3/15',dayLabel:'週日',title:'週日早餐菜單',items:[{id:'n1',name:'蛋餅',price:40,note:'含豆漿',ico:'🍳',ic:'ic3'},{id:'n2',name:'飯糰',price:45,note:'含米漿',ico:'🍙',ic:'ic4'}]}};
 var S=JSON.parse(JSON.stringify(DEF));
 var orders=[],pg='O',adIn=false,aTab='gen',draft=null;
 var fU='',fCU='',fA='',fN='',fP='',sQ={},nQ={},done=false,last=null,selU=null;
 /* search/filter state */
 var heroB64='',satImgB64='',sunImgB64='',gasUrl='',gasSheet='';
+var heroUrl='',satUrl='',sunUrl='';
 var ordSrch='',ordFUnit='',ordFArea='',ordFName='';
 /* edit state */
 var editOrder=null;
@@ -311,18 +312,12 @@ async function gasLoad(){
       }
       if(cfg.gasSheet){gasSheet=cfg.gasSheet;await _ls('set',GS,gasSheet);}
       /* Load images — these sync across all devices */
-      if(cfg.heroB64!==undefined){
-        heroB64=cfg.heroB64||'';
-        await _ls('set',IKH,heroB64);
-      }
-      if(cfg.satImgB64!==undefined){
-        satImgB64=cfg.satImgB64||'';
-        await _ls('set',IKS,satImgB64);
-      }
-      if(cfg.sunImgB64!==undefined){
-        sunImgB64=cfg.sunImgB64||'';
-        await _ls('set',IKN,sunImgB64);
-      }
+      if(cfg.heroB64!==undefined){heroB64=cfg.heroB64||'';await _ls('set',IKH,heroB64);}
+      if(cfg.satImgB64!==undefined){satImgB64=cfg.satImgB64||'';await _ls('set',IKS,satImgB64);}
+      if(cfg.sunImgB64!==undefined){sunImgB64=cfg.sunImgB64||'';await _ls('set',IKN,sunImgB64);}
+      if(cfg.heroUrl!==undefined)heroUrl=cfg.heroUrl||'';
+      if(cfg.satUrl!==undefined)satUrl=cfg.satUrl||'';
+      if(cfg.sunUrl!==undefined)sunUrl=cfg.sunUrl||'';
     }
     /* Fetch orders */
     var or2=await fetchFromGAS();
@@ -334,7 +329,7 @@ async function gasLoad(){
 async function gasSaveConfig(){
   if(!gasUrl)return;
   try{
-    var cfg=Object.assign({},S,{gasSheet:gasSheet,heroB64:heroB64||'',satImgB64:satImgB64||'',sunImgB64:sunImgB64||''});
+    var cfg=Object.assign({},S,{gasSheet:gasSheet,heroB64:heroB64||'',satImgB64:satImgB64||'',sunImgB64:sunImgB64||'',heroUrl:heroUrl||'',satUrl:satUrl||'',sunUrl:sunUrl||''});
     /* Use POST — base64 images can be 300KB+, far exceeding GET URL limits */
     await fetch(gasUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveConfig',data:cfg})});
   }catch(e){}
@@ -498,7 +493,8 @@ function illus(){
   return'<svg viewBox="0 0 360 178" style="width:100%;display:block;position:relative;z-index:3;margin-top:-6px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="308" cy="22" r="70" fill="rgba(255,255,255,.06)"/><circle cx="28" cy="166" r="50" fill="rgba(255,255,255,.05)"/><ellipse cx="218" cy="172" rx="100" ry="15" fill="rgba(0,0,0,.12)"/><circle cx="218" cy="152" r="90" fill="rgba(255,255,255,.93)" stroke="rgba(255,255,255,.6)" stroke-width="6"/><path d="M188 140 Q178 128 188 118 Q198 105 213 112 Q230 103 246 117 Q261 130 254 147 Q244 165 228 165 Q205 169 188 140Z" fill="white" opacity=".95"/><circle cx="218" cy="137" r="27" fill="#FFD54F"/><circle cx="207" cy="127" r="10" fill="#FFE97A" opacity=".6"/><rect x="248" y="100" width="50" height="62" rx="11" fill="#C07840"/><rect x="248" y="100" width="50" height="13" rx="11" fill="#A05E28"/><rect x="241" y="93" width="50" height="62" rx="11" fill="#D89060"/><rect x="241" y="93" width="50" height="13" rx="11" fill="#C07840"/><rect x="248" y="108" width="30" height="7" rx="3.5" fill="#FFF176" opacity=".84"/><ellipse cx="82" cy="163" rx="60" ry="12" fill="rgba(0,0,0,.11)"/><path d="M53 100 L47 155 Q47 166 57 166 L107 166 Q118 166 118 155 L112 100Z" fill="rgba(255,255,255,.92)"/><ellipse cx="82" cy="100" rx="29" ry="9" fill="rgba(255,255,255,.72)"/><ellipse cx="82" cy="100" rx="23" ry="7" fill="#2C1206" opacity=".87"/><path d="M120 114 Q140 114 140 131 Q140 148 120 148" stroke="rgba(255,255,255,.86)" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M62 84 Q56 68 63 54" stroke="rgba(255,255,255,.43)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M82 79 Q76 60 83 44" stroke="rgba(255,255,255,.43)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M102 84 Q96 66 103 52" stroke="rgba(255,255,255,.43)" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="313" cy="145" rx="14" ry="18" fill="#FF5252" opacity=".9"/><path d="M304 133 Q310 124 315 132 Q320 124 324 133" fill="#4CAF50" opacity=".87"/><circle cx="308" cy="142" r="2" fill="rgba(255,255,255,.54)"/><circle cx="155" cy="169" r="13" fill="#FF7043" opacity=".87"/><path d="M149 158 Q155 152 161 158" fill="#4CAF50" opacity=".81"/><line x1="159" y1="95" x2="157" y2="173" stroke="rgba(255,255,255,.36)" stroke-width="3.5" stroke-linecap="round"/><line x1="153" y1="95" x2="153" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/><line x1="159" y1="95" x2="159" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/><line x1="165" y1="95" x2="165" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/><line x1="153" y1="117" x2="165" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/></svg>';
 }
 function heroH(){
-  if(heroB64){
+  var heroSrc=heroUrl||heroB64;
+  if(heroSrc){
     /* Custom hero: image fills, gradient from bottom, text at bottom-left */
     return'<div class="oh has-bg">'
       +'<img class="oh-bg-img" src="'+heroB64+'" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0">'
@@ -824,10 +820,11 @@ function rAdm(){
       +'</div>'
       +'<div class="fcd"><div class="fcdt">🖼️ 訂購頁面背景圖</div>'
       +'<div class="fi"><div style="font-size:.71rem;color:var(--mu);margin-bottom:8px;line-height:1.55">建議事先裁切為合適比例。原尺寸上傳不壓縮，跨裝置同步。</div>'
-      +'<input type="file" id="imgHInp" accept="image/png,image/jpeg,image/jpg" style="display:none" onchange="handleImg(this,\'H\',\'progH\',\'progHBar\')">';
-    if(heroB64){h+='<div class="img-prev-wrap"><img class="img-prev" src="'+heroB64+'"><button class="img-del" onclick="delImg(\'H\')">✕ 刪除</button></div><div style="margin-top:8px;text-align:center"><button onclick="document.getElementById(\'imgHInp\').click()" style="font-family:\'Noto Sans TC\',sans-serif;font-size:.73rem;font-weight:600;color:var(--or);background:#fff;border:1.5px solid var(--or);border-radius:9px;padding:6px 14px;cursor:pointer">🔄 更換</button></div>';}
+      +'';
+    if(heroB64){h+='<div class="img-prev-wrap"><img class="img-prev" src="'+(heroUrl||heroB64)+'"><button class="img-del" onclick="delImg(\'H\')">✕ 刪除</button></div><div style="margin-top:8px;text-align:center"><button onclick="document.getElementById(\'imgHInp\').click()" style="font-family:\'Noto Sans TC\',sans-serif;font-size:.73rem;font-weight:600;color:var(--or);background:#fff;border:1.5px solid var(--or);border-radius:9px;padding:6px 14px;cursor:pointer">🔄 更換</button></div>';}
     else{h+='<div class="img-up" onclick="document.getElementById(\'imgHInp\').click()"><div class="img-up-ico">🌅</div><div class="img-up-ttl">上傳背景圖片</div><div class="img-up-sub">PNG · JPG · JPEG　原尺寸不壓縮</div></div>';}
-    h+='<div id="progH" class="img-prog"><div id="progHBar" class="img-prog-bar"></div></div></div></div>'
+        h+='<div class="fi" style="margin-top:8px"><label class="fl">📎 或貼上圖片網址（推薦：保持原畫質，無大小限制）</label><div style="display:flex;gap:7px"><input class="inp" id="heroUrlInp" placeholder="https://i.imgur.com/..." value="'+eh(heroUrl)+'" oninput="heroUrl=this.value"><button onclick="setImgUrl(\'H\',document.getElementById(\'heroUrlInp\').value)" style="padding:8px 14px;border-radius:9px;font-size:.74rem;font-weight:600;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;white-space:nowrap">套用</button></div></div>';
+h+='<div id="progH" class="img-prog"><div id="progHBar" class="img-prog-bar"></div></div></div></div>'
       +'</div>'
     }
   if(aTab==='sat'||aTab==='sun'){
@@ -840,18 +837,12 @@ function rAdm(){
       +'</div>';
     /* Menu image */
     var imgKey=dk==='sat'?'S':'N';
-    var imgB64=dk==='sat'?satImgB64:sunImgB64;
-    var imgInputId='img'+imgKey+'Inp';
+    var curImgUrl=dk==='sat'?satUrl:sunUrl;
     h+='<div class="fcd"><div class="fcdt">菜單圖片（選填）</div>'
-      +'<input type="file" id="'+imgInputId+'" accept="image/png,image/jpeg,image/jpg" style="display:none" onchange="handleImg(this,\''+imgKey+'\',\'prog'+imgKey+'\',\'prog'+imgKey+'Bar\')">';
-    if(imgB64){
-      h+='<div class="img-prev-wrap"><img class="img-prev" src="'+imgB64+'"><button class="img-del" onclick="delImg(\''+imgKey+'\')">✕ 刪除</button></div>'
-        +'<div style="margin-top:8px;text-align:center"><button onclick="document.getElementById(\''+imgInputId+'\').click()" style="font-family:\'Noto Sans TC\',sans-serif;font-size:.73rem;font-weight:600;color:var(--or);background:#fff;border:1.5px solid var(--or);border-radius:9px;padding:6px 14px;cursor:pointer">🔄 更換</button></div>';
-    } else {
-      h+='<div class="img-up" onclick="document.getElementById(\''+imgInputId+'\').click()"><div class="img-up-ico">'+(dk==='sat'?'🌅':'🌄')+'</div><div class="img-up-ttl">上傳菜單圖片</div><div class="img-up-sub">PNG · JPG · JPEG</div></div>';
-    }
-    h+='<div id="prog'+imgKey+'" class="img-prog"><div id="prog'+imgKey+'Bar" class="img-prog-bar"></div></div></div>';
-    /* Menu items */
+      +'<div class="fi"><label class="fl">圖片網址</label><div style="display:flex;gap:7px"><input class="inp" id="img'+imgKey+'UrlInp" placeholder="貼上圖片連結 https://..." value="'+eh(curImgUrl)+'" oninput="'+(dk==='sat'?'satUrl':'sunUrl')+'=this.value"><button onclick="applyImgUrl(\''+imgKey+'\');" style="padding:9px 14px;border-radius:9px;font-size:.78rem;font-weight:700;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0">✓ 套用</button></div></div>'
+      +(curImgUrl?'<div style="margin-top:8px;border-radius:10px;overflow:hidden;max-height:120px;border:1.5px solid var(--bd)"><img src="'+eh(curImgUrl)+'" style="width:100%;object-fit:cover;display:block"></div><button onclick="applyImgUrl(\''+imgKey+'\',\'\');" style="margin-top:6px;font-size:.72rem;color:var(--re);background:none;border:none;cursor:pointer;padding:0">✕ 清除</button>':'<div style="font-size:.72rem;color:var(--mu);padding:8px;background:#F9FAFB;border-radius:8px;margin-top:4px">菜單圖片顯示於品項清單下方</div>')
+      +'</div>';
+        /* Menu items */
     h+='<div class="fcd"><div class="fcdt">菜單品項</div>';
     for(var mi=0;mi<dd.items.length;mi++){
       var it=dd.items[mi];
@@ -1054,24 +1045,26 @@ async function saveEdit(){
 /* ── IMAGE UPLOAD ── */
 function handleImg(input,key,progId,progBarId){
   var file=input.files[0];if(!file)return;
-  if(!file.type.match(/image\/(png|jpeg)/)){showAlert('格式不支援','請上傳 PNG、JPG 或 JPEG 格式的圖片');input.value='';return;}
+  if(!file.type.match(/image\/(png|jpeg)/)){showAlert('格式不支援','請上傳 PNG、JPG 或 JPEG');input.value='';return;}
   var prog=document.getElementById(progId),bar=document.getElementById(progBarId);
   if(prog)prog.style.display='block';if(bar)bar.style.width='20%';
   var reader=new FileReader();
   reader.onload=function(e){
     if(bar)bar.style.width='50%';
-    /* Compress: max 800×800px, JPEG quality 0.72 → ~20-40KB */
     var img=new Image();
     img.onload=function(){
-      var MAX=800,w=img.width,h=img.height;
+      /* Compress aggressively: max 400px, JPEG q=0.45 → ~8-15KB → fits GAS cell */
+      var MAX=400,w=img.width,h=img.height;
       if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
       if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
       var cv=document.createElement('canvas');cv.width=w;cv.height=h;
       cv.getContext('2d').drawImage(img,0,0,w,h);
-      var b64=cv.toDataURL('image/jpeg',0.72);
+      var b64=cv.toDataURL('image/jpeg',0.45);
       if(bar)bar.style.width='80%';
       var sk=key==='H'?IKH:key==='S'?IKS:IKN;
-      if(key==='H')heroB64=b64;else if(key==='S')satImgB64=b64;else sunImgB64=b64;
+      if(key==='H'){heroB64=b64;heroUrl='';}
+      else if(key==='S'){satImgB64=b64;satUrl='';}
+      else{sunImgB64=b64;sunUrl='';}
       svSt(sk,b64).then(async function(){
         if(bar)bar.style.width='100%';
         await gasSaveConfig();
@@ -1082,6 +1075,20 @@ function handleImg(input,key,progId,progBarId){
   };
   reader.readAsDataURL(file);
 }
+function applyImgUrl(key,url){
+  /* url undefined = read from input; url='' = clear */
+  var val=(url===undefined)
+    ? (key==='H'?document.getElementById('heroUrlInp')
+      :document.getElementById('img'+key+'UrlInp'))
+    : null;
+  var finalUrl = (url!==undefined) ? url : (val?val.value.trim():'');
+  if(key==='H'){heroUrl=finalUrl;heroB64='';}
+  else if(key==='S'){satUrl=finalUrl;satImgB64='';}
+  else{sunUrl=finalUrl;sunImgB64='';}
+  gasSaveConfig().then(function(){rOrd();rAdm();});
+}
+/* Keep setImgUrl as alias */
+function setImgUrl(key,url){applyImgUrl(key,url);}
 async function delImg(key){
   var sk=key==='H'?IKH:key==='S'?IKS:IKN;
   if(key==='H')heroB64='';else if(key==='S')satImgB64='';else sunImgB64='';

@@ -249,7 +249,7 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 'use strict';
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
-var GAS_URL   = 'https://script.google.com/macros/s/AKfycbyzfn9EXw1H1sa2geYHp4qRFhCjnZjm-HcN3E7D9B4nw5UIKa7-6xhzoaVdFiMVrX8/exec'; /* <-- Paste your GAS deployment URL here */
+var GAS_URL   = 'https://script.google.com/macros/s/AKfycbx0PZgANUMNEyMbu1tb1-YoFprRtBPY7Mwb_Ccz5z2Svynkf1Ccu9-6c5fWTd4wg9S8/exec'; /* <-- Paste your GAS deployment URL here */
 var GAS_SHEET = '2026-05-3031'; /* <-- Your Google Sheet tab name */
 /* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
@@ -299,8 +299,30 @@ async function gasLoad(){
     var cr=await fetch(gasUrl+'?action=getConfig&t='+Date.now(),{credentials:'omit',cache:'no-store'});
     var cd=await cr.json();
     if(cd.ok&&cd.config){
-      if(cd.config.sat&&cd.config.sun){S=cd.config;await _ls('set',SK,S);}
-      if(cd.config.gasSheet){gasSheet=cd.config.gasSheet;await _ls('set',GS,gasSheet);}
+      var cfg=cd.config;
+      /* Load settings */
+      if(cfg.sat&&cfg.sun){
+        /* Extract pure S (remove image fields) */
+        var sClean={title:cfg.title,description:cfg.description,
+          titleStyle:cfg.titleStyle,descStyle:cfg.descStyle,textPos:cfg.textPos,
+          sat:cfg.sat,sun:cfg.sun};
+        S=sClean;
+        await _ls('set',SK,S);
+      }
+      if(cfg.gasSheet){gasSheet=cfg.gasSheet;await _ls('set',GS,gasSheet);}
+      /* Load images — these sync across all devices */
+      if(cfg.heroB64!==undefined){
+        heroB64=cfg.heroB64||'';
+        await _ls('set',IKH,heroB64);
+      }
+      if(cfg.satImgB64!==undefined){
+        satImgB64=cfg.satImgB64||'';
+        await _ls('set',IKS,satImgB64);
+      }
+      if(cfg.sunImgB64!==undefined){
+        sunImgB64=cfg.sunImgB64||'';
+        await _ls('set',IKN,sunImgB64);
+      }
     }
     /* Fetch orders */
     var or2=await fetchFromGAS();
@@ -312,7 +334,13 @@ async function gasLoad(){
 async function gasSaveConfig(){
   if(!gasUrl)return;
   try{
-    var cfg=Object.assign({},S,{gasSheet:gasSheet});
+    /* Include images so ALL devices get the same hero/menu images */
+    var cfg=Object.assign({},S,{
+      gasSheet:gasSheet,
+      heroB64:heroB64||'',
+      satImgB64:satImgB64||'',
+      sunImgB64:sunImgB64||''
+    });
     await fetch(gasUrl+'?action=saveConfig&data='+encodeURIComponent(JSON.stringify(cfg)),{credentials:'omit',cache:'no-store'});
   }catch(e){}
 }
@@ -336,16 +364,14 @@ rOrd();
   if(GAS_URL){gasUrl=GAS_URL;gasSheet=GAS_SHEET||'2026-05-3031';}
   else{var gv=await _ls('get',GK);if(gv)gasUrl=gv;var gs=await _ls('get',GS);if(gs)gasSheet=gs||'2026-05-3031';}
 
-  /* Step 2: Load images from localStorage (device-local only) */
-  var h=await _ls('get',IKH);if(h)heroB64=h;
-  var si=await _ls('get',IKS);if(si)satImgB64=si;
-  var ni=await _ls('get',IKN);if(ni)sunImgB64=ni;
-
-  /* Step 3: Load settings + orders from GAS (single source of truth) */
+  /* Step 2+3: Load everything from GAS (images + settings + orders) */
   if(gasUrl){
-    var loaded=await gasLoad();
+    var loaded=await gasLoad(); /* gasLoad now also fetches images */
     if(!loaded){
-      /* GAS failed: use local cache */
+      /* GAS failed: fall back to localStorage cache */
+      var h=await _ls('get',IKH);if(h)heroB64=h;
+      var si=await _ls('get',IKS);if(si)satImgB64=si;
+      var ni=await _ls('get',IKN);if(ni)sunImgB64=ni;
       var ls=await _ls('get',SK);if(ls&&ls.sat&&ls.sun)S=ls;
       var lo=await _ls('get',OK);if(Array.isArray(lo))orders=lo.filter(function(x){return x&&x.name;});
     }
@@ -905,9 +931,7 @@ function delI(k,id){if(!draft||!draft[k]||!Array.isArray(draft[k].items))return;
 function shSv(){var w=document.getElementById('W');if(!w)return;var d=document.createElement('div');d.className='smov';d.id='svM';d.innerHTML='<div class="smbx"><div style="text-align:center;font-size:2.2rem;margin-bottom:10px">💾</div><div class="smttl">確認儲存設定？</div><div class="smsub">儲存後，所有裝置將立即看到最新菜單和圖片。</div><div class="smbt"><button class="btn" style="background:#F3F4F6;color:var(--tx)" onclick="clSv()">取消</button><button class="btn bor" onclick="doSv()">✓ 確定儲存</button></div></div>';w.appendChild(d);}
 function clSv(){var m=document.getElementById('svM');if(m)m.remove();}
 async function doSv(){clSv();S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);
-  await gasSaveConfig();
-  /* Sync settings to GAS so ALL devices get updated menu/titles */
-  if(gasUrl){try{var _cd=encodeURIComponent(JSON.stringify(S));fetch(gasUrl+'?action=saveConfig&data='+_cd,{credentials:'omit'}).catch(function(){});}catch(e){}}rOrd();rSum();var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ 已儲存！所有裝置即時更新。</div>';setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},3000);}
+  await gasSaveConfig(); /* Saves S + images + gasSheet to GAS for all devices */rOrd();rSum();var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ 已儲存！所有裝置即時更新。</div>';setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},3000);}
 
 /* ── DELETE ORDER ── */
 function delO(id){
@@ -1044,14 +1068,16 @@ function handleImg(input,key,progId,progBarId){
     var b64=e.target.result;
     var sk=key==='H'?IKH:key==='S'?IKS:IKN;
     if(key==='H')heroB64=b64;else if(key==='S')satImgB64=b64;else sunImgB64=b64;
-    svSt(sk,b64).then(function(){if(bar)bar.style.width='100%';setTimeout(function(){if(prog)prog.style.display='none';if(bar)bar.style.width='0%';input.value='';rOrd();rAdm();},300);});
+    svSt(sk,b64).then(async function(){if(bar)bar.style.width='100%';await gasSaveConfig();setTimeout(function(){if(prog)prog.style.display='none';if(bar)bar.style.width='0%';input.value='';rOrd();rAdm();},300);});
   };
   reader.readAsDataURL(file);
 }
 async function delImg(key){
   var sk=key==='H'?IKH:key==='S'?IKS:IKN;
   if(key==='H')heroB64='';else if(key==='S')satImgB64='';else sunImgB64='';
-  await delSt(sk);rOrd();rAdm();
+  await delSt(sk);
+  await gasSaveConfig(); /* Sync image deletion to all devices */
+  rOrd();rAdm();
 }
 
 /* ── ALERT ── */

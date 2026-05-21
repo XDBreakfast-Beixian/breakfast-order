@@ -315,9 +315,9 @@ async function gasLoad(){
       if(cfg.heroB64!==undefined){heroB64=cfg.heroB64||'';await _ls('set',IKH,heroB64);}
       if(cfg.satImgB64!==undefined){satImgB64=cfg.satImgB64||'';await _ls('set',IKS,satImgB64);}
       if(cfg.sunImgB64!==undefined){sunImgB64=cfg.sunImgB64||'';await _ls('set',IKN,sunImgB64);}
-      if(cfg.heroUrl!==undefined)heroUrl=cfg.heroUrl||'';
-      if(cfg.satUrl!==undefined)satUrl=cfg.satUrl||'';
-      if(cfg.sunUrl!==undefined)sunUrl=cfg.sunUrl||'';
+      if(cfg.heroUrl!==undefined){heroUrl=cfg.heroUrl||'';if(heroUrl)_ls('set','bfv5heroUrl',heroUrl);}
+      if(cfg.satUrl!==undefined){satUrl=cfg.satUrl||'';if(satUrl)_ls('set','bfv5satUrl',satUrl);}
+      if(cfg.sunUrl!==undefined){sunUrl=cfg.sunUrl||'';if(sunUrl)_ls('set','bfv5sunUrl',sunUrl);}
     }
     /* Fetch orders */
     var or2=await fetchFromGAS();
@@ -355,8 +355,13 @@ rOrd();
   else{var gv=await _ls('get',GK);if(gv)gasUrl=gv;var gs=await _ls('get',GS);if(gs)gasSheet=gs||'2026-05-3031';}
 
   /* Step 2+3: Load everything from GAS (images + settings + orders) */
+  /* Load URLs from localStorage first (instant, no network needed) */
+  var _hUrl=await _ls('get','bfv5heroUrl');if(_hUrl)heroUrl=_hUrl;
+  var _sUrl=await _ls('get','bfv5satUrl');if(_sUrl)satUrl=_sUrl;
+  var _nUrl=await _ls('get','bfv5sunUrl');if(_nUrl)sunUrl=_nUrl;
+
   if(gasUrl){
-    var loaded=await gasLoad(); /* gasLoad now also fetches images */
+    var loaded=await gasLoad(); /* Also syncs from GAS (overrides if newer) */
     if(!loaded){
       /* GAS failed: fall back to localStorage cache */
       var h=await _ls('get',IKH);if(h)heroB64=h;
@@ -1077,16 +1082,17 @@ function handleImg(input,key,progId,progBarId){
   reader.readAsDataURL(file);
 }
 function applyImgUrl(key,url){
-  /* url undefined = read from input; url='' = clear */
   var val=(url===undefined)
     ? (key==='H'?document.getElementById('heroUrlInp')
       :document.getElementById('img'+key+'UrlInp'))
     : null;
-  var finalUrl = (url!==undefined) ? url : (val?val.value.trim():'');
-  if(key==='H'){heroUrl=finalUrl;heroB64='';}
-  else if(key==='S'){satUrl=finalUrl;satImgB64='';}
-  else{sunUrl=finalUrl;sunImgB64='';}
-  gasSaveConfig().then(function(){rOrd();rAdm();});
+  var finalUrl=(url!==undefined)?url:(val?val.value.trim():'');
+  /* Save to memory + localStorage immediately */
+  if(key==='H'){heroUrl=finalUrl;heroB64='';_ls('set','bfv5heroUrl',finalUrl);}
+  else if(key==='S'){satUrl=finalUrl;satImgB64='';_ls('set','bfv5satUrl',finalUrl);}
+  else{sunUrl=finalUrl;sunImgB64='';_ls('set','bfv5sunUrl',finalUrl);}
+  rOrd();rAdm(); /* Show immediately without waiting for GAS */
+  gasSaveConfig(); /* Also sync to GAS in background */
 }
 /* Keep setImgUrl as alias */
 function setImgUrl(key,url){applyImgUrl(key,url);}

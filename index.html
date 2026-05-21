@@ -334,14 +334,9 @@ async function gasLoad(){
 async function gasSaveConfig(){
   if(!gasUrl)return;
   try{
-    /* Include images so ALL devices get the same hero/menu images */
-    var cfg=Object.assign({},S,{
-      gasSheet:gasSheet,
-      heroB64:heroB64||'',
-      satImgB64:satImgB64||'',
-      sunImgB64:sunImgB64||''
-    });
-    await fetch(gasUrl+'?action=saveConfig&data='+encodeURIComponent(JSON.stringify(cfg)),{credentials:'omit',cache:'no-store'});
+    var cfg=Object.assign({},S,{gasSheet:gasSheet,heroB64:heroB64||'',satImgB64:satImgB64||'',sunImgB64:sunImgB64||''});
+    /* Use POST — base64 images can be 300KB+, far exceeding GET URL limits */
+    await fetch(gasUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveConfig',data:cfg})});
   }catch(e){}
 }
 

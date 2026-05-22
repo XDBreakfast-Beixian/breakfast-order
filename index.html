@@ -12,12 +12,12 @@
 :root{--or:#FF6348;--am:#FF9500;--sa:#E65C00;--sb:#F9A825;--stx:#B34700;--na:#1565C0;--nb:#42A5F5;--ntx:#0D47A1;--gr:#00C9A7;--gd:#008870;--bg:#FFFBF5;--sf:#fff;--tx:#1A1A2E;--mu:#6B7280;--bd:#EDE8E3;--re:#EF4444;--nv:62px;}
 html,body{height:100%;margin:0;padding:0;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
 .wrap{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;max-width:600px;margin:0 auto;position:relative;}
-.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nv) + env(safe-area-inset-bottom) + 8px);}.sa::-webkit-scrollbar{width:3px;}.sa::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
+.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nv) + var(--sb-h, 0px) + env(safe-area-inset-bottom) + 8px);}.sa::-webkit-scrollbar{width:3px;}.sa::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
 .nav{height:var(--nv);background:rgba(255,255,255,.97);border-top:1px solid rgba(255,100,72,.08);display:flex;position:fixed;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;box-shadow:0 -2px 16px rgba(0,0,0,.05);z-index:9999;padding-bottom:env(safe-area-inset-bottom);box-sizing:content-box;}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:.6rem;font-weight:600;color:var(--mu);padding:0;}
 .nb svg{width:19px;height:19px;}.nb.on{color:var(--or);}
 .nink{position:absolute;top:0;height:3px;background:linear-gradient(90deg,var(--or),var(--am));border-radius:0 0 4px 4px;width:33.333%;transition:left .28s cubic-bezier(.4,0,.2,1);}
-#sb{flex-shrink:0;padding:8px 13px;background:rgba(255,251,245,.98);border-top:1px solid rgba(255,100,72,.12);}
+#sb{position:fixed;bottom:calc(var(--nv) + env(safe-area-inset-bottom));left:0;right:0;max-width:600px;margin:0 auto;padding:8px 13px;background:rgba(255,251,245,.98);border-top:1px solid rgba(255,100,72,.12);z-index:199;display:none;}
 #sbb{width:100%;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(135deg,#FF5733,#FF8C00);display:flex;align-items:center;gap:12px;padding:13px 18px;}
 @keyframes gl{0%,100%{box-shadow:0 6px 22px rgba(255,87,51,.4);}50%{box-shadow:0 8px 30px rgba(255,87,51,.65),0 0 0 5px rgba(255,87,51,.1);}}
 #sbb{animation:gl 2.5s ease-in-out infinite;}

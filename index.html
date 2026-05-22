@@ -249,7 +249,7 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 'use strict';
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
-var GAS_URL   = 'https://script.google.com/macros/s/AKfycbxd-GkedrCbP5AJDbLHbjUCuAiN3aM2q5n_zahmZYpQu7qMmYd8N4q9IFa1ANy1oyDq/exec'; /* <-- Paste your GAS deployment URL here */
+var GAS_URL   = 'https://script.google.com/macros/s/AKfycbxm4IYvr6rR3l7I4DJU5QTDzX0nk_QrrHRQEh0G5pRDuGeIgvkblh2SGAvKQ8A0AJeP/exec'; /* <-- Paste your GAS deployment URL here */
 var GAS_SHEET = '2026-05-3031'; /* <-- Your Google Sheet tab name */
 /* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
@@ -312,6 +312,8 @@ async function gasLoad(){
       if(cfg.heroUrl){heroUrl=cfg.heroUrl;await _ls('set','bfv5heroUrl',heroUrl);}
       if(cfg.satUrl){satUrl=cfg.satUrl;await _ls('set','bfv5satUrl',satUrl);}
       if(cfg.sunUrl){sunUrl=cfg.sunUrl;await _ls('set','bfv5sunUrl',sunUrl);}
+      /* Update UI immediately with fresh config (no waiting for orders) */
+      rAll();
     }
     /* Fetch orders */
     var or2=await fetchFromGAS();
@@ -340,30 +342,34 @@ function getSun(o){return o&&o.sunItems&&typeof o.sunItems==='object'?o.sunItems
 function findFL(id,list){for(var i=0;i<list.length;i++)if(list[i].id===id)return list[i];return null;}
 
 /* ── INIT ── */
-/* Render immediately with defaults so page never blank */
-rOrd();
+/* ═══ INSTANT LOAD from localStorage (synchronous, no network) ═══ */
+(function(){
+  function lsGet(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+  /* GAS URL */
+  if(GAS_URL){gasUrl=GAS_URL;gasSheet=GAS_SHEET||'2026-05-3031';}
+  else{var gv=lsGet(GK);if(gv)gasUrl=gv;var gs2=lsGet(GS);if(gs2)gasSheet=gs2||'2026-05-3031';}
+  /* Settings (S) — menu, title, description */
+  var ls=lsGet(SK);if(ls&&ls.sat&&ls.sun)S=ls;
+  /* Image URLs */
+  var hUrl=lsGet('bfv5heroUrl');if(hUrl)heroUrl=hUrl;
+  var sUrl=lsGet('bfv5satUrl');if(sUrl)satUrl=sUrl;
+  var nUrl=lsGet('bfv5sunUrl');if(nUrl)sunUrl=nUrl;
+  /* Orders */
+  var lo=lsGet(OK);if(Array.isArray(lo))orders=lo.filter(function(x){return x&&x.name;});
+  /* Images (base64 fallback) */
+  var hb=lsGet(IKH);if(hb)heroB64=hb;
+  var sb=lsGet(IKS);if(sb)satImgB64=sb;
+  var nb=lsGet(IKN);if(nb)sunImgB64=nb;
+})();
+/* Render immediately with cached data — NO delay, NO flash of defaults */
+rAll();updBar();
 
 (async function(){
-  /* Step 1: Resolve GAS URL (hardcoded wins, then localStorage) */
-  if(GAS_URL){gasUrl=GAS_URL;gasSheet=GAS_SHEET||'2026-05-3031';}
-  else{var gv=await _ls('get',GK);if(gv)gasUrl=gv;var gs=await _ls('get',GS);if(gs)gasSheet=gs||'2026-05-3031';}
-
-  /* Step 2+3: Load everything from GAS (images + settings + orders) */
-  /* Load URLs from localStorage first (instant, no network needed) */
-  var _hUrl=await _ls('get','bfv5heroUrl');if(_hUrl)heroUrl=_hUrl;
-  var _sUrl=await _ls('get','bfv5satUrl');if(_sUrl)satUrl=_sUrl;
-  var _nUrl=await _ls('get','bfv5sunUrl');if(_nUrl)sunUrl=_nUrl;
+  /* Step 1: Resolve GAS URL already done above */
 
   if(gasUrl){
-    var loaded=await gasLoad(); /* Also syncs from GAS (overrides if newer) */
-    if(!loaded){
-      /* GAS failed: fall back to localStorage cache */
-      var h=await _ls('get',IKH);if(h)heroB64=h;
-      var si=await _ls('get',IKS);if(si)satImgB64=si;
-      var ni=await _ls('get',IKN);if(ni)sunImgB64=ni;
-      var ls=await _ls('get',SK);if(ls&&ls.sat&&ls.sun)S=ls;
-      var lo=await _ls('get',OK);if(Array.isArray(lo))orders=lo.filter(function(x){return x&&x.name;});
-    }
+    /* Sync from GAS in background — updates UI when done */
+    var loaded=await gasLoad();
   } else {
     /* No GAS configured: use local cache */
     var ls2=await _ls('get',SK);if(ls2&&ls2.sat&&ls2.sun)S=ls2;
@@ -448,7 +454,7 @@ setInterval(async function(){
   if(pg==='A'&&adIn&&changed)rAdm(); /* Update admin order view if data changed */
   var si=document.getElementById('gasSync');
   if(si)si.style.background=fetched?'#00C9A7':'#F59E0B';
-},10000);
+},5000);
 function rAll(){rOrd();rSum();adIn?rAdm():rLog();}
 
 /* ── NAV BAR ── */

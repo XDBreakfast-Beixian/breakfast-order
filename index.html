@@ -249,14 +249,14 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 'use strict';
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
-var GAS_URL   = 'https://script.google.com/macros/s/AKfycbw_f1-q7AkPV8Mw-P-jU6AXnLVdODHVN9eLmNAs_lP31AXOvAbHIIo-lDac9uSSZeXO/exec'; /* <-- Paste your GAS deployment URL here */
+var GAS_URL   = 'https://script.google.com/macros/s/AKfycbxd-GkedrCbP5AJDbLHbjUCuAiN3aM2q5n_zahmZYpQu7qMmYd8N4q9IFa1ANy1oyDq/exec'; /* <-- Paste your GAS deployment URL here */
 var GAS_SHEET = '2026-05-3031'; /* <-- Your Google Sheet tab name */
 /* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
 var IKH='bfv5imgH',IKS='bfv5imgS',IKN='bfv5imgN';
 var GK='bfv5gas',GS='bfv5gsheet'; /* GAS URL + sheet name */
 var IX=['ic1','ic2','ic3','ic4','ic5','ic6'],EM=['🥚','🥪','🍳','🍙','🥐','🍞','☕','🥗'];
-var DEF={title:' 5/30・31 壇主1班',description:'★ 班員有提供早餐，訂購不需含班員。\n★ 請確認後再訂購，送出後無法修改。',titleStyle:{size:'1.38rem',color:'#ffffff',bold:true,font:'Nunito',bg:false,bgColor:'#1a1a2e',align:'left'},textPos:{x:0,y:6},descStyle:{size:'0.71rem',color:'#ebebeb',bold:false,font:'Noto Sans TC',bg:false,bgColor:'#1a1a2e',align:'left'},sat:{date:'3/14',dayLabel:'週六',title:'週六早餐菜單',items:[{id:'s1',name:'饅頭夾蛋',price:35,note:'含豆漿',ico:'🥚',ic:'ic1'},{id:'s2',name:'總匯三明治',price:45,note:'含紅茶',ico:'🥪',ic:'ic2'}]},sun:{date:'3/15',dayLabel:'週日',title:'週日早餐菜單',items:[{id:'n1',name:'蛋餅',price:40,note:'含豆漿',ico:'🍳',ic:'ic3'},{id:'n2',name:'飯糰',price:45,note:'含米漿',ico:'🍙',ic:'ic4'}]}};
+var DEF={title:'【早餐訂購】3/14・15 北部心靈講座',description:'★ 班員有提供早餐，訂購不需含班員。\n★ 請確認後再訂購，送出後無法修改。',titleStyle:{size:'1.38rem',color:'#ffffff',bold:true,font:'Nunito',bg:false,bgColor:'#1a1a2e',align:'left'},textPos:{x:0,y:6},descStyle:{size:'0.71rem',color:'#ebebeb',bold:false,font:'Noto Sans TC',bg:false,bgColor:'#1a1a2e',align:'left'},sat:{date:'3/14',dayLabel:'週六',title:'週六早餐菜單',items:[{id:'s1',name:'饅頭夾蛋',price:35,note:'含豆漿',ico:'🥚',ic:'ic1'},{id:'s2',name:'總匯三明治',price:45,note:'含紅茶',ico:'🥪',ic:'ic2'}]},sun:{date:'3/15',dayLabel:'週日',title:'週日早餐菜單',items:[{id:'n1',name:'蛋餅',price:40,note:'含豆漿',ico:'🍳',ic:'ic3'},{id:'n2',name:'飯糰',price:45,note:'含米漿',ico:'🍙',ic:'ic4'}]}};
 var S=JSON.parse(JSON.stringify(DEF));
 var orders=[],pg='O',adIn=false,aTab='gen',draft=null;
 var fU='',fCU='',fA='',fN='',fP='',sQ={},nQ={},done=false,last=null,selU=null;
@@ -303,21 +303,15 @@ async function gasLoad(){
       var cfg=cd.config;
       /* Load settings */
       if(cfg.sat&&cfg.sun){
-        /* Extract pure S (remove image fields) */
-        var sClean={title:cfg.title,description:cfg.description,
-          titleStyle:cfg.titleStyle,descStyle:cfg.descStyle,textPos:cfg.textPos,
-          sat:cfg.sat,sun:cfg.sun};
-        S=sClean;
+        S={title:cfg.title||S.title,description:cfg.description,
+           titleStyle:cfg.titleStyle||DEF.titleStyle,descStyle:cfg.descStyle||DEF.descStyle,
+           textPos:cfg.textPos||DEF.textPos,sat:cfg.sat,sun:cfg.sun};
         await _ls('set',SK,S);
       }
       if(cfg.gasSheet){gasSheet=cfg.gasSheet;await _ls('set',GS,gasSheet);}
-      /* Load images — these sync across all devices */
-      if(cfg.heroB64!==undefined){heroB64=cfg.heroB64||'';await _ls('set',IKH,heroB64);}
-      if(cfg.satImgB64!==undefined){satImgB64=cfg.satImgB64||'';await _ls('set',IKS,satImgB64);}
-      if(cfg.sunImgB64!==undefined){sunImgB64=cfg.sunImgB64||'';await _ls('set',IKN,sunImgB64);}
-      if(cfg.heroUrl!==undefined){heroUrl=cfg.heroUrl||'';if(heroUrl)_ls('set','bfv5heroUrl',heroUrl);}
-      if(cfg.satUrl!==undefined){satUrl=cfg.satUrl||'';if(satUrl)_ls('set','bfv5satUrl',satUrl);}
-      if(cfg.sunUrl!==undefined){sunUrl=cfg.sunUrl||'';if(sunUrl)_ls('set','bfv5sunUrl',sunUrl);}
+      if(cfg.heroUrl){heroUrl=cfg.heroUrl;await _ls('set','bfv5heroUrl',heroUrl);}
+      if(cfg.satUrl){satUrl=cfg.satUrl;await _ls('set','bfv5satUrl',satUrl);}
+      if(cfg.sunUrl){sunUrl=cfg.sunUrl;await _ls('set','bfv5sunUrl',sunUrl);}
     }
     /* Fetch orders */
     var or2=await fetchFromGAS();
@@ -329,9 +323,9 @@ async function gasLoad(){
 async function gasSaveConfig(){
   if(!gasUrl)return;
   try{
-    var cfg=Object.assign({},S,{gasSheet:gasSheet,heroB64:heroB64||'',satImgB64:satImgB64||'',sunImgB64:sunImgB64||'',heroUrl:heroUrl||'',satUrl:satUrl||'',sunUrl:sunUrl||''});
-    /* Use POST — base64 images can be 300KB+, far exceeding GET URL limits */
-    await fetch(gasUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveConfig',data:cfg})});
+    var cfg={title:S.title,description:S.description,titleStyle:S.titleStyle,descStyle:S.descStyle,textPos:S.textPos,sat:S.sat,sun:S.sun,gasSheet:gasSheet,heroUrl:heroUrl||'',satUrl:satUrl||'',sunUrl:sunUrl||''};
+    var url=gasUrl+'?action=saveConfig&data='+encodeURIComponent(JSON.stringify(cfg));
+    await fetch(url,{credentials:'omit'}).catch(function(){});
   }catch(e){}
 }
 

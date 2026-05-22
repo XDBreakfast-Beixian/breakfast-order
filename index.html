@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FF6348">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{--or:#FF6348;--am:#FF9500;--sa:#E65C00;--sb:#F9A825;--stx:#B34700;--na:#1565C0;--nb:#42A5F5;--ntx:#0D47A1;--gr:#00C9A7;--gd:#008870;--bg:#FFFBF5;--sf:#fff;--tx:#1A1A2E;--mu:#6B7280;--bd:#EDE8E3;--re:#EF4444;--nv:62px;}
-html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
-.wrap{display:flex;flex-direction:column;height:100vh;max-width:600px;margin:0 auto;overflow:hidden;}
-.sa{flex:1;overflow-y:auto;}.sa::-webkit-scrollbar{width:3px;}.sa::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
-.nav{flex-shrink:0;height:var(--nv);background:rgba(255,255,255,.97);border-top:1px solid rgba(255,100,72,.08);display:flex;position:relative;box-shadow:0 -2px 16px rgba(0,0,0,.05);}
+html,body{height:100%;margin:0;padding:0;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
+.wrap{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;max-width:600px;margin:0 auto;position:relative;}
+.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nv) + env(safe-area-inset-bottom) + 8px);}.sa::-webkit-scrollbar{width:3px;}.sa::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
+.nav{height:var(--nv);background:rgba(255,255,255,.97);border-top:1px solid rgba(255,100,72,.08);display:flex;position:fixed;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;box-shadow:0 -2px 16px rgba(0,0,0,.05);z-index:9999;padding-bottom:env(safe-area-inset-bottom);box-sizing:content-box;}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:.6rem;font-weight:600;color:var(--mu);padding:0;}
 .nb svg{width:19px;height:19px;}.nb.on{color:var(--or);}
 .nink{position:absolute;top:0;height:3px;background:linear-gradient(90deg,var(--or),var(--am));border-radius:0 0 4px 4px;width:33.333%;transition:left .28s cubic-bezier(.4,0,.2,1);}
@@ -249,7 +252,7 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 'use strict';
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
-var GAS_URL   = 'https://script.google.com/macros/s/AKfycbxm4IYvr6rR3l7I4DJU5QTDzX0nk_QrrHRQEh0G5pRDuGeIgvkblh2SGAvKQ8A0AJeP/exec'; /* <-- Paste your GAS deployment URL here */
+var GAS_URL   = 'https://script.google.com/macros/s/AKfycbwlsk5ypkxbGXoCi2_J8uzh3pj7kd_aBGbaSeCvH5hL8S4ZCyEF5r4qoWCUTm5axYYw/exec'; /* <-- Paste your GAS deployment URL here */
 var GAS_SHEET = '2026-05-3031'; /* <-- Your Google Sheet tab name */
 /* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
@@ -327,7 +330,13 @@ async function gasSaveConfig(){
   try{
     var cfg={title:S.title,description:S.description,titleStyle:S.titleStyle,descStyle:S.descStyle,textPos:S.textPos,sat:S.sat,sun:S.sun,gasSheet:gasSheet,heroUrl:heroUrl||'',satUrl:satUrl||'',sunUrl:sunUrl||''};
     var url=gasUrl+'?action=saveConfig&data='+encodeURIComponent(JSON.stringify(cfg));
-    await fetch(url,{credentials:'omit'}).catch(function(){});
+    fetch(url,{credentials:'omit'}).catch(function(){});
+    /* Save all settings to localStorage immediately (same-browser instant update) */
+    _ls('set',SK,S);
+    if(cfg.heroUrl)_ls('set','bfv5heroUrl',cfg.heroUrl);
+    if(cfg.satUrl)_ls('set','bfv5satUrl',cfg.satUrl);
+    if(cfg.sunUrl)_ls('set','bfv5sunUrl',cfg.sunUrl);
+    _ls('set',GS,gasSheet);
   }catch(e){}
 }
 
@@ -441,7 +450,7 @@ async function fetchFromGAS(){
   return false;
 }
 setInterval(async function(){
-  /* Pull latest from GAS every 10s — bidirectional sync */
+  /* Pull latest from GAS every 3s — bidirectional sync */
   var prevOrders=JSON.stringify(orders);
   var fetched=await fetchFromGAS();
   if(!fetched){
@@ -454,7 +463,7 @@ setInterval(async function(){
   if(pg==='A'&&adIn&&changed)rAdm(); /* Update admin order view if data changed */
   var si=document.getElementById('gasSync');
   if(si)si.style.background=fetched?'#00C9A7':'#F59E0B';
-},5000);
+},3000);
 function rAll(){rOrd();rSum();adIn?rAdm():rLog();}
 
 /* ── NAV BAR ── */

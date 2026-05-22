@@ -10,14 +10,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{--or:#FF6348;--am:#FF9500;--sa:#E65C00;--sb:#F9A825;--stx:#B34700;--na:#1565C0;--nb:#42A5F5;--ntx:#0D47A1;--gr:#00C9A7;--gd:#008870;--bg:#FFFBF5;--sf:#fff;--tx:#1A1A2E;--mu:#6B7280;--bd:#EDE8E3;--re:#EF4444;--nv:62px;}
-html,body{height:100%;margin:0;padding:0;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
-.wrap{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;max-width:600px;margin:0 auto;position:relative;}
-.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nv) + var(--sb-h, 0px) + env(safe-area-inset-bottom) + 8px);}.sa::-webkit-scrollbar{width:3px;}.sa::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
-.nav{height:var(--nv);background:rgba(255,255,255,.97);border-top:1px solid rgba(255,100,72,.08);display:flex;position:fixed;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;box-shadow:0 -2px 16px rgba(0,0,0,.05);z-index:9999;padding-bottom:env(safe-area-inset-bottom);box-sizing:content-box;}
+html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
+.wrap{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:600px;margin:0 auto;overflow:hidden;}
+#pO,#pS,#pA{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;}
+#pO.active,#pS.active,#pA.active{display:block;}
+.sa{flex:1;overflow:hidden;position:relative;}.sa::-webkit-scrollbar{width:3px;}.sa::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
+.nav{height:calc(var(--nv) + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid rgba(255,100,72,.08);display:flex;flex-shrink:0;box-shadow:0 -2px 16px rgba(0,0,0,.05);padding-bottom:env(safe-area-inset-bottom);z-index:200;position:relative;}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:.6rem;font-weight:600;color:var(--mu);padding:0;}
 .nb svg{width:19px;height:19px;}.nb.on{color:var(--or);}
 .nink{position:absolute;top:0;height:3px;background:linear-gradient(90deg,var(--or),var(--am));border-radius:0 0 4px 4px;width:33.333%;transition:left .28s cubic-bezier(.4,0,.2,1);}
-#sb{position:fixed;bottom:calc(var(--nv) + env(safe-area-inset-bottom));left:0;right:0;max-width:600px;margin:0 auto;padding:8px 13px;background:rgba(255,251,245,.98);border-top:1px solid rgba(255,100,72,.12);z-index:199;display:none;}
+#sb{flex-shrink:0;padding:8px 13px;background:rgba(255,251,245,.98);border-top:1px solid rgba(255,100,72,.12);display:none;}
 #sbb{width:100%;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(135deg,#FF5733,#FF8C00);display:flex;align-items:center;gap:12px;padding:13px 18px;}
 @keyframes gl{0%,100%{box-shadow:0 6px 22px rgba(255,87,51,.4);}50%{box-shadow:0 8px 30px rgba(255,87,51,.65),0 0 0 5px rgba(255,87,51,.1);}}
 #sbb{animation:gl 2.5s ease-in-out infinite;}
@@ -207,7 +209,7 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 .lw{max-width:305px;margin:0 auto;padding:46px 12px;}.ll{text-align:center;margin-bottom:22px;}
 .lr{width:62px;height:62px;border-radius:18px;background:linear-gradient(135deg,#1e3c72,#2a5298);display:flex;align-items:center;justify-content:center;font-size:1.85rem;margin:0 auto 11px;}
 .lt{font-family:'Nunito',sans-serif;font-size:1.22rem;font-weight:900;}.ls{font-size:.71rem;color:var(--mu);margin-top:3px;}
-.smov{position:absolute;inset:0;background:rgba(10,10,20,.52);z-index:600;display:flex;align-items:flex-end;justify-content:center;animation:mFd .2s;}
+.smov{position:fixed;inset:0;background:rgba(10,10,20,.52);z-index:600;display:flex;align-items:flex-end;justify-content:center;animation:mFd .2s;}
 .smbx{background:#fff;border-radius:22px 22px 0 0;padding:22px 17px 32px;width:100%;animation:mUp .24s cubic-bezier(.4,0,.2,1);}
 .smttl{font-family:'Nunito',sans-serif;font-size:1.06rem;font-weight:900;text-align:center;margin-bottom:5px;}
 .smsub{font-size:.74rem;color:var(--mu);text-align:center;margin-bottom:17px;line-height:1.58;}
@@ -267,6 +269,7 @@ var fU='',fCU='',fA='',fN='',fP='',sQ={},nQ={},done=false,last=null,selU=null;
 var heroB64='',satImgB64='',sunImgB64='',gasUrl='',gasSheet='';
 var heroUrl='',satUrl='',sunUrl='';
 var ordSrch='',ordFUnit='',ordFArea='',ordFName='';
+var sumSrch='',sumSrchField='name'; /* search in 訂購查詢 */
 /* edit state */
 var editOrder=null;
 
@@ -459,7 +462,13 @@ setInterval(async function(){
   }
   /* Only re-render if orders actually changed */
   var changed=(JSON.stringify(orders)!==prevOrders);
-  if(pg==='S')rSum();
+  if(pg==='S'&&changed){
+    /* Preserve scroll position during re-render */
+    var _ps=document.getElementById('pS');
+    var _scrollTop=_ps?_ps.scrollTop:0;
+    rSum();
+    if(_ps)_ps.scrollTop=_scrollTop;
+  }
   if(pg==='A'&&adIn&&changed)rAdm(); /* Update admin order view if data changed */
   var si=document.getElementById('gasSync');
   if(si)si.style.background=fetched?'#00C9A7':'#F59E0B';
@@ -479,7 +488,7 @@ function updBar(){
 }
 function go(p){
   pg=p;
-  ['O','S','A'].forEach(function(id,i){var el=document.getElementById('p'+id),btn=document.getElementById('n'+i);if(el)el.style.display=id===p?'block':'none';if(btn)btn.className='nb'+(id===p?' on':'');});
+  ['O','S','A'].forEach(function(id,i){var el=document.getElementById('p'+id),btn=document.getElementById('n'+i);if(el){el.style.display=id===p?'block':'none';el.className=id===p?'active':'';}if(btn)btn.className='nb'+(id===p?' on':'');});
   var ink=document.getElementById('ink');if(ink)ink.style.left=p==='O'?'0':p==='S'?'33.333%':'66.666%';
   var sa=document.getElementById('sa');if(sa)sa.scrollTop=0;
   updBar();
@@ -683,12 +692,31 @@ function onSumClick(e){
 }
 function rSum(){var el=document.getElementById('pS');if(!el)return;if(selU!==null){rUD(el);}else{rUL(el);}}
 function rUL(el){
+  /* Apply search filter */
+  var filtered=orders.filter(function(o){
+    if(!o||!o.name)return false;
+    if(!sumSrch)return true;
+    var q=sumSrch.trim().toLowerCase();
+    return (o.name||'').toLowerCase().indexOf(q)>=0
+        ||(o.unit||'').toLowerCase().indexOf(q)>=0
+        ||(String(o.area||'')).toLowerCase().indexOf(q)>=0;
+  });
   var satT=0,sunT=0,um={},i,o,u;
-  for(i=0;i<orders.length;i++){o=orders[i];u=o.unit||'未知';if(!um[u])um[u]={s:0,n:0};um[u].s+=sumO(getSat(o));um[u].n+=sumO(getSun(o));satT+=sumO(getSat(o));sunT+=sumO(getSun(o));}
+  for(i=0;i<filtered.length;i++){o=filtered[i];u=o.unit||'未知';if(!um[u])um[u]={s:0,n:0,list:[]};um[u].s+=sumO(getSat(o));um[u].n+=sumO(getSun(o));um[u].list.push(o);satT+=sumO(getSat(o));sunT+=sumO(getSun(o));}
   UA=Object.keys(um);
   var ts=new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   var h='<div class="sh"><div class="sh-d"></div><div class="sh-g1"></div><div class="sh-g2"></div><div class="sh-c"><div class="shtag">📊 即時訂單查詢</div><div class="shttl">'+eh(S.title)+'</div><div class="shsub">點選單位，查看各成員訂購明細</div><div class="srow"><div class="sbi"><div class="sbn s">'+satT+'</div><div class="sbl">🌅 週六訂購數量</div></div><div class="sbi"><div class="sbn n">'+sunT+'</div><div class="sbl">🌄 週日訂購數量</div></div></div></div></div><div class="sc"><div class="rbar"><span class="rtxt">⏱ '+ts+'</span><button class="rbtn" onclick="doRf()"><svg id="ri" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> 重新整理</button></div>';
-  if(!UA.length){h+='<div class="cd"><div class="empty"><div class="eico">📭</div>目前尚無訂單</div></div>';}
+  /* Search bar */
+  h+='<div style="padding:10px 14px 6px">'
+    +'<div style="display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:9px 13px">'
+    +'<span style="font-size:1rem;flex-shrink:0">🔍</span>'
+    +'<input id="sumSrchInp" type="search" placeholder="搜尋姓名、單位、區域…" value="'+eh(sumSrch)+'" '
+    +'oninput="sumSrch=this.value;rSum()" '
+    +'style="border:none;outline:none;flex:1;font-size:.85rem;color:var(--tx);background:transparent;min-width:0">'
+    +(sumSrch?'<button onclick="sumSrch=\'\';rSum()" style="border:none;background:none;cursor:pointer;color:var(--mu);font-size:1rem;padding:0;flex-shrink:0;line-height:1">✕</button>':'')
+    +'</div>'
+    +'</div>';
+  if(!UA.length){h+='<div class="cd"><div class="empty"><div class="eico">'+(sumSrch?'🔍':'📭')+'</div>'+(sumSrch?'找不到「'+eh(sumSrch)+'」的訂單':'目前尚無訂單')+'</div></div>';}
   else{for(i=0;i<UA.length;i++){u=UA[i];var c=um[u];h+='<div class="uc" data-i="'+i+'" style="animation-delay:'+(i*.07)+'s"><div class="ucico">🏢</div><div class="uci"><div class="ucn">'+eh(u)+'</div><div class="ucb">'+(c.s>0?'<span class="bs">🌅 週六 '+c.s+' 份</span>':'')+(c.n>0?'<span class="bn">🌄 週日 '+c.n+' 份</span>':'')+'</div></div><div class="uca">›</div></div>';}}
   h+='</div>';el.innerHTML=h;
   _markUnsaved();

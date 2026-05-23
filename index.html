@@ -12,15 +12,22 @@
 :root{--or:#FF6348;--am:#FF9500;--sa:#E65C00;--sb:#F9A825;--stx:#B34700;--na:#1565C0;--nb:#42A5F5;--ntx:#0D47A1;--gr:#00C9A7;--gd:#008870;--bg:#FFFBF5;--sf:#fff;--tx:#1A1A2E;--mu:#6B7280;--bd:#EDE8E3;--re:#EF4444;--nv:62px;}
 html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
 .wrap{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:600px;margin:0 auto;overflow:hidden;}
-#pO{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:block;z-index:1;background:var(--bg);}
-#pA{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;z-index:1;background:var(--bg);}
-#pS{position:absolute;inset:0;overflow:hidden;display:none;flex-direction:column;z-index:1;background:var(--bg);}
+#pO{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:block;z-index:1;background:var(--bg);padding-bottom:80px;}
+#pA{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;z-index:1;background:var(--bg);padding-bottom:80px;}
+#pS{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;display:none;flex-direction:column;z-index:1;background:var(--bg);}
 #pO.active,#pA.active{display:block;}
 #pS.active{display:flex;}
+#pS::-webkit-scrollbar{width:4px;}
+#pS::-webkit-scrollbar-thumb{background:rgba(255,100,72,.3);border-radius:4px;}
 #pS.active{display:flex;}
+#pS::-webkit-scrollbar{width:4px;}
+#pS::-webkit-scrollbar-thumb{background:rgba(255,100,72,.3);border-radius:4px;}
 .sa{flex:1;overflow:hidden;position:relative;}.sa::-webkit-scrollbar{width:3px;}.sa::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
-.rUL-filter{position:sticky;top:0;z-index:100;background:#fff;}
-.rUL-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.rUL-filter{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#fff8f5 0%,#fff 100%);}
+.rUL-scroll{flex:1;padding-bottom:80px;}
+.rUL-scroll::-webkit-scrollbar{width:4px;}
+.rUL-scroll::-webkit-scrollbar-track{background:transparent;}
+.rUL-scroll::-webkit-scrollbar-thumb{background:rgba(255,100,72,.3);border-radius:4px;}
 .nav{height:calc(var(--nv) + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid rgba(255,100,72,.08);display:flex;flex-shrink:0;box-shadow:0 -2px 16px rgba(0,0,0,.05);padding-bottom:env(safe-area-inset-bottom);z-index:200;position:relative;}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:.6rem;font-weight:600;color:var(--mu);padding:0;}
 .nb svg{width:19px;height:19px;}.nb.on{color:var(--or);}
@@ -880,7 +887,9 @@ function rUL(el){
       h+='</div></div>';
     }
     h+='</div>';
-  }el.innerHTML=h;
+  }
+  h+='</div>'; /* close rUL-scroll */
+  el.innerHTML=h;
 }
 
 function bkL(){selU=null;rSum();}
@@ -1041,7 +1050,7 @@ function rAdm(){
       +'<div style="display:flex;gap:8px;margin-bottom:6px"><button onclick="saveGas()" style="flex:1;padding:9px;border-radius:9px;font-weight:600;font-size:.74rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;font-family:Noto Sans TC,sans-serif">💾 儲存設定</button>'
       +(gasUrl?'<button onclick="clearGas()" style="flex:1;padding:9px;border-radius:9px;font-weight:600;font-size:.74rem;border:2px solid var(--re);color:var(--re);background:#fff;cursor:pointer">✕ 移除</button>':'')
     h+='</div></div>';
-    h+=        h+='<div class="fi" style="margin-top:8px"><label class="fl">📎 或貼上圖片網址（推薦：保持原畫質，無大小限制）</label><div style="display:flex;gap:7px"><input class="inp" id="heroUrlInp" placeholder="https://i.imgur.com/..." value="'+eh(heroUrl)+'" oninput="heroUrl=this.value"><button onclick="setImgUrl(\'H\',document.getElementById(\'heroUrlInp\').value)" style="padding:8px 14px;border-radius:9px;font-size:.74rem;font-weight:600;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;white-space:nowrap">套用</button></div></div>';
+        h+='<div class="fi" style="margin-top:8px"><label class="fl">📎 或貼上圖片網址（推薦：保持原畫質，無大小限制）</label><div style="display:flex;gap:7px"><input class="inp" id="heroUrlInp" placeholder="https://i.imgur.com/..." value="'+eh(heroUrl)+'" oninput="heroUrl=this.value"><button onclick="setImgUrl(\'H\',document.getElementById(\'heroUrlInp\').value)" style="padding:8px 14px;border-radius:9px;font-size:.74rem;font-weight:600;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;white-space:nowrap">套用</button></div></div>';
 h+='<div id="progH" class="img-prog"><div id="progHBar" class="img-prog-bar"></div></div></div></div>'
       +'</div>'
     }

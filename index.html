@@ -12,9 +12,15 @@
 :root{--or:#FF6348;--am:#FF9500;--sa:#E65C00;--sb:#F9A825;--stx:#B34700;--na:#1565C0;--nb:#42A5F5;--ntx:#0D47A1;--gr:#00C9A7;--gd:#008870;--bg:#FFFBF5;--sf:#fff;--tx:#1A1A2E;--mu:#6B7280;--bd:#EDE8E3;--re:#EF4444;--nv:62px;}
 html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
 .wrap{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:600px;margin:0 auto;overflow:hidden;}
-#pO,#pS,#pA{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;}
-#pO.active,#pS.active,#pA.active{display:block;}
+#pO{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;display:block;}
+#pA{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;}
+#pS{height:100%;overflow:hidden;display:none;flex-direction:column;}
+#pO.active,#pA.active{display:block;}
+#pS.active{display:flex;}
+#pS.active{display:flex;}
 .sa{flex:1;overflow:hidden;position:relative;}.sa::-webkit-scrollbar{width:3px;}.sa::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
+.rUL-filter{position:sticky;top:0;z-index:100;background:#fff;}
+.rUL-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .nav{height:calc(var(--nv) + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid rgba(255,100,72,.08);display:flex;flex-shrink:0;box-shadow:0 -2px 16px rgba(0,0,0,.05);padding-bottom:env(safe-area-inset-bottom);z-index:200;position:relative;}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:.6rem;font-weight:600;color:var(--mu);padding:0;}
 .nb svg{width:19px;height:19px;}.nb.on{color:var(--or);}
@@ -269,7 +275,7 @@ var fU='',fCU='',fA='',fN='',fP='',sQ={},nQ={},done=false,last=null,selU=null;
 var heroB64='',satImgB64='',sunImgB64='',gasUrl='',gasSheet='';
 var heroUrl='',satUrl='',sunUrl='';
 var ordSrch='',ordFUnit='',ordFArea='',ordFName='';
-var sumSrch='',sumSrchField='name'; /* search in 訂購查詢 */
+var sumFUnit='',sumFArea='',sumFName=''; /* single-select dropdown filters */
 /* edit state */
 var editOrder=null;
 
@@ -374,6 +380,7 @@ function findFL(id,list){for(var i=0;i<list.length;i++)if(list[i].id===id)return
   var nb=lsGet(IKN);if(nb)sunImgB64=nb;
 })();
 /* Render immediately with cached data — NO delay, NO flash of defaults */
+go('O'); /* Set initial page visible */
 rAll();updBar();
 
 (async function(){
@@ -463,11 +470,10 @@ setInterval(async function(){
   /* Only re-render if orders actually changed */
   var changed=(JSON.stringify(orders)!==prevOrders);
   if(pg==='S'&&changed){
-    /* Preserve scroll position during re-render */
     var _ps=document.getElementById('pS');
-    var _scrollTop=_ps?_ps.scrollTop:0;
+    var _st=_ps?_ps.scrollTop:0;
     rSum();
-    if(_ps)_ps.scrollTop=_scrollTop;
+    setTimeout(function(){if(_ps)_ps.scrollTop=_st;},0);
   }
   if(pg==='A'&&adIn&&changed)rAdm(); /* Update admin order view if data changed */
   var si=document.getElementById('gasSync');
@@ -555,6 +561,8 @@ function heroH(){
 /* ── ORDER PAGE ── */
 function rOrd(){
   var el=document.getElementById('pO');if(!el)return;
+  /* Ensure the page is visible when rendered */
+  if(pg==='O'){el.style.display='block';el.className='active';}
   if(done&&last){el.innerHTML=succH();updBar();return;}
   var sm=satM(),nm=sunM(),stq=sumO(sQ),ntq=sumO(nQ),stp=0,ntp=0;
   for(var i=0;i<sm.length;i++)stp+=(sQ[sm[i].id]||0)*(sm[i].price||0);
@@ -691,36 +699,190 @@ function onSumClick(e){
   if(uc){var idx=parseInt(uc.getAttribute('data-i'),10);if(!isNaN(idx)&&idx>=0&&idx<UA.length){selU=UA[idx];rSum();var sa=document.getElementById('sa');if(sa)sa.scrollTop=0;}}
 }
 function rSum(){var el=document.getElementById('pS');if(!el)return;if(selU!==null){rUD(el);}else{rUL(el);}}
+function clearFilters(){sumFUnit='';sumFArea='';sumFName='';rSum();}
+
 function rUL(el){
-  /* Apply search filter */
-  var filtered=orders.filter(function(o){
-    if(!o||!o.name)return false;
-    if(!sumSrch)return true;
-    var q=sumSrch.trim().toLowerCase();
-    return (o.name||'').toLowerCase().indexOf(q)>=0
-        ||(o.unit||'').toLowerCase().indexOf(q)>=0
-        ||(String(o.area||'')).toLowerCase().indexOf(q)>=0;
+  var allOrders=orders.filter(function(o){return o&&o.name;});
+
+  /* All unique units */
+  var unitSet={};
+  allOrders.forEach(function(o){if(o.unit)unitSet[o.unit]=true;});
+  var allUnits=Object.keys(unitSet).sort(function(a,b){
+    var ia=UN.indexOf(a),ib=UN.indexOf(b);return(ia<0?99:ia)-(ib<0?99:ib);
   });
+
+  /* Areas available for selected units */
+  var step1=allOrders.filter(function(o){
+    return !sumFUnit||(o.unit||'')===sumFUnit;
+  });
+  var areaSet={};
+  step1.forEach(function(o){if(o.area!==undefined&&String(o.area)!=='')areaSet[String(o.area)]=true;});
+  var allAreas=Object.keys(areaSet).sort(function(a,b){return(parseInt(a)||0)-(parseInt(b)||0);});
+
+  /* Names available for selected units+areas */
+  var step2=step1.filter(function(o){
+    return !sumFArea||String(o.area||'')===sumFArea;
+  });
+  var nameSet={};
+  step2.forEach(function(o){if(o.name)nameSet[o.name]=true;});
+  var allNames=Object.keys(nameSet).sort();
+
+  /* Final filtered orders */
+  var filtered=step2.filter(function(o){
+    return !sumFName||(o.name||'')===sumFName;
+  });
+
+  /* Keep only valid selections */
+  if(sumFUnit&&!unitSet[sumFUnit])sumFUnit='';
+  if(sumFArea&&!areaSet[sumFArea])sumFArea='';
+  if(sumFName&&!nameSet[sumFName])sumFName='';
+
+  /* Build unit summary map */
   var satT=0,sunT=0,um={},i,o,u;
-  for(i=0;i<filtered.length;i++){o=filtered[i];u=o.unit||'未知';if(!um[u])um[u]={s:0,n:0,list:[]};um[u].s+=sumO(getSat(o));um[u].n+=sumO(getSun(o));um[u].list.push(o);satT+=sumO(getSat(o));sunT+=sumO(getSun(o));}
+  for(i=0;i<filtered.length;i++){
+    o=filtered[i];u=o.unit||'未知';
+    if(!um[u])um[u]={s:0,n:0,list:[]};
+    um[u].s+=sumO(getSat(o));um[u].n+=sumO(getSun(o));
+    um[u].list.push(o);satT+=sumO(getSat(o));sunT+=sumO(getSun(o));
+  }
   UA=Object.keys(um);
+
   var ts=new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  var h='<div class="sh"><div class="sh-d"></div><div class="sh-g1"></div><div class="sh-g2"></div><div class="sh-c"><div class="shtag">📊 即時訂單查詢</div><div class="shttl">'+eh(S.title)+'</div><div class="shsub">點選單位，查看各成員訂購明細</div><div class="srow"><div class="sbi"><div class="sbn s">'+satT+'</div><div class="sbl">🌅 週六訂購數量</div></div><div class="sbi"><div class="sbn n">'+sunT+'</div><div class="sbl">🌄 週日訂購數量</div></div></div></div></div><div class="sc"><div class="rbar"><span class="rtxt">⏱ '+ts+'</span><button class="rbtn" onclick="doRf()"><svg id="ri" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> 重新整理</button></div>';
-  /* Search bar */
-  h+='<div style="padding:10px 14px 6px">'
-    +'<div style="display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:9px 13px">'
-    +'<span style="font-size:1rem;flex-shrink:0">🔍</span>'
-    +'<input id="sumSrchInp" type="search" placeholder="搜尋姓名、單位、區域…" value="'+eh(sumSrch)+'" '
-    +'oninput="sumSrch=this.value;rSum()" '
-    +'style="border:none;outline:none;flex:1;font-size:.85rem;color:var(--tx);background:transparent;min-width:0">'
-    +(sumSrch?'<button onclick="sumSrch=\'\';rSum()" style="border:none;background:none;cursor:pointer;color:var(--mu);font-size:1rem;padding:0;flex-shrink:0;line-height:1">✕</button>':'')
+  var anyFilter=(sumFUnit||sumFArea||sumFName)?true:false;
+
+  var h='<div class="sh"><div class="sh-d"></div><div class="sh-g1"></div><div class="sh-g2"></div>'
+    +'<div class="sh-c"><div class="shtag">📊 即時訂單查詢</div>'
+    +'<div class="shttl">'+eh(S.title)+'</div>'
+    +'<div class="shsub">勾選條件篩選，快速找到訂單</div>'
+    +'<div class="srow"><div class="sbi"><div class="sbn s">'+satT+'</div><div class="sbl">🌅 週六數量</div></div>'
+    +'<div class="sbi"><div class="sbn n">'+sunT+'</div><div class="sbl">🌄 週日數量</div></div></div>'
+    +'</div></div>';
+
+  /* ── Single-select dropdown filters in one row ── */
+  /* sumFUnit/sumFArea/sumFName now hold single string values (not arrays) */
+
+  /* Step 1: build available options per filter */
+  var allOrders2=orders.filter(function(o){return o&&o.name;});
+
+  var unitSet2={};
+  allOrders2.forEach(function(o){if(o.unit)unitSet2[o.unit]=true;});
+  var allUnits2=Object.keys(unitSet2).sort(function(a,b){
+    var ia=UN.indexOf(a),ib=UN.indexOf(b);return(ia<0?99:ia)-(ib<0?99:ib);
+  });
+
+  var step1b=allOrders2.filter(function(o){
+    return !sumFUnit||(o.unit||'')===sumFUnit;
+  });
+  var areaSet2={};
+  step1b.forEach(function(o){if(o.area!==undefined&&String(o.area)!=='')areaSet2[String(o.area)]=true;});
+  var allAreas2=Object.keys(areaSet2).sort(function(a,b){return(parseInt(a)||0)-(parseInt(b)||0);});
+
+  var step2b=step1b.filter(function(o){
+    return !sumFArea||String(o.area||'')===sumFArea;
+  });
+  var nameSet2={};
+  step2b.forEach(function(o){if(o.name)nameSet2[o.name]=true;});
+  var allNames2=Object.keys(nameSet2).sort();
+
+  /* Keep valid single selections */
+  if(sumFUnit&&!unitSet2[sumFUnit])sumFUnit='';
+  if(sumFArea&&!areaSet2[sumFArea])sumFArea='';
+  if(sumFName&&!nameSet2[sumFName])sumFName='';
+
+  var anyFilter2=(sumFUnit||sumFArea||sumFName);
+  function mkSel(field,items,val,lbl){
+    var opts='<option value="">'+lbl+'</option>';
+    items.forEach(function(v){opts+='<option value="'+eh(v)+'"'+(val===v?' selected':'')+'>'+eh(v)+'</option>';});
+    return '<div style="flex:1;min-width:80px">'
+      +'<select onchange="'+field+'=this.value;rSum()" '
+      +'style="width:100%;padding:7px 8px;border:1.5px solid '+(val?'var(--or)':'var(--bd)')+';border-radius:9px;font-size:.8rem;color:'+(val?'var(--or)':'var(--tx)')+';background:#fff;cursor:pointer;-webkit-appearance:none;appearance:none;font-weight:'+(val?'700':'400')+'">'+opts+'</select>'
+      +'</div>';
+  }
+
+  /* ── Styled filter panel with label and icons ── */
+  function mkSel2(field,items,val,lbl,icon){
+    var opts='<option value="">'+lbl+'</option>';
+    items.forEach(function(v){opts+='<option value="'+eh(v)+'"'+(val===v?' selected':'')+'>'+eh(v)+'</option>';});
+    var active=!!val;
+    return '<div style="flex:1;min-width:0">'
+      +'<div style="font-size:.65rem;font-weight:700;color:'+(active?'var(--or)':'var(--mu)')+';letter-spacing:.06em;margin-bottom:4px;text-transform:uppercase;display:flex;align-items:center;gap:3px">'
+      +icon+' '+lbl+'</div>'
+      +'<div style="position:relative">'
+      +'<select onchange="'+field+'=this.value;rSum()" '
+      +'style="width:100%;padding:9px 28px 9px 11px;border:2px solid '+(active?'var(--or)':'#E2E8F0')+';border-radius:10px;font-size:.82rem;color:'+(active?'var(--or)':'var(--tx)')+';background:'+(active?'#FFF5F2':'#fff')+';cursor:pointer;-webkit-appearance:none;appearance:none;font-weight:'+(active?'700':'400')+';outline:none;transition:border .15s">'
+      +opts+'</select>'
+      +'<span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:.65rem;color:'+(active?'var(--or)':'var(--mu)')+'">▼</span>'
+      +'</div></div>';
+  }
+
+  h+='<div class="rUL-filter" style="background:linear-gradient(135deg,#fff8f5 0%,#fff 100%);border-bottom:2px solid #F0E8E0;padding:10px 14px 12px">';
+  /* Header */
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+    +'<div style="display:flex;align-items:center;gap:6px">'
+    +'<span style="font-size:.95rem">🔽</span>'
+    +'<span style="font-size:.8rem;font-weight:800;color:var(--tx);letter-spacing:.02em">快速篩選訂單</span>'
+    +(anyFilter2?'<span style="font-size:.68rem;background:var(--or);color:#fff;border-radius:10px;padding:2px 8px;font-weight:700">篩選中</span>':'')
     +'</div>'
+    +(anyFilter2?'<button onclick="sumFUnit=\'\';sumFArea=\'\';sumFName=\'\';rSum()" style="font-size:.72rem;color:var(--or);background:#FFF5F2;border:1.5px solid var(--or);border-radius:8px;padding:4px 10px;cursor:pointer;font-weight:700">✕ 清除</button>':'')
     +'</div>';
-  if(!UA.length){h+='<div class="cd"><div class="empty"><div class="eico">'+(sumSrch?'🔍':'📭')+'</div>'+(sumSrch?'找不到「'+eh(sumSrch)+'」的訂單':'目前尚無訂單')+'</div></div>';}
-  else{for(i=0;i<UA.length;i++){u=UA[i];var c=um[u];h+='<div class="uc" data-i="'+i+'" style="animation-delay:'+(i*.07)+'s"><div class="ucico">🏢</div><div class="uci"><div class="ucn">'+eh(u)+'</div><div class="ucb">'+(c.s>0?'<span class="bs">🌅 週六 '+c.s+' 份</span>':'')+(c.n>0?'<span class="bn">🌄 週日 '+c.n+' 份</span>':'')+'</div></div><div class="uca">›</div></div>';}}
-  h+='</div>';el.innerHTML=h;
-  _markUnsaved();
+  /* Selects row */
+  h+='<div style="display:flex;gap:8px">';
+  h+=mkSel2('sumFUnit',allUnits2,sumFUnit,'單位','🏢');
+  h+=mkSel2('sumFArea',allAreas2,sumFArea,'區域','📍');
+  h+=mkSel2('sumFName',allNames2,sumFName,'姓名','👤');
+  h+='</div>';
+  /* Helper text */
+  if(!anyFilter2)h+='<div style="font-size:.68rem;color:var(--mu);margin-top:8px;text-align:center">👆 點選任一下拉選單，即可篩選訂單</div>';
+  h+='</div>';
+  h+='</div>';
+
+  /* ── Scrollable content starts here ── */
+  h+='<div class="rUL-scroll">';
+
+  /* Refresh bar */
+  h+='<div class="sc"><div class="rbar"><span class="rtxt">⏱ '+ts+'</span><button class="rbtn" onclick="doRf()"><svg id="ri" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> 重新整理</button></div>';
+
+  if(!filtered.length){
+    h+='<div class="cd"><div class="empty"><div class="eico">'+(anyFilter?'🔍':'📭')+'</div>'+(anyFilter?'找不到符合條件的訂單':'目前尚無訂單')+'</div></div>';
+  } else if(!anyFilter){
+    /* No filter: show unit summary cards */
+    for(i=0;i<UA.length;i++){
+      u=UA[i];var c=um[u];
+      h+='<div class="uc" data-i="'+i+'" style="animation-delay:'+(i*.07)+'s" onclick="selU=\''+u+'\';rSum()"><div class="ucico">🏢</div><div class="uci"><div class="ucn">'+eh(u)+'</div><div class="ucb">'+(c.s>0?'<span class="bs">🌅 週六 '+c.s+' 份</span>':'')+(c.n>0?'<span class="bn">🌄 週日 '+c.n+' 份</span>':'')+'</div></div><div class="uca">›</div></div>';
+    }
+  } else {
+    /* Has filter: show individual orders directly */
+    var smF=satM(),nmF=sunM();
+    filtered.sort(function(a,b){
+      if((a.unit||'')!==(b.unit||''))return(UN.indexOf(a.unit)||0)-(UN.indexOf(b.unit)||0);
+      var an=parseInt(a.area,10),bn=parseInt(b.area,10);
+      if(!isNaN(an)&&!isNaN(bn)&&an!==bn)return an-bn;
+      return String(a.name||'').localeCompare(String(b.name||''),'zh-TW');
+    });
+    h+='<div class="plist">';
+    for(i=0;i<filtered.length;i++){
+      var fo=filtered[i];
+      var fpid=String(fo.id||('f'+i));
+      var fSat=getSat(fo),fSun=getSun(fo);
+      var fHasSat=false,fHasSun=false;
+      var fSatK=Object.keys(fSat),fSunK=Object.keys(fSun);
+      for(var fi2=0;fi2<fSatK.length;fi2++)if((fSat[fSatK[fi2]]||0)>0){fHasSat=true;break;}
+      for(var fi3=0;fi3<fSunK.length;fi3++)if((fSun[fSunK[fi3]]||0)>0){fHasSun=true;break;}
+      h+='<div>';
+      h+='<div class="prow" onclick="toggleP(\''+fpid+'\')"><div class="pabd"><div class="pabd-a">'+eh(fo.area)+'</div><div class="pabd-u">區</div></div><div class="pnwrap"><span style="font-size:.67rem;color:var(--mu);display:block;margin-bottom:1px">🏢 '+eh(fo.unit)+'</span><span class="pnm">'+eh(fo.name)+'</span><div class="pbdgs">'+(fHasSat?'<span class="pbdg-s">🌅 週六</span>':'')+(fHasSun?'<span class="pbdg-n">🌄 週日</span>':'')+'</div></div><div class="parow" id="pa-'+fpid+'">›</div></div>';
+      h+='<div class="pdetail" id="pd-'+fpid+'" style="display:none">';
+      var fSatList=[];
+      for(var fj=0;fj<fSatK.length;fj++){var fsk=fSatK[fj],fsq=Number(fSat[fsk])||0;if(fsq<=0)continue;var fsm2=findFL(fsk,smF);fSatList.push({name:fsm2?fsm2.name:fsk,qty:fsq,price:fsm2?fsm2.price:0});}
+      if(fSatList.length){h+='<div class="pdday s"><span>🌅</span><span>'+eh(S.sat.dayLabel)+' '+eh(S.sat.date)+'</span></div>';for(var fj=0;fj<fSatList.length;fj++)h+='<div class="pditem"><span class="pdnm">'+eh(fSatList[fj].name)+'</span><span class="pdq">× '+fSatList[fj].qty+' 份</span><span class="pdp">$'+fSatList[fj].price*fSatList[fj].qty+'</span></div>';}
+      var fSunList=[];
+      for(var fk=0;fk<fSunK.length;fk++){var fnk=fSunK[fk],fnq=Number(fSun[fnk])||0;if(fnq<=0)continue;var fnm2=findFL(fnk,nmF);fSunList.push({name:fnm2?fnm2.name:fnk,qty:fnq,price:fnm2?fnm2.price:0});}
+      if(fSunList.length){h+='<div class="pdday n"><span>🌄</span><span>'+eh(S.sun.dayLabel)+' '+eh(S.sun.date)+'</span></div>';for(var fk=0;fk<fSunList.length;fk++)h+='<div class="pditem"><span class="pdnm">'+eh(fSunList[fk].name)+'</span><span class="pdq">× '+fSunList[fk].qty+' 份</span><span class="pdp">$'+fSunList[fk].price*fSunList[fk].qty+'</span></div>';}
+      h+='</div></div>';
+    }
+    h+='</div>';
+  }el.innerHTML=h;
 }
+
 function bkL(){selU=null;rSum();}
 function rUD(el){
   var unit=selU,smItems=satM(),nmItems=sunM(),uOrd=[],i,j;
@@ -858,14 +1020,8 @@ function rAdm(){
       +'<div class="fi"><label class="fl">GAS 部署網址</label>'+'<input class="inp" id="gasInp" placeholder="https://script.google.com/macros/s/.../exec" value="'+eh(gasUrl)+'" oninput="gasUrl=this.value">'+(gasUrl?'<div style="display:flex;gap:7px;margin-top:8px">'+'<button onclick="testGasPing()" style="flex:1;padding:8px;border-radius:9px;font-size:.73rem;font-weight:600;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer">🔍 連線+寫入測試</button>'+'<button onclick="window.open(gasUrl+\'?action=ping\',\'_blank\')" style="flex:1;padding:8px;border-radius:9px;font-size:.73rem;font-weight:600;border:2px solid var(--mu);color:var(--mu);background:#fff;cursor:pointer">🌐 在新分頁開啟</button>'+'</div>':'')+'</div>'
       +'<div class="fi"><label class="fl">試算表分頁名稱</label><input class="inp" id="gsInp" placeholder="訂單（預設）" value="'+eh(gasSheet)+'" oninput="gasSheet=this.value"></div>'
       +'<div style="display:flex;gap:8px;margin-bottom:6px"><button onclick="saveGas()" style="flex:1;padding:9px;border-radius:9px;font-weight:600;font-size:.74rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;font-family:Noto Sans TC,sans-serif">💾 儲存設定</button>'
-      +(gasUrl?'<button onclick="clearGas()" style="flex:1;padding:9px;border-radius:9px;font-weight:600;font-size:.74rem;border:2px solid var(--re);color:var(--re);background:#fff;cursor:pointer;font-family:Noto Sans TC,sans-serif">✕ 移除</button>':'')+' </div>'
-      +(gasUrl?'<div style="font-size:.7rem;color:var(--gd);padding:9px 12px;background:#E0FBF5;border-radius:8px;line-height:1.6">✅ 已連接<br>📋 寫入分頁：<strong>'+eh(gasSheet||'訂單')+'</strong></div>':'<div style="font-size:.68rem;color:var(--mu);padding:7px 10px;background:#F9FAFB;border-radius:8px">⚠ 尚未設定，將使用本機儲存。</div>')
-      +'</div>'
-      +'<div class="fcd"><div class="fcdt">🖼️ 訂購頁面背景圖</div>'
-      +'<div class="fi"><div style="font-size:.71rem;color:var(--mu);margin-bottom:8px;line-height:1.55">建議事先裁切為合適比例。原尺寸上傳不壓縮，跨裝置同步。</div>'
-      +'';
-    if(heroB64){h+='<div class="img-prev-wrap"><img class="img-prev" src="'+(heroUrl||heroB64)+'"><button class="img-del" onclick="delImg(\'H\')">✕ 刪除</button></div><div style="margin-top:8px;text-align:center"><button onclick="document.getElementById(\'imgHInp\').click()" style="font-family:\'Noto Sans TC\',sans-serif;font-size:.73rem;font-weight:600;color:var(--or);background:#fff;border:1.5px solid var(--or);border-radius:9px;padding:6px 14px;cursor:pointer">🔄 更換</button></div>';}
-    else{h+='<div class="img-up" onclick="document.getElementById(\'imgHInp\').click()"><div class="img-up-ico">🌅</div><div class="img-up-ttl">上傳背景圖片</div><div class="img-up-sub">PNG · JPG · JPEG　原尺寸不壓縮</div></div>';}
+      +(gasUrl?'<button onclick="clearGas()" style="flex:1;padding:9px;border-radius:9px;font-weight:600;font-size:.74rem;border:2px solid var(--re);color:var(--re);background:#fff;cursor:pointer">✕ 移除</button>':'')
+    h+='<div class="img-up" onclick="document.getElementById(\'imgHInp\').click()"><div class="img-up-ico">🌅</div><div class="img-up-ttl">上傳背景圖片</div><div class="img-up-sub">PNG · JPG · JPEG　原尺寸不壓縮</div></div>';}
         h+='<div class="fi" style="margin-top:8px"><label class="fl">📎 或貼上圖片網址（推薦：保持原畫質，無大小限制）</label><div style="display:flex;gap:7px"><input class="inp" id="heroUrlInp" placeholder="https://i.imgur.com/..." value="'+eh(heroUrl)+'" oninput="heroUrl=this.value"><button onclick="setImgUrl(\'H\',document.getElementById(\'heroUrlInp\').value)" style="padding:8px 14px;border-radius:9px;font-size:.74rem;font-weight:600;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;white-space:nowrap">套用</button></div></div>';
 h+='<div id="progH" class="img-prog"><div id="progHBar" class="img-prog-bar"></div></div></div></div>'
       +'</div>'
@@ -938,7 +1094,6 @@ h+='<div id="progH" class="img-prog"><div id="progHBar" class="img-prog-bar"></d
           +'</div></div>';
       }
     }
-  }
   h+='</div>';el.innerHTML=h;
 }
 function swT(t){aTab=t;rAdm();_markUnsaved();}

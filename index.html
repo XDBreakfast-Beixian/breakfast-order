@@ -12,9 +12,9 @@
 :root{--or:#FF6348;--am:#FF9500;--sa:#E65C00;--sb:#F9A825;--stx:#B34700;--na:#1565C0;--nb:#42A5F5;--ntx:#0D47A1;--gr:#00C9A7;--gd:#008870;--bg:#FFFBF5;--sf:#fff;--tx:#1A1A2E;--mu:#6B7280;--bd:#EDE8E3;--re:#EF4444;--nv:62px;}
 html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
 .wrap{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:600px;margin:0 auto;overflow:hidden;}
-#pO{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;display:block;}
-#pA{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;}
-#pS{height:100%;overflow:hidden;display:none;flex-direction:column;}
+#pO{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:block;z-index:1;background:var(--bg);}
+#pA{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;z-index:1;background:var(--bg);}
+#pS{position:absolute;inset:0;overflow:hidden;display:none;flex-direction:column;z-index:1;background:var(--bg);}
 #pO.active,#pA.active{display:block;}
 #pS.active{display:flex;}
 #pS.active{display:flex;}
@@ -940,7 +940,26 @@ async function doRf(){
 
 /* ── ADMIN LOGIN ── */
 function rLog(){var el=document.getElementById('pA');if(!el)return;el.innerHTML='<div class="lw"><div class="ll"><div class="lr">🛡️</div><div class="lt">管理員登入</div><div class="ls">請輸入帳號與密碼以進入後台</div></div><div id="lErr"></div><div class="cd"><div class="fi"><label class="fl">帳號</label><input class="inp" id="lId" placeholder="請輸入帳號"></div><div class="fi"><label class="fl">密碼</label><input class="inp" type="password" id="lPw" placeholder="請輸入密碼" onkeydown="if(event.key===\'Enter\')doLogin()"></div><button class="btn bbl" onclick="doLogin()">🔐 登入後台</button></div></div>';}
-function doLogin(){var id=document.getElementById('lId'),pw=document.getElementById('lPw');if(id&&pw&&id.value===AID&&pw.value===APW){adIn=true;draft=null;rAdm();}else{var er=document.getElementById('lErr');if(er)er.innerHTML='<div class="al aler">帳號或密碼錯誤</div>';}}
+function doLogin(){
+  var idEl=document.getElementById('lId'),pwEl=document.getElementById('lPw');
+  if(!idEl||!pwEl){alert('找不到輸入欄位');return;}
+  var idVal=idEl.value.trim(),pwVal=pwEl.value;
+  if(idVal===AID&&pwVal===APW){
+    adIn=true;draft=null;
+    var el=document.getElementById('pA');
+    if(el){
+      try{
+        iDr();
+        rAdm();
+      }catch(e){
+        el.innerHTML='<div style="padding:20px;color:red">錯誤：'+e.message+'</div>';
+      }
+    }
+  }else{
+    var er=document.getElementById('lErr');
+    if(er)er.innerHTML='<div class="al aler">帳號或密碼錯誤</div>';
+  }
+}
 function iDr(){if(!draft)draft={title:S.title,description:S.description,titleStyle:cx(S.titleStyle||DEF.titleStyle),descStyle:cx(S.descStyle||DEF.descStyle),textPos:cx(S.textPos||DEF.textPos),sat:{date:S.sat.date,dayLabel:S.sat.dayLabel,title:S.sat.title,items:S.sat.items.map(function(m){return cx(m);})},sun:{date:S.sun.date,dayLabel:S.sun.dayLabel,title:S.sun.title,items:S.sun.items.map(function(m){return cx(m);})}};}
 
 /* ── ADMIN MAIN ── */
@@ -1021,8 +1040,8 @@ function rAdm(){
       +'<div class="fi"><label class="fl">試算表分頁名稱</label><input class="inp" id="gsInp" placeholder="訂單（預設）" value="'+eh(gasSheet)+'" oninput="gasSheet=this.value"></div>'
       +'<div style="display:flex;gap:8px;margin-bottom:6px"><button onclick="saveGas()" style="flex:1;padding:9px;border-radius:9px;font-weight:600;font-size:.74rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;font-family:Noto Sans TC,sans-serif">💾 儲存設定</button>'
       +(gasUrl?'<button onclick="clearGas()" style="flex:1;padding:9px;border-radius:9px;font-weight:600;font-size:.74rem;border:2px solid var(--re);color:var(--re);background:#fff;cursor:pointer">✕ 移除</button>':'')
-    h+='<div class="img-up" onclick="document.getElementById(\'imgHInp\').click()"><div class="img-up-ico">🌅</div><div class="img-up-ttl">上傳背景圖片</div><div class="img-up-sub">PNG · JPG · JPEG　原尺寸不壓縮</div></div>';}
-        h+='<div class="fi" style="margin-top:8px"><label class="fl">📎 或貼上圖片網址（推薦：保持原畫質，無大小限制）</label><div style="display:flex;gap:7px"><input class="inp" id="heroUrlInp" placeholder="https://i.imgur.com/..." value="'+eh(heroUrl)+'" oninput="heroUrl=this.value"><button onclick="setImgUrl(\'H\',document.getElementById(\'heroUrlInp\').value)" style="padding:8px 14px;border-radius:9px;font-size:.74rem;font-weight:600;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;white-space:nowrap">套用</button></div></div>';
+    h+='</div></div>';
+    h+=        h+='<div class="fi" style="margin-top:8px"><label class="fl">📎 或貼上圖片網址（推薦：保持原畫質，無大小限制）</label><div style="display:flex;gap:7px"><input class="inp" id="heroUrlInp" placeholder="https://i.imgur.com/..." value="'+eh(heroUrl)+'" oninput="heroUrl=this.value"><button onclick="setImgUrl(\'H\',document.getElementById(\'heroUrlInp\').value)" style="padding:8px 14px;border-radius:9px;font-size:.74rem;font-weight:600;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer;white-space:nowrap">套用</button></div></div>';
 h+='<div id="progH" class="img-prog"><div id="progHBar" class="img-prog-bar"></div></div></div></div>'
       +'</div>'
     }
@@ -1094,6 +1113,7 @@ h+='<div id="progH" class="img-prog"><div id="progHBar" class="img-prog-bar"></d
           +'</div></div>';
       }
     }
+  }
   h+='</div>';el.innerHTML=h;
 }
 function swT(t){aTab=t;rAdm();_markUnsaved();}

@@ -276,7 +276,7 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
 var GAS_URL   = 'https://script.google.com/macros/s/AKfycbwlsk5ypkxbGXoCi2_J8uzh3pj7kd_aBGbaSeCvH5hL8S4ZCyEF5r4qoWCUTm5axYYw/exec';
-var GAS_SHEET = '2026-05-3031'; /* <-- Your Google Sheet tab name */
+var GAS_SHEET = 'Order'; /* <-- Your Google Sheet tab name */
 /* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
 var IKH='bfv5imgH',IKS='bfv5imgS',IKN='bfv5imgN';
@@ -382,8 +382,8 @@ function findFL(id,list){for(var i=0;i<list.length;i++)if(list[i].id===id)return
 (function(){
   function lsGet(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
   /* GAS URL */
-  if(GAS_URL){gasUrl=GAS_URL;gasSheet=GAS_SHEET||'2026-05-3031';}
-  else{var gv=lsGet(GK);if(gv)gasUrl=gv;var gs2=lsGet(GS);if(gs2)gasSheet=gs2||'2026-05-3031';}
+  if(GAS_URL){gasUrl=GAS_URL;gasSheet=GAS_SHEET||'Order';}
+  else{var gv=lsGet(GK);if(gv)gasUrl=gv;var gs2=lsGet(GS);if(gs2)gasSheet=gs2||'Order';}
   /* Settings (S) — menu, title, description */
   var ls=lsGet(SK);if(ls&&ls.sat&&ls.sun)S=ls;
   /* Image URLs */
@@ -422,7 +422,7 @@ showNotice(); /* Show notice on every page load/refresh */
 async function fetchFromGAS(){
   if(!gasUrl)return false;
   try{
-    var url=gasUrl+'?action=read&sheet='+encodeURIComponent(gasSheet||GAS_SHEET||'2026-05-3031')+'&t='+Date.now();
+    var url=gasUrl+'?action=read&sheet='+encodeURIComponent(gasSheet||GAS_SHEET||'Order')+'&t='+Date.now();
     var resp=await fetch(url,{credentials:'omit',cache:'no-store'});
     var data=await resp.json();
     if(data.ok&&Array.isArray(data.orders)&&data.orders.length>0){
@@ -715,7 +715,7 @@ async function subO(){
       var _sm=satM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
       var _nm=sunM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
       var _d=encodeURIComponent(JSON.stringify({order:order,satMenu:_sm,sunMenu:_nm}));
-      var _url=gasUrl+'?action=add&sheet='+encodeURIComponent(gasSheet||GAS_SHEET||'2026-05-3031')+'&data='+_d;
+      var _url=gasUrl+'?action=add&sheet='+encodeURIComponent(gasSheet||GAS_SHEET||'Order')+'&data='+_d;
       fetch(_url).catch(function(){});
     }catch(e){}
   }
@@ -1029,7 +1029,7 @@ function rAdm(){
           +(draft.titleStyle.bg?'<div style="margin-top:9px;display:flex;align-items:center;gap:9px"><input type="color" value="'+draft.titleStyle.bgColor+'" oninput="draft.titleStyle.bgColor=this.value" style="width:38px;height:34px;border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;padding:2px;background:#fff"><span style="font-size:.72rem;color:var(--mu)">底色顏色</span></div>':'')
         +'</div>'
       +'</div>'
-      +'<div class="fcd" style="margin-top:10px"><div class="fcdt">📢 訊息視窗</div>'+'<div class="fi"><label class="fl">視窗訊息內容</label>'+'<textarea class="inp" rows="4" style="resize:vertical;min-height:80px" oninput="noticeMsg=this.value">'+(draft.noticeMsg!==undefined?eh(draft.noticeMsg):eh(noticeMsg))+'</textarea></div>'+'<div style="font-size:.71rem;color:var(--mu);margin-top:4px">每次開啟或重新整理頁面時自動顯示，留空則不顯示。</div>'+'</div>'+'<div class="fi"><label class="fl">說明文字</label><textarea class="inp" oninput="draft.description=this.value">'+eh(draft.description)+'</textarea></div>'
+      +'<div class="fcd" style="margin-top:10px"><div class="fcdt">📢 訊息視窗</div>'+'<div class="fi"><label class="fl">視窗訊息內容</label>'+'<textarea class="inp" rows="4" style="resize:vertical;min-height:80px" oninput="if(!draft)iDr();draft.noticeMsg=this.value;noticeMsg=this.value">'+(draft.noticeMsg!==undefined?eh(draft.noticeMsg):eh(noticeMsg))+'</textarea></div>'+'<div style="font-size:.71rem;color:var(--mu);margin-top:4px">每次開啟或重新整理頁面時自動顯示，留空則不顯示。</div>'+'</div>'+'<div class="fi"><label class="fl">說明文字</label><textarea class="inp" oninput="draft.description=this.value">'+eh(draft.description)+'</textarea></div>'
       +'<div style="background:#F9FAFB;border-radius:13px;padding:13px;margin-bottom:10px">'
         +'<div style="font-size:.69rem;font-weight:700;color:var(--mu);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px"><span style="width:3px;height:12px;border-radius:2px;background:linear-gradient(#1e3c72,#2a5298);display:inline-block"></span>說明文字排版樣式</div>'
         +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
@@ -1121,7 +1121,7 @@ h+='<div id="progH" class="img-prog"><div id="progHBar" class="img-prog-bar"></d
     });
     if(gasUrl){
       h+='<div style="display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap">'
-        +'<button onclick="syncAllToGAS()" style="flex:1;min-width:100px;padding:9px;border-radius:10px;font-weight:700;font-size:.76rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer">📤 同步 → '+eh(gasSheet||'2026-05-3031')+'</button>'
+        +'<button onclick="syncAllToGAS()" style="flex:1;min-width:100px;padding:9px;border-radius:10px;font-weight:700;font-size:.76rem;border:2px solid var(--gd);color:var(--gd);background:#fff;cursor:pointer">📤 同步 → '+eh(gasSheet||'Order')+'</button>'
         +'<button onclick="rebuildSheet()" style="padding:9px 11px;border-radius:10px;font-weight:700;font-size:.76rem;border:2px solid var(--or);color:var(--or);background:#fff;cursor:pointer" title="清除並重建">🔄</button>'
         +'<button onclick="clearAllOrders()" style="padding:9px 11px;border-radius:10px;font-weight:700;font-size:.76rem;border:2px solid var(--re);color:var(--re);background:#fff;cursor:pointer" title="刪除所有訂單">🗑</button>'
         +'</div>';
@@ -1183,7 +1183,7 @@ function delO(id){
   var btnD=document.createElement('button');btnD.style.cssText='flex:1;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;font-family:Noto Sans TC,sans-serif;font-weight:700;font-size:.88rem;cursor:pointer';btnD.textContent='確定刪除';btnD.onclick=function(){ov.remove();doDelO(id);};
   row.appendChild(btnC);row.appendChild(btnD);box.appendChild(ttl);box.appendChild(sub);box.appendChild(row);ov.appendChild(box);w.appendChild(ov);
 }
-async function doDelO(id){var latest=await ldSt(OK);if(!Array.isArray(latest))latest=[];orders=latest.filter(function(o){return o.id!==id;});await svSt(OK,orders);if(gasUrl){try{fetch(gasUrl+'?action=delete&sheet='+encodeURIComponent(gasSheet||GAS_SHEET||'2026-05-3031')+'&id='+encodeURIComponent(id)).catch(function(){});}catch(e){}}rAdm();}
+async function doDelO(id){var latest=await ldSt(OK);if(!Array.isArray(latest))latest=[];orders=latest.filter(function(o){return o.id!==id;});await svSt(OK,orders);if(gasUrl){try{fetch(gasUrl+'?action=delete&sheet='+encodeURIComponent(gasSheet||GAS_SHEET||'Order')+'&id='+encodeURIComponent(id)).catch(function(){});}catch(e){}}rAdm();}
 
 /* ── EDIT ORDER ── */
 function openEdit(id){
@@ -1276,7 +1276,7 @@ async function saveEdit(){
   /* Push update to GAS spreadsheet */
   if(gasUrl){
     try{
-      var _up=gasUrl+'?action=update&sheet='+encodeURIComponent(gasSheet||'2026-05-3031')
+      var _up=gasUrl+'?action=update&sheet='+encodeURIComponent(gasSheet||'Order')
         +'&id='+encodeURIComponent(editOrder.id)
         +'&data='+encodeURIComponent(JSON.stringify({
           satItems:editOrder.satItems,
@@ -1369,7 +1369,7 @@ function testGasPing(){
 async function saveGas(){
   var inp=document.getElementById('gasInp');if(inp)gasUrl=inp.value.trim();
   var inp2=document.getElementById('gsInp');if(inp2)gasSheet=inp2.value.trim();
-  if(!gasSheet)gasSheet='2026-05-3031';
+  if(!gasSheet)gasSheet='Order';
   await svSt(GK,gasUrl);await svSt(GS,gasSheet);
   await gasSaveConfig(); /* Syncs gasSheet to all devices via GAS */
   var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ GAS 設定已儲存！所有裝置將在 10 秒內同步使用分頁：'+eh(gasSheet)+'</div>';
@@ -1413,7 +1413,7 @@ async function clearAllOrders(){
   /* Also clear orders in GAS sheet */
   if(gasUrl){
     try{
-      await fetch(gasUrl+'?action=clearOrders&sheet='+encodeURIComponent(gasSheet||'2026-05-3031'),{credentials:'omit',cache:'no-store'});
+      await fetch(gasUrl+'?action=clearOrders&sheet='+encodeURIComponent(gasSheet||'Order'),{credentials:'omit',cache:'no-store'});
     }catch(e){}
   }
   var msg=document.getElementById('aSv');

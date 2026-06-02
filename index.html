@@ -11,7 +11,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{--or:#FF6348;--am:#FF9500;--sa:#E65C00;--sb:#F9A825;--stx:#B34700;--na:#1565C0;--nb:#42A5F5;--ntx:#0D47A1;--gr:#00C9A7;--gd:#008870;--bg:#FFFBF5;--sf:#fff;--tx:#1A1A2E;--mu:#6B7280;--bd:#EDE8E3;--re:#EF4444;--nv:62px;}
 html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
-.wrap{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:600px;margin:0 auto;overflow:hidden;}
+.wrap{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:600px;margin:0 auto;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.1);}
 #pO{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:block;z-index:1;background:var(--bg);padding-bottom:80px;}
 #pA{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;z-index:1;background:var(--bg);padding-bottom:80px;}
 #pS{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;display:none;flex-direction:column;z-index:1;background:var(--bg);}
@@ -273,6 +273,14 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 </div>
 <script>
 'use strict';
+window.onerror=function(msg,src,line,col,err){
+  /* Show error on screen so we can debug on any device */
+  var d=document.createElement('div');
+  d.style.cssText='position:fixed;top:0;left:0;right:0;background:#DC2626;color:#fff;padding:10px;font-size:.75rem;z-index:9999;word-break:break-all;font-family:monospace';
+  d.textContent='JS Error: '+msg+' (line '+line+')';
+  document.body&&document.body.appendChild(d);
+  return false;
+};
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
 var GAS_URL   = 'https://script.google.com/macros/s/AKfycbwlsk5ypkxbGXoCi2_J8uzh3pj7kd_aBGbaSeCvH5hL8S4ZCyEF5r4qoWCUTm5axYYw/exec';
@@ -400,13 +408,12 @@ function findFL(id,list){for(var i=0;i<list.length;i++)if(list[i].id===id)return
 /* Render immediately with cached data — NO delay, NO flash of defaults */
 go('O'); /* Set initial page visible */
 rAll();updBar();
-showNotice(); /* Show notice on every page load/refresh */
+/* showNotice() called after gasLoad so it uses latest message */
 
 (async function(){
   /* Step 1: Resolve GAS URL already done above */
 
   if(gasUrl){
-    /* Sync from GAS in background — updates UI when done */
     var loaded=await gasLoad();
   } else {
     /* No GAS configured: use local cache */
@@ -415,6 +422,7 @@ showNotice(); /* Show notice on every page load/refresh */
   }
 
   rAll();updBar();
+  showNotice(); /* After GAS load — uses latest noticeMsg */
   document.getElementById('pS').addEventListener('click',onSumClick);
 })();
 

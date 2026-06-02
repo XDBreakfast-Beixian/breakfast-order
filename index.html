@@ -240,6 +240,14 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 /* Music status */
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 /* ── MINI MUSIC PLAYER ── */
+/* Notice popup */
+.notice-ov{position:fixed;inset:0;background:rgba(20,10,5,.55);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;animation:mFd .25s;}
+.notice-box{background:#fff;border-radius:20px;padding:24px 22px;max-width:360px;width:100%;box-shadow:0 12px 48px rgba(0,0,0,.2);position:relative;}
+.notice-ico{text-align:center;font-size:2.4rem;margin-bottom:10px;}
+.notice-title{text-align:center;font-size:1rem;font-weight:800;color:var(--tx);margin-bottom:12px;}
+.notice-body{font-size:.87rem;color:#444;line-height:1.75;background:#FFF8F2;border-radius:12px;padding:14px 15px;margin-bottom:18px;white-space:pre-wrap;}
+.notice-close{width:100%;padding:12px;background:linear-gradient(90deg,var(--or),var(--am));color:#fff;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;box-shadow:0 3px 12px rgba(255,99,72,.35);}
+
 </style>
 </head>
 <body>
@@ -267,7 +275,7 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 'use strict';
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
-var GAS_URL   = 'https://script.google.com/macros/s/AKfycbwlsk5ypkxbGXoCi2_J8uzh3pj7kd_aBGbaSeCvH5hL8S4ZCyEF5r4qoWCUTm5axYYw/exec'; /* <-- Paste your GAS deployment URL here */
+var GAS_URL   = 'https://script.google.com/macros/s/AKfycbwlsk5ypkxbGXoCi2_J8uzh3pj7kd_aBGbaSeCvH5hL8S4ZCyEF5r4qoWCUTm5axYYw/exec';
 var GAS_SHEET = '2026-05-3031'; /* <-- Your Google Sheet tab name */
 /* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
@@ -276,6 +284,7 @@ var GK='bfv5gas',GS='bfv5gsheet'; /* GAS URL + sheet name */
 var IX=['ic1','ic2','ic3','ic4','ic5','ic6'],EM=['🥚','🥪','🍳','🍙','🥐','🍞','☕','🥗'];
 var DEF={title:'【早餐訂購】3/14・15 北部心靈講座',description:'★ 班員有提供早餐，訂購不需含班員。\n★ 請確認後再訂購，送出後無法修改。',titleStyle:{size:'1.38rem',color:'#ffffff',bold:true,font:'Nunito',bg:false,bgColor:'#1a1a2e',align:'left'},textPos:{x:0,y:6},descStyle:{size:'0.71rem',color:'#ebebeb',bold:false,font:'Noto Sans TC',bg:false,bgColor:'#1a1a2e',align:'left'},sat:{date:'3/14',dayLabel:'週六',title:'週六早餐菜單',items:[{id:'s1',name:'饅頭夾蛋',price:35,note:'含豆漿',ico:'🥚',ic:'ic1'},{id:'s2',name:'總匯三明治',price:45,note:'含紅茶',ico:'🥪',ic:'ic2'}]},sun:{date:'3/15',dayLabel:'週日',title:'週日早餐菜單',items:[{id:'n1',name:'蛋餅',price:40,note:'含豆漿',ico:'🍳',ic:'ic3'},{id:'n2',name:'飯糰',price:45,note:'含米漿',ico:'🍙',ic:'ic4'}]}};
 var S=JSON.parse(JSON.stringify(DEF));
+var noticeMsg='非班期階段，請勿填寫此表單，後續若有訂購內容，我同步在早餐群組告知。感謝！'; /* 訊息視窗內容 */
 var orders=[],pg='O',adIn=false,aTab='gen',draft=null;
 var fU='',fCU='',fA='',fN='',fP='',sQ={},nQ={},done=false,last=null,selU=null;
 /* search/filter state */
@@ -329,6 +338,7 @@ async function gasLoad(){
       }
       if(cfg.gasSheet){gasSheet=cfg.gasSheet;await _ls('set',GS,gasSheet);}
       if(cfg.heroUrl){heroUrl=cfg.heroUrl;await _ls('set','bfv5heroUrl',heroUrl);}
+      if(cfg.noticeMsg!==undefined){noticeMsg=cfg.noticeMsg;await _ls('set','bfv5notice',noticeMsg);}
       if(cfg.satUrl){satUrl=cfg.satUrl;await _ls('set','bfv5satUrl',satUrl);}
       if(cfg.sunUrl){sunUrl=cfg.sunUrl;await _ls('set','bfv5sunUrl',sunUrl);}
       /* Update UI immediately with fresh config (no waiting for orders) */
@@ -344,7 +354,7 @@ async function gasLoad(){
 async function gasSaveConfig(){
   if(!gasUrl)return;
   try{
-    var cfg={title:S.title,description:S.description,titleStyle:S.titleStyle,descStyle:S.descStyle,textPos:S.textPos,sat:S.sat,sun:S.sun,gasSheet:gasSheet,heroUrl:heroUrl||'',satUrl:satUrl||'',sunUrl:sunUrl||''};
+    var cfg={title:S.title,description:S.description,titleStyle:S.titleStyle,descStyle:S.descStyle,textPos:S.textPos,sat:S.sat,sun:S.sun,gasSheet:gasSheet,heroUrl:heroUrl||'',satUrl:satUrl||'',sunUrl:sunUrl||'',noticeMsg:noticeMsg||''};
     var url=gasUrl+'?action=saveConfig&data='+encodeURIComponent(JSON.stringify(cfg));
     fetch(url,{credentials:'omit'}).catch(function(){});
     /* Save all settings to localStorage immediately (same-browser instant update) */
@@ -353,6 +363,7 @@ async function gasSaveConfig(){
     if(cfg.satUrl)_ls('set','bfv5satUrl',cfg.satUrl);
     if(cfg.sunUrl)_ls('set','bfv5sunUrl',cfg.sunUrl);
     _ls('set',GS,gasSheet);
+    _ls('set','bfv5notice',noticeMsg||'');
   }catch(e){}
 }
 
@@ -389,6 +400,7 @@ function findFL(id,list){for(var i=0;i<list.length;i++)if(list[i].id===id)return
 /* Render immediately with cached data — NO delay, NO flash of defaults */
 go('O'); /* Set initial page visible */
 rAll();updBar();
+showNotice(); /* Show notice on every page load/refresh */
 
 (async function(){
   /* Step 1: Resolve GAS URL already done above */
@@ -486,6 +498,19 @@ setInterval(async function(){
   var si=document.getElementById('gasSync');
   if(si)si.style.background=fetched?'#00C9A7':'#F59E0B';
 },3000);
+function showNotice(){
+  if(!noticeMsg||!noticeMsg.trim())return;
+  var w=document.getElementById('W');if(!w)return;
+  var ov=document.createElement('div');
+  ov.className='notice-ov';
+  ov.innerHTML='<div class="notice-box">'
+    +'<div class="notice-ico">📢</div>'
+    +'<div class="notice-title">重要通知</div>'
+    +'<div class="notice-body">'+eh(noticeMsg)+'</div>'
+    +'<button class="notice-close" onclick="this.closest(\'.notice-ov\').remove()">✓ 我知道了</button>'
+    +'</div>';
+  w.appendChild(ov);
+}
 function rAll(){rOrd();rSum();adIn?rAdm():rLog();}
 
 /* ── NAV BAR ── */
@@ -1004,7 +1029,7 @@ function rAdm(){
           +(draft.titleStyle.bg?'<div style="margin-top:9px;display:flex;align-items:center;gap:9px"><input type="color" value="'+draft.titleStyle.bgColor+'" oninput="draft.titleStyle.bgColor=this.value" style="width:38px;height:34px;border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;padding:2px;background:#fff"><span style="font-size:.72rem;color:var(--mu)">底色顏色</span></div>':'')
         +'</div>'
       +'</div>'
-      +'<div class="fi"><label class="fl">說明文字</label><textarea class="inp" oninput="draft.description=this.value">'+eh(draft.description)+'</textarea></div>'
+      +'<div class="fcd" style="margin-top:10px"><div class="fcdt">📢 訊息視窗</div>'+'<div class="fi"><label class="fl">視窗訊息內容</label>'+'<textarea class="inp" rows="4" style="resize:vertical;min-height:80px" oninput="noticeMsg=this.value">'+(draft.noticeMsg!==undefined?eh(draft.noticeMsg):eh(noticeMsg))+'</textarea></div>'+'<div style="font-size:.71rem;color:var(--mu);margin-top:4px">每次開啟或重新整理頁面時自動顯示，留空則不顯示。</div>'+'</div>'+'<div class="fi"><label class="fl">說明文字</label><textarea class="inp" oninput="draft.description=this.value">'+eh(draft.description)+'</textarea></div>'
       +'<div style="background:#F9FAFB;border-radius:13px;padding:13px;margin-bottom:10px">'
         +'<div style="font-size:.69rem;font-weight:700;color:var(--mu);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px"><span style="width:3px;height:12px;border-radius:2px;background:linear-gradient(#1e3c72,#2a5298);display:inline-block"></span>說明文字排版樣式</div>'
         +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
@@ -1143,7 +1168,7 @@ function addI(k){iDr();if(!draft[k]||!Array.isArray(draft[k].items))return;var i
 function delI(k,id){if(!draft||!draft[k]||!Array.isArray(draft[k].items))return;draft[k].items=draft[k].items.filter(function(m){return m.id!==id;});rAdm();}
 function shSv(){var w=document.getElementById('W');if(!w)return;var d=document.createElement('div');d.className='smov';d.id='svM';d.innerHTML='<div class="smbx"><div style="text-align:center;font-size:2.2rem;margin-bottom:10px">💾</div><div class="smttl">確認儲存設定？</div><div class="smsub">儲存後，所有裝置將立即看到最新菜單和圖片。</div><div class="smbt"><button class="btn" style="background:#F3F4F6;color:var(--tx)" onclick="clSv()">取消</button><button class="btn bor" onclick="doSv()">✓ 確定儲存</button></div></div>';w.appendChild(d);}
 function clSv(){var m=document.getElementById('svM');if(m)m.remove();}
-async function doSv(){clSv();S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);
+async function doSv(){clSv();if(draft&&draft.noticeMsg!==undefined)noticeMsg=draft.noticeMsg;S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);
   await gasSaveConfig(); /* Saves S + images + gasSheet to GAS for all devices */rOrd();rSum();var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ 已儲存！所有裝置即時更新。</div>';setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},3000);}
 
 /* ── DELETE ORDER ── */

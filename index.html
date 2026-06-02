@@ -394,6 +394,8 @@ function findFL(id,list){for(var i=0;i<list.length;i++)if(list[i].id===id)return
   else{var gv=lsGet(GK);if(gv)gasUrl=gv;var gs2=lsGet(GS);if(gs2)gasSheet=gs2||'Order';}
   /* Settings (S) — menu, title, description */
   var ls=lsGet(SK);if(ls&&ls.sat&&ls.sun)S=ls;
+  /* Notice message — load from cache for instant display */
+  var nm=lsGet('bfv5notice');if(nm!==null&&nm!==undefined)noticeMsg=nm;
   /* Image URLs */
   var hUrl=lsGet('bfv5heroUrl');if(hUrl)heroUrl=hUrl;
   var sUrl=lsGet('bfv5satUrl');if(sUrl)satUrl=sUrl;
@@ -408,7 +410,8 @@ function findFL(id,list){for(var i=0;i<list.length;i++)if(list[i].id===id)return
 /* Render immediately with cached data — NO delay, NO flash of defaults */
 go('O'); /* Set initial page visible */
 rAll();updBar();
-/* showNotice() called after gasLoad so it uses latest message */
+/* Show notice immediately using cached value — instant, no network wait */
+showNotice();
 
 (async function(){
   /* Step 1: Resolve GAS URL already done above */
@@ -422,7 +425,6 @@ rAll();updBar();
   }
 
   rAll();updBar();
-  showNotice(); /* After GAS load — uses latest noticeMsg */
   document.getElementById('pS').addEventListener('click',onSumClick);
 })();
 

@@ -9,7 +9,29 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-:root{--or:#FF6348;--am:#FF9500;--sa:#E65C00;--sb:#F9A825;--stx:#B34700;--na:#1565C0;--nb:#42A5F5;--ntx:#0D47A1;--gr:#00C9A7;--gd:#008870;--bg:#FFFBF5;--sf:#fff;--tx:#1A1A2E;--mu:#6B7280;--bd:#EDE8E3;--re:#EF4444;--nv:62px;}
+:root{
+  /* ── Breakfast Palette ── */
+  --or:#E8773A;   /* Warm toast orange */
+  --am:#F4A942;   /* Golden honey */
+  --sa:#C45F28;   /* Deep roast */
+  --sb:#F9C74F;   /* Egg yolk yellow */
+  --stx:#8B3A1A;  /* Coffee brown text */
+  --na:#2D6A4F;   /* Avocado green */
+  --nb:#52B788;   /* Mint green */
+  --ntx:#1B4332;  /* Deep green text */
+  --gr:#52B788;   /* Success green */
+  --gd:#2D6A4F;   /* Dark green */
+  --bg:#FBF7F2;   /* Warm linen */
+  --sf:#FFFFFF;   /* Pure white */
+  --tx:#2C1810;   /* Rich espresso */
+  --mu:#8D7B74;   /* Warm grey */
+  --bd:#E8DDD6;   /* Warm border */
+  --re:#D64933;   /* Toast red */
+  --nv:62px;
+  --sh1:0 2px 12px rgba(44,24,16,.07);
+  --sh2:0 6px 24px rgba(44,24,16,.11);
+  --sh3:0 12px 48px rgba(44,24,16,.15);
+}
 html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);font-family:'Noto Sans TC',sans-serif;color:var(--tx);}
 .wrap{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:600px;margin:0 auto;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.1);}
 #pO{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:block;z-index:1;background:var(--bg);padding-bottom:80px;}
@@ -28,7 +50,7 @@ html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);fo
 .rUL-scroll::-webkit-scrollbar{width:4px;}
 .rUL-scroll::-webkit-scrollbar-track{background:transparent;}
 .rUL-scroll::-webkit-scrollbar-thumb{background:rgba(255,100,72,.3);border-radius:4px;}
-.nav{height:calc(var(--nv) + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid rgba(255,100,72,.08);display:flex;flex-shrink:0;box-shadow:0 -2px 16px rgba(0,0,0,.05);padding-bottom:env(safe-area-inset-bottom);z-index:200;position:relative;}
+.nav{height:calc(var(--nv) + env(safe-area-inset-bottom));background:rgba(251,247,242,.97);border-top:1px solid rgba(255,100,72,.08);display:flex;flex-shrink:0;box-shadow:0 -2px 16px rgba(0,0,0,.05);padding-bottom:env(safe-area-inset-bottom);z-index:200;position:relative;}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:.6rem;font-weight:600;color:var(--mu);padding:0;}
 .nb svg{width:19px;height:19px;}.nb.on{color:var(--or);}
 .nink{position:absolute;top:0;height:3px;background:linear-gradient(90deg,var(--or),var(--am));border-radius:0 0 4px 4px;width:33.333%;transition:left .28s cubic-bezier(.4,0,.2,1);}
@@ -50,7 +72,7 @@ html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);fo
 @keyframes spn{to{transform:rotate(360deg);}}
 @keyframes cIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 /* ── HERO ── */
-.oh{position:relative;overflow:hidden;min-height:240px;background:linear-gradient(148deg,#FF5733,#FF8C00 52%,#FFC300);}
+.oh{position:relative;overflow:hidden;min-height:248px;background:linear-gradient(145deg,#2C1810 0%,#8B3A1A 45%,#E8773A 100%);}
 .oh.has-bg{background:#111;}
 .oh-bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;}
 /* gradient overlay: strong at bottom (text), transparent at top (image shows) */
@@ -69,7 +91,7 @@ html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);fo
 .pull{background:var(--bg);border-radius:22px 22px 0 0;margin-top:-18px;padding:16px 12px 10px;position:relative;z-index:5;}
 .cd{background:var(--sf);border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.07);padding:16px;margin-bottom:11px;border:1px solid rgba(0,0,0,.04);}
 .cdh{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.cdic{width:37px;height:37px;border-radius:11px;background:linear-gradient(135deg,#FF6348,#FF9500);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.cdic{width:37px;height:37px;border-radius:11px;background:linear-gradient(135deg,#E8773A,#F4A942);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 .cdtt{font-size:.87rem;font-weight:700;}.cdst{font-size:.68rem;color:var(--mu);margin-top:1px;}
 .fi{margin-bottom:12px;}.fi:last-child{margin-bottom:0;}
 .fl{display:block;font-size:.75rem;font-weight:600;margin-bottom:6px;}.rq{color:var(--or);}
@@ -133,7 +155,7 @@ html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);fo
 .mtl{font-size:.79rem;color:var(--gd);font-weight:600;}.mtv{font-family:'Nunito',sans-serif;font-size:1.28rem;font-weight:900;color:var(--gd);}
 .mwn{background:#FFF8E1;border:1.5px solid #FFE082;border-radius:10px;padding:10px 12px;font-size:.72rem;color:#795548;line-height:1.65;}
 .mft{padding:12px 18px 28px;flex-shrink:0;display:flex;gap:9px;border-top:1px solid #F3F4F6;}.mft .cta{flex:1;}
-.sh{background:linear-gradient(148deg,#0F2027,#203A43 55%,#2C5364);padding:20px 14px 18px;color:#fff;position:relative;overflow:hidden;}
+.sh{background:linear-gradient(145deg,#2C1810 0%,#5C2D14 50%,#8B3A1A 100%);;padding:20px 14px 18px;color:#fff;position:relative;overflow:hidden;}
 .sh-d{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.07) 1px,transparent 1px);background-size:18px 18px;z-index:1;}
 .sh-g1{position:absolute;top:-35px;right:-35px;width:145px;height:145px;border-radius:50%;background:rgba(0,201,167,.12);z-index:1;}
 .sh-g2{position:absolute;bottom:-25px;left:-25px;width:105px;height:105px;border-radius:50%;background:rgba(66,165,245,.07);z-index:1;}
@@ -148,7 +170,7 @@ html,body{height:100%;overflow:hidden;margin:0;padding:0;background:var(--bg);fo
 .rtxt{font-size:.67rem;color:var(--mu);}
 .rbtn{display:flex;align-items:center;gap:4px;border:1.5px solid var(--bd);background:#fff;border-radius:20px;padding:5px 12px;cursor:pointer;font-size:.68rem;color:var(--mu);font-family:'Noto Sans TC',sans-serif;}
 .rsp{animation:spn .7s linear infinite;}
-.uc{background:var(--sf);border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:10px;cursor:pointer;border:1px solid rgba(0,0,0,.04);animation:cIn .4s ease both;opacity:0;}
+.uc{background:var(--sf);border-radius:16px;box-shadow:var(--sh1);border:1px solid var(--bd);padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:10px;cursor:pointer;border:1px solid rgba(0,0,0,.04);animation:cIn .4s ease both;opacity:0;}
 .ucico{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,#1a3a4a,#2C5364);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
 .uci{flex:1;min-width:0;}.ucn{font-size:1rem;font-weight:700;margin-bottom:7px;}.ucb{display:flex;gap:5px;flex-wrap:wrap;}
 .bs{display:inline-flex;align-items:center;gap:3px;background:rgba(230,92,0,.1);border:1px solid rgba(230,92,0,.2);border-radius:20px;padding:3px 11px;font-size:.76rem;font-weight:700;color:var(--stx);}
@@ -240,6 +262,17 @@ textarea.inp{min-height:70px;resize:vertical;line-height:1.6;}
 /* Music status */
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 /* ── MINI MUSIC PLAYER ── */
+/* Countdown timer */
+.countdown{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.countdown.open{background:rgba(0,0,0,.35);border-radius:12px;padding:8px 14px;}
+.countdown.closed{background:rgba(0,0,0,.45);border-radius:12px;padding:8px 14px;}
+.cd-ico{font-size:1rem;}
+.cd-label{font-size:.7rem;color:rgba(255,255,255,.8);font-weight:600;letter-spacing:.04em;}
+.cd-parts{display:flex;align-items:center;gap:3px;margin-left:4px;}
+.cd-unit{display:flex;align-items:baseline;gap:2px;}
+.cd-num{font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:#fff;line-height:1;min-width:22px;text-align:center;}
+.cd-u{font-size:.58rem;color:rgba(255,255,255,.75);font-weight:600;}
+.cd-sep{color:rgba(255,255,255,.6);font-weight:900;font-size:.9rem;margin:0 1px;}
 /* Notice popup */
 .notice-ov{position:fixed;inset:0;background:rgba(20,10,5,.55);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;animation:mFd .25s;}
 .notice-box{background:#fff;border-radius:20px;padding:24px 22px;max-width:360px;width:100%;box-shadow:0 12px 48px rgba(0,0,0,.2);position:relative;}
@@ -292,7 +325,9 @@ var GK='bfv5gas',GS='bfv5gsheet'; /* GAS URL + sheet name */
 var IX=['ic1','ic2','ic3','ic4','ic5','ic6'],EM=['🥚','🥪','🍳','🍙','🥐','🍞','☕','🥗'];
 var DEF={title:'【早餐訂購】3/14・15 北部心靈講座',description:'★ 班員有提供早餐，訂購不需含班員。\n★ 請確認後再訂購，送出後無法修改。',titleStyle:{size:'1.38rem',color:'#ffffff',bold:true,font:'Nunito',bg:false,bgColor:'#1a1a2e',align:'left'},textPos:{x:0,y:6},descStyle:{size:'0.71rem',color:'#ebebeb',bold:false,font:'Noto Sans TC',bg:false,bgColor:'#1a1a2e',align:'left'},sat:{date:'3/14',dayLabel:'週六',title:'週六早餐菜單',items:[{id:'s1',name:'饅頭夾蛋',price:35,note:'含豆漿',ico:'🥚',ic:'ic1'},{id:'s2',name:'總匯三明治',price:45,note:'含紅茶',ico:'🥪',ic:'ic2'}]},sun:{date:'3/15',dayLabel:'週日',title:'週日早餐菜單',items:[{id:'n1',name:'蛋餅',price:40,note:'含豆漿',ico:'🍳',ic:'ic3'},{id:'n2',name:'飯糰',price:45,note:'含米漿',ico:'🍙',ic:'ic4'}]}};
 var S=JSON.parse(JSON.stringify(DEF));
-var noticeMsg='非班期階段，請勿填寫此表單，後續若有訂購內容，我同步在早餐群組告知。感謝！'; /* 訊息視窗內容 */
+var noticeMsg='非班期階段，請勿填寫此表單，後續若有訂購內容，我同步在早餐群組告知。感謝！';
+var closedMsg='訂購時間已截止，感謝您的參與！如有需要請關注早餐群組公告。';
+var orderDeadline=''; /* ISO 8601: '2025-03-14T08:00:00' */
 var orders=[],pg='O',adIn=false,aTab='gen',draft=null;
 var fU='',fCU='',fA='',fN='',fP='',sQ={},nQ={},done=false,last=null,selU=null;
 /* search/filter state */
@@ -347,6 +382,8 @@ async function gasLoad(){
       if(cfg.gasSheet){gasSheet=cfg.gasSheet;await _ls('set',GS,gasSheet);}
       if(cfg.heroUrl){heroUrl=cfg.heroUrl;await _ls('set','bfv5heroUrl',heroUrl);}
       if(cfg.noticeMsg!==undefined){noticeMsg=cfg.noticeMsg;await _ls('set','bfv5notice',noticeMsg);}
+      if(cfg.closedMsg!==undefined){closedMsg=cfg.closedMsg;await _ls('set','bfv5closedMsg',closedMsg);}
+      if(cfg.orderDeadline!==undefined){orderDeadline=cfg.orderDeadline;await _ls('set','bfv5deadline',orderDeadline);}
       if(cfg.satUrl){satUrl=cfg.satUrl;await _ls('set','bfv5satUrl',satUrl);}
       if(cfg.sunUrl){sunUrl=cfg.sunUrl;await _ls('set','bfv5sunUrl',sunUrl);}
       /* Update UI immediately with fresh config (no waiting for orders) */
@@ -362,7 +399,7 @@ async function gasLoad(){
 async function gasSaveConfig(){
   if(!gasUrl)return;
   try{
-    var cfg={title:S.title,description:S.description,titleStyle:S.titleStyle,descStyle:S.descStyle,textPos:S.textPos,sat:S.sat,sun:S.sun,gasSheet:gasSheet,heroUrl:heroUrl||'',satUrl:satUrl||'',sunUrl:sunUrl||'',noticeMsg:noticeMsg||''};
+    var cfg={title:S.title,description:S.description,titleStyle:S.titleStyle,descStyle:S.descStyle,textPos:S.textPos,sat:S.sat,sun:S.sun,gasSheet:gasSheet,heroUrl:heroUrl||'',satUrl:satUrl||'',sunUrl:sunUrl||'',noticeMsg:noticeMsg||'',closedMsg:closedMsg||'',orderDeadline:orderDeadline||''};
     var url=gasUrl+'?action=saveConfig&data='+encodeURIComponent(JSON.stringify(cfg));
     fetch(url,{credentials:'omit'}).catch(function(){});
     /* Save all settings to localStorage immediately (same-browser instant update) */
@@ -372,6 +409,8 @@ async function gasSaveConfig(){
     if(cfg.sunUrl)_ls('set','bfv5sunUrl',cfg.sunUrl);
     _ls('set',GS,gasSheet);
     _ls('set','bfv5notice',noticeMsg||'');
+    _ls('set','bfv5closedMsg',closedMsg||'');
+    _ls('set','bfv5deadline',orderDeadline||'');
   }catch(e){}
 }
 
@@ -396,6 +435,8 @@ function findFL(id,list){for(var i=0;i<list.length;i++)if(list[i].id===id)return
   var ls=lsGet(SK);if(ls&&ls.sat&&ls.sun)S=ls;
   /* Notice message — load from cache for instant display */
   var nm=lsGet('bfv5notice');if(nm!==null&&nm!==undefined)noticeMsg=nm;
+  var cm=lsGet('bfv5closedMsg');if(cm!==null&&cm!==undefined)closedMsg=cm;
+  var dl=lsGet('bfv5deadline');if(dl!==null&&dl!==undefined)orderDeadline=dl;
   /* Image URLs */
   var hUrl=lsGet('bfv5heroUrl');if(hUrl)heroUrl=hUrl;
   var sUrl=lsGet('bfv5satUrl');if(sUrl)satUrl=sUrl;
@@ -508,15 +549,31 @@ setInterval(async function(){
   var si=document.getElementById('gasSync');
   if(si)si.style.background=fetched?'#00C9A7':'#F59E0B';
 },3000);
+function isOrderOpen(){
+  if(!orderDeadline)return true; /* No deadline = always open */
+  return new Date()<new Date(orderDeadline);
+}
+function getTimeLeft(){
+  if(!orderDeadline)return null;
+  var diff=new Date(orderDeadline)-new Date();
+  if(diff<=0)return null;
+  var d=Math.floor(diff/86400000);
+  var h=Math.floor((diff%86400000)/3600000);
+  var m=Math.floor((diff%3600000)/60000);
+  var s=Math.floor((diff%60000)/1000);
+  return{d:d,h:h,m:m,s:s,total:diff};
+}
 function showNotice(){
-  if(!noticeMsg||!noticeMsg.trim())return;
+  var open=isOrderOpen();
+  var msg=open?noticeMsg:closedMsg;
+  if(!msg||!msg.trim())return;
   var w=document.getElementById('W');if(!w)return;
   var ov=document.createElement('div');
   ov.className='notice-ov';
   ov.innerHTML='<div class="notice-box">'
-    +'<div class="notice-ico">📢</div>'
-    +'<div class="notice-title">重要通知</div>'
-    +'<div class="notice-body">'+eh(noticeMsg)+'</div>'
+    +'<div class="notice-ico">'+(open?'📢':'🔒')+'</div>'
+    +'<div class="notice-title">'+(open?'重要通知':'訂購已截止')+'</div>'
+    +'<div class="notice-body">'+eh(msg)+'</div>'
     +'<button class="notice-close" onclick="this.closest(\'.notice-ov\').remove()">✓ 我知道了</button>'
     +'</div>';
   w.appendChild(ov);
@@ -560,6 +617,34 @@ function _tsCss(ts,def){
     +';text-align:'+(t.align||'left')
     +';';
 }
+function renderCountdown(){
+  var tl=getTimeLeft();
+  if(!orderDeadline)return'';
+  if(!tl){
+    return'<div class="countdown closed"><span class="cd-ico">🔒</span><span class="cd-label">訂購已截止</span></div>';
+  }
+  var parts=[];
+  if(tl.d>0)parts.push('<span class="cd-unit"><span class="cd-num">'+tl.d+'</span><span class="cd-u">天</span></span>');
+  parts.push('<span class="cd-unit"><span class="cd-num">'+String(tl.h).padStart(2,'0')+'</span><span class="cd-u">時</span></span>');
+  parts.push('<span class="cd-unit"><span class="cd-num">'+String(tl.m).padStart(2,'0')+'</span><span class="cd-u">分</span></span>');
+  parts.push('<span class="cd-unit"><span class="cd-num">'+String(tl.s).padStart(2,'0')+'</span><span class="cd-u">秒</span></span>');
+  return'<div class="countdown open"><span class="cd-ico">⏰</span><span class="cd-label">距離截止</span><div class="cd-parts">'+parts.join('<span class="cd-sep">:</span>')+'</div></div>';
+}
+
+/* Start countdown ticker */
+var _cdTimer=null;
+function startCountdown(){
+  if(_cdTimer)clearInterval(_cdTimer);
+  _cdTimer=setInterval(function(){
+    var el=document.getElementById('cdBox');
+    if(el)el.innerHTML=renderCountdown();
+    if(!isOrderOpen()){
+      /* Time just ran out — refresh order page */
+      if(pg==='O')rOrd();
+    }
+  },1000);
+}
+
 function illus(){
   return'<svg viewBox="0 0 360 178" style="width:100%;display:block;position:relative;z-index:3;margin-top:-6px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="308" cy="22" r="70" fill="rgba(255,255,255,.06)"/><circle cx="28" cy="166" r="50" fill="rgba(255,255,255,.05)"/><ellipse cx="218" cy="172" rx="100" ry="15" fill="rgba(0,0,0,.12)"/><circle cx="218" cy="152" r="90" fill="rgba(255,255,255,.93)" stroke="rgba(255,255,255,.6)" stroke-width="6"/><path d="M188 140 Q178 128 188 118 Q198 105 213 112 Q230 103 246 117 Q261 130 254 147 Q244 165 228 165 Q205 169 188 140Z" fill="white" opacity=".95"/><circle cx="218" cy="137" r="27" fill="#FFD54F"/><circle cx="207" cy="127" r="10" fill="#FFE97A" opacity=".6"/><rect x="248" y="100" width="50" height="62" rx="11" fill="#C07840"/><rect x="248" y="100" width="50" height="13" rx="11" fill="#A05E28"/><rect x="241" y="93" width="50" height="62" rx="11" fill="#D89060"/><rect x="241" y="93" width="50" height="13" rx="11" fill="#C07840"/><rect x="248" y="108" width="30" height="7" rx="3.5" fill="#FFF176" opacity=".84"/><ellipse cx="82" cy="163" rx="60" ry="12" fill="rgba(0,0,0,.11)"/><path d="M53 100 L47 155 Q47 166 57 166 L107 166 Q118 166 118 155 L112 100Z" fill="rgba(255,255,255,.92)"/><ellipse cx="82" cy="100" rx="29" ry="9" fill="rgba(255,255,255,.72)"/><ellipse cx="82" cy="100" rx="23" ry="7" fill="#2C1206" opacity=".87"/><path d="M120 114 Q140 114 140 131 Q140 148 120 148" stroke="rgba(255,255,255,.86)" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M62 84 Q56 68 63 54" stroke="rgba(255,255,255,.43)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M82 79 Q76 60 83 44" stroke="rgba(255,255,255,.43)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M102 84 Q96 66 103 52" stroke="rgba(255,255,255,.43)" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="313" cy="145" rx="14" ry="18" fill="#FF5252" opacity=".9"/><path d="M304 133 Q310 124 315 132 Q320 124 324 133" fill="#4CAF50" opacity=".87"/><circle cx="308" cy="142" r="2" fill="rgba(255,255,255,.54)"/><circle cx="155" cy="169" r="13" fill="#FF7043" opacity=".87"/><path d="M149 158 Q155 152 161 158" fill="#4CAF50" opacity=".81"/><line x1="159" y1="95" x2="157" y2="173" stroke="rgba(255,255,255,.36)" stroke-width="3.5" stroke-linecap="round"/><line x1="153" y1="95" x2="153" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/><line x1="159" y1="95" x2="159" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/><line x1="165" y1="95" x2="165" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/><line x1="153" y1="117" x2="165" y2="117" stroke="rgba(255,255,255,.36)" stroke-width="2" stroke-linecap="round"/></svg>';
 }
@@ -597,7 +682,7 @@ function heroH(){
     +'<div style="'+_tsCss(S.titleStyle||DEF.titleStyle,DEF.titleStyle)+'line-height:1.22;">'+eh(S.title)+'</div>'
     +(S.description?'<div style="'+_tsCss(S.descStyle||DEF.descStyle,DEF.descStyle)+'margin-top:6px;line-height:1.7;white-space:pre-line">'+eh(S.description)+'</div>':'')
     +'</div>'+'</div>'
-    +illus()+'</div>';
+    +illus()+'<div id="cdBox" style="padding:0 16px 14px">'+renderCountdown()+'</div>'+'</div>';
 }
 
 /* ── ORDER PAGE ── */
@@ -605,6 +690,15 @@ function rOrd(){
   var el=document.getElementById('pO');if(!el)return;
   /* Ensure the page is visible when rendered */
   if(pg==='O'){el.style.display='block';el.className='active';}
+  if(!isOrderOpen()){
+    el.innerHTML=heroH()
+      +'<div class="cd" style="text-align:center;padding:40px 24px">'
+      +'<div style="font-size:3rem;margin-bottom:16px">🔒</div>'
+      +'<div style="font-size:1.1rem;font-weight:800;color:var(--tx);margin-bottom:10px">訂購時間已截止</div>'
+      +'<div style="font-size:.85rem;color:var(--mu);line-height:1.7;white-space:pre-wrap">'+eh(closedMsg)+'</div>'
+      +'</div>';
+    updBar();return;
+  }
   if(done&&last){el.innerHTML=succH();updBar();return;}
   var sm=satM(),nm=sunM(),stq=sumO(sQ),ntq=sumO(nQ),stp=0,ntp=0;
   for(var i=0;i<sm.length;i++)stp+=(sQ[sm[i].id]||0)*(sm[i].price||0);
@@ -1039,7 +1133,7 @@ function rAdm(){
           +(draft.titleStyle.bg?'<div style="margin-top:9px;display:flex;align-items:center;gap:9px"><input type="color" value="'+draft.titleStyle.bgColor+'" oninput="draft.titleStyle.bgColor=this.value" style="width:38px;height:34px;border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;padding:2px;background:#fff"><span style="font-size:.72rem;color:var(--mu)">底色顏色</span></div>':'')
         +'</div>'
       +'</div>'
-      +'<div class="fcd" style="margin-top:10px"><div class="fcdt">📢 訊息視窗</div>'+'<div class="fi"><label class="fl">視窗訊息內容</label>'+'<textarea class="inp" rows="4" style="resize:vertical;min-height:80px" oninput="if(!draft)iDr();draft.noticeMsg=this.value;noticeMsg=this.value">'+(draft.noticeMsg!==undefined?eh(draft.noticeMsg):eh(noticeMsg))+'</textarea></div>'+'<div style="font-size:.71rem;color:var(--mu);margin-top:4px">每次開啟或重新整理頁面時自動顯示，留空則不顯示。</div>'+'</div>'+'<div class="fi"><label class="fl">說明文字</label><textarea class="inp" oninput="draft.description=this.value">'+eh(draft.description)+'</textarea></div>'
+      +'<div class="fcd" style="margin-top:10px">'+'<div class="fcdt">⏰ 訂購截止時間</div>'+'<div class="fi"><label class="fl">截止日期 & 時間</label>'+'<input type="datetime-local" class="inp" value="'+(draft.orderDeadline||orderDeadline||'')+'" oninput="if(!draft)iDr();draft.orderDeadline=this.value;orderDeadline=this.value;rOrd();"></div>'+'<div style="font-size:.71rem;color:var(--mu);margin-top:2px;margin-bottom:10px">設定後，超過此時間訂購系統自動關閉。留空則永遠開放。</div>'+'<div class="fcdt" style="margin-top:10px">📢 開放期間訊息視窗</div>'+'<div class="fi"><label class="fl">系統開放時顯示的訊息</label>'+'<textarea class="inp" rows="3" style="resize:vertical" oninput="if(!draft)iDr();draft.noticeMsg=this.value;noticeMsg=this.value">'+(draft.noticeMsg!==undefined?eh(draft.noticeMsg):eh(noticeMsg))+'</textarea></div>'+'<div class="fcdt" style="margin-top:10px">🔒 截止後訊息視窗</div>'+'<div class="fi"><label class="fl">訂購截止後顯示的訊息</label>'+'<textarea class="inp" rows="3" style="resize:vertical" oninput="if(!draft)iDr();draft.closedMsg=this.value;closedMsg=this.value">'+(draft.closedMsg!==undefined?eh(draft.closedMsg):eh(closedMsg))+'</textarea></div>'+'<div style="font-size:.71rem;color:var(--mu);margin-top:4px">以上三個欄位留空代表不顯示。儲存後所有裝置即時同步。</div>'+'</div>'+'<div class="fi"><label class="fl">說明文字</label><textarea class="inp" oninput="draft.description=this.value">'+eh(draft.description)+'</textarea></div>'
       +'<div style="background:#F9FAFB;border-radius:13px;padding:13px;margin-bottom:10px">'
         +'<div style="font-size:.69rem;font-weight:700;color:var(--mu);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px"><span style="width:3px;height:12px;border-radius:2px;background:linear-gradient(#1e3c72,#2a5298);display:inline-block"></span>說明文字排版樣式</div>'
         +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
@@ -1178,7 +1272,9 @@ function addI(k){iDr();if(!draft[k]||!Array.isArray(draft[k].items))return;var i
 function delI(k,id){if(!draft||!draft[k]||!Array.isArray(draft[k].items))return;draft[k].items=draft[k].items.filter(function(m){return m.id!==id;});rAdm();}
 function shSv(){var w=document.getElementById('W');if(!w)return;var d=document.createElement('div');d.className='smov';d.id='svM';d.innerHTML='<div class="smbx"><div style="text-align:center;font-size:2.2rem;margin-bottom:10px">💾</div><div class="smttl">確認儲存設定？</div><div class="smsub">儲存後，所有裝置將立即看到最新菜單和圖片。</div><div class="smbt"><button class="btn" style="background:#F3F4F6;color:var(--tx)" onclick="clSv()">取消</button><button class="btn bor" onclick="doSv()">✓ 確定儲存</button></div></div>';w.appendChild(d);}
 function clSv(){var m=document.getElementById('svM');if(m)m.remove();}
-async function doSv(){clSv();if(draft&&draft.noticeMsg!==undefined)noticeMsg=draft.noticeMsg;S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);
+async function doSv(){clSv();if(draft&&draft.noticeMsg!==undefined)noticeMsg=draft.noticeMsg;
+  if(draft&&draft.closedMsg!==undefined)closedMsg=draft.closedMsg;
+  if(draft&&draft.orderDeadline!==undefined)orderDeadline=draft.orderDeadline;S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);
   await gasSaveConfig(); /* Saves S + images + gasSheet to GAS for all devices */rOrd();rSum();var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ 已儲存！所有裝置即時更新。</div>';setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},3000);}
 
 /* ── DELETE ORDER ── */

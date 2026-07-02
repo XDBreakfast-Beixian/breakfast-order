@@ -294,7 +294,9 @@ var DEF={title:'【早餐訂購】3/14・15 北部心靈講座',description:'★
 var S=JSON.parse(JSON.stringify(DEF));
 var noticeMsg='非班期階段，請勿填寫此表單，後續若有訂購內容，我同步在早餐群組告知。感謝！';
 var closedMsg='訂購時間已截止，感謝您的參與！如有需要請關注早餐群組公告。';
-var orderDeadline=''; /* 訊息視窗內容 */
+var orderDeadline='';
+var discount={enabled:false,pctOn:false,pct:90,secondOn:false,secondAmt:0,codeOn:false,code:'',codeDisc:0};
+var enteredCode=''; /* 訊息視窗內容 */
 var orders=[],pg='O',adIn=false,aTab='gen',draft=null;
 var fU='',fCU='',fA='',fN='',fP='',sQ={},nQ={},done=false,last=null,selU=null;
 /* search/filter state */
@@ -351,6 +353,7 @@ async function gasLoad(){
       if(cfg.noticeMsg!==undefined){noticeMsg=cfg.noticeMsg;await _ls('set','bfv5notice',noticeMsg);}
       if(cfg.closedMsg!==undefined){closedMsg=cfg.closedMsg;await _ls('set','bfv5closedMsg',closedMsg);}
       if(cfg.orderDeadline!==undefined){orderDeadline=cfg.orderDeadline;await _ls('set','bfv5deadline',orderDeadline);}
+      if(cfg.discount!==undefined&&cfg.discount){discount=Object.assign({},discount,cfg.discount);_ls('set','bfv5discount',JSON.stringify(discount));}
       if(cfg.satUrl){satUrl=cfg.satUrl;await _ls('set','bfv5satUrl',satUrl);}
       if(cfg.sunUrl){sunUrl=cfg.sunUrl;await _ls('set','bfv5sunUrl',sunUrl);}
       /* Update UI immediately with fresh config (no waiting for orders) */
@@ -366,7 +369,7 @@ async function gasLoad(){
 async function gasSaveConfig(){
   if(!gasUrl)return;
   try{
-    var cfg={title:S.title,description:S.description,titleStyle:S.titleStyle,descStyle:S.descStyle,textPos:S.textPos,sat:S.sat,sun:S.sun,gasSheet:gasSheet,heroUrl:heroUrl||'',satUrl:satUrl||'',sunUrl:sunUrl||'',noticeMsg:noticeMsg||'',closedMsg:closedMsg||'',orderDeadline:orderDeadline||''};
+    var cfg={title:S.title,description:S.description,titleStyle:S.titleStyle,descStyle:S.descStyle,textPos:S.textPos,sat:S.sat,sun:S.sun,gasSheet:gasSheet,heroUrl:heroUrl||'',satUrl:satUrl||'',sunUrl:sunUrl||'',noticeMsg:noticeMsg||'',closedMsg:closedMsg||'',orderDeadline:orderDeadline||'',discount:discount};
     var url=gasUrl+'?action=saveConfig&data='+encodeURIComponent(JSON.stringify(cfg));
     fetch(url,{credentials:'omit'}).catch(function(){});
     /* Save all settings to localStorage immediately (same-browser instant update) */
@@ -378,6 +381,7 @@ async function gasSaveConfig(){
     _ls('set','bfv5notice',noticeMsg||'');
     _ls('set','bfv5closedMsg',closedMsg||'');
     _ls('set','bfv5deadline',orderDeadline||'');
+    _ls('set','bfv5discount',JSON.stringify(discount));
   }catch(e){}
 }
 
@@ -404,6 +408,7 @@ function findFL(id,list){for(var i=0;i<list.length;i++)if(list[i].id===id)return
   var nm=lsGet('bfv5notice');if(nm!==null&&nm!==undefined)noticeMsg=nm;
   var cm=lsGet('bfv5closedMsg');if(cm!==null&&cm!==undefined)closedMsg=cm;
   var dl=lsGet('bfv5deadline');if(dl!==null&&dl!==undefined)orderDeadline=dl;
+  var dsc=lsGet('bfv5discount');if(dsc){try{discount=Object.assign({},discount,JSON.parse(dsc));}catch(_){}}
   /* Image URLs */
   var hUrl=lsGet('bfv5heroUrl');if(hUrl)heroUrl=hUrl;
   var sUrl=lsGet('bfv5satUrl');if(sUrl)satUrl=sUrl;
@@ -517,6 +522,29 @@ setInterval(async function(){
   var si=document.getElementById('gasSync');
   if(si)si.style.background=fetched?'#00C9A7':'#F59E0B';
 },3000);
+function calcDiscount(sub,qty,uc,_satQty,_sunQty){
+  if(!discount.enabled||sub<=0)return{final:sub,saved:0,label:''};
+  var sv=0,lb=[];
+  if(discount.pctOn&&discount.pct>0&&discount.pct<100){
+    var s1=Math.round(sub*(1-discount.pct/100));sv+=s1;lb.push(discount.pct+'折 -$'+s1);
+  }
+  if(discount.secondOn&&discount.secondAmt>0){
+    /* Use provided sat/sun qty, or fall back to current sQ/nQ */
+    var satQty2=(_satQty!==undefined)?_satQty:0;
+    var sunQty2=(_sunQty!==undefined)?_sunQty:0;
+    if(_satQty===undefined){var sm2=satM();for(var _i=0;_i<sm2.length;_i++)satQty2+=(sQ[sm2[_i].id]||0);}
+    if(_sunQty===undefined){var nm2=sunM();for(var _j=0;_j<nm2.length;_j++)sunQty2+=(nQ[nm2[_j].id]||0);}
+    var s2sat=Math.floor(satQty2/2)*discount.secondAmt;
+    var s2sun=Math.floor(sunQty2/2)*discount.secondAmt;
+    var s2=s2sat+s2sun;
+    if(s2>0){sv+=s2;lb.push('第二件優惠(週六-$'+s2sat+'/週日-$'+s2sun+')');}
+  }
+  if(discount.codeOn&&discount.code&&uc&&uc.trim().toLowerCase()===discount.code.trim().toLowerCase()){
+    sv+=discount.codeDisc;lb.push('優惠碼-$'+discount.codeDisc);
+  }
+  sv=Math.min(sv,sub);
+  return{final:Math.max(0,sub-sv),saved:sv,label:lb.join('、')};
+}
 function isOrderOpen(){
   if(!orderDeadline)return true;
   return new Date()<new Date(orderDeadline);
@@ -573,7 +601,14 @@ function updBar(){
   var ic=document.getElementById('sico'),mn=document.getElementById('smain'),ss=document.getElementById('ssub');
   if(ic)ic.textContent=tq>0?'👀':'🍱';
   if(mn)mn.textContent=tq>0?'預覽並確認訂單':'確認並送出訂單';
-  if(ss)ss.textContent=tq>0?('共 '+tq+' 份・合計 $'+tp+' 元'):'選好餐點後，點此預覽並送出';
+  if(ss){
+    if(tq>0){
+      var dc=calcDiscount(tp,tq,enteredCode);
+      if(dc.saved>0){
+        ss.innerHTML='共 '+tq+' 份・<span style="text-decoration:line-through;opacity:.55">$'+tp+'</span> <span style="color:#FFD60A;font-weight:900">$'+dc.final+'</span>';
+      }else{ss.textContent='共 '+tq+' 份・合計 $'+tp+' 元';}
+    }else{ss.textContent='選好餐點後，點此預覽並送出';}
+  }
   var bar=document.getElementById('sb');if(bar)bar.style.display=(pg==='O'&&!done)?'block':'none';
 }
 function go(p){
@@ -667,7 +702,7 @@ function rOrd(){
             +'<div style="color:#fff;font-size:.85rem;font-weight:700">訂購已截止</div></div>'
           :''))
       +'<div style="height:2px;background:linear-gradient(90deg,transparent,var(--bd),transparent);margin:0 14px"></div>'
-      +'<div class="pull">'+basicH()+dayH('s',sm,stq,stp)+dayH('n',nm,ntq,ntp)+'<div id="emm" class="al aler" style="display:none;margin-bottom:6px">⚠ 請至少選擇一份餐點</div></div>';
+      +'<div class="pull">'+basicH()+(discount.enabled&&discount.codeOn?'<div class="cd" style="margin:0 14px 10px;padding:13px 16px"><div style="font-size:.72rem;font-weight:700;color:var(--mu);margin-bottom:7px">🎟 優惠碼</div><div style="display:flex;gap:8px"><input class="inp" id="promoInp" placeholder="請輸入優惠碼" value="'+eh(enteredCode)+'" oninput="enteredCode=this.value;updBar()" style="flex:1"><button onclick="updBar()" style="padding:10px 14px;background:var(--or);color:#fff;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer">套用</button></div></div>':'')+dayH('s',sm,stq,stp)+dayH('n',nm,ntq,ntp)+'<div id="emm" class="al aler" style="display:none;margin-bottom:6px">⚠ 請至少選擇一份餐點</div></div>';
   updBar();
 }
 function basicH(){
@@ -693,10 +728,23 @@ function succH(){
   var sm=satM(),nm=sunM(),siK=Object.keys(getSat(last)).filter(function(k){return(getSat(last)[k]||0)>0;}),niK=Object.keys(getSun(last)).filter(function(k){return(getSun(last)[k]||0)>0;}),st=0,nt=0,i,id,qty,m;
   for(i=0;i<siK.length;i++){id=siK[i];qty=getSat(last)[id]||0;m=findFL(id,sm);if(m)st+=m.price*qty;}
   for(i=0;i<niK.length;i++){id=niK[i];qty=getSun(last)[id]||0;m=findFL(id,nm);if(m)nt+=m.price*qty;}
+  /* Pre-compute discount BEFORE building HTML */
+  var _sm2=satM(),_nm2=sunM(),_sq2=0,_nq2=0;
+  for(var _ii=0;_ii<_sm2.length;_ii++)_sq2+=(getSat(last)[_sm2[_ii].id]||0);
+  for(var _jj=0;_jj<_nm2.length;_jj++)_nq2+=(getSun(last)[_nm2[_jj].id]||0);
+  var _dc=calcDiscount(st+nt,_sq2+_nq2,enteredCode,_sq2,_nq2);
   var h=heroH()+'<div class="pull"><div class="cd"><div class="sw"><div class="sri">✓</div><div class="stt">訂購成功！</div><div class="ssu">感謝您的訂購 🎉</div><div class="rcp"><div class="rct">📄 訂購明細</div><div class="rr"><span style="color:var(--mu)">單位・區域・姓名</span><span style="font-weight:700">'+eh(last.unit)+' '+eh(last.area)+'區 '+eh(last.name)+'</span></div>';
   if(siK.length){h+='<div class="rd">🌅 '+eh(S.sat.dayLabel)+' '+eh(S.sat.date)+'</div>';for(i=0;i<siK.length;i++){id=siK[i];qty=getSat(last)[id]||0;m=findFL(id,sm);if(m)h+='<div class="rr"><span>'+eh(m.name)+' × '+qty+'</span><span style="color:var(--stx);font-weight:700">$'+m.price*qty+'</span></div>';}}
   if(niK.length){h+='<div class="rd">🌄 '+eh(S.sun.dayLabel)+' '+eh(S.sun.date)+'</div>';for(i=0;i<niK.length;i++){id=niK[i];qty=getSun(last)[id]||0;m=findFL(id,nm);if(m)h+='<div class="rr"><span>'+eh(m.name)+' × '+qty+'</span><span style="color:var(--ntx);font-weight:700">$'+m.price*qty+'</span></div>';}}
-  h+='<div class="rr tot"><span>合計</span><span style="color:var(--gr)">$ '+(st+nt)+' 元</span></div></div><button class="cta ctag" onclick="rFm()">🍽️ 繼續訂購</button></div></div></div>';return h;
+  /* discount pre-computed above */
+  if(_dc.saved>0){
+    h+='<div class="rr"><span style="color:var(--mu)">原價</span><span style="text-decoration:line-through;color:var(--mu)">$ '+(st+nt)+' 元</span></div>';
+    h+='<div class="rr"><span style="color:var(--or);font-size:.75rem">✓ '+eh(_dc.label)+'</span><span style="color:var(--or);font-weight:700">-$ '+_dc.saved+' 元</span></div>';
+    h+='<div class="rr tot"><span>實付金額</span><span style="color:var(--gr)">$ '+_dc.final+' 元</span></div></div><button';
+  }else{
+    h+='<div class="rr tot"><span>合計</span><span style="color:var(--gr)">$ '+(st+nt)+' 元</span></div></div><button';
+  }
+  h+='<button class="cta ctag" onclick="rFm()">🍽️ 繼續訂購</button></div></div></div>';return h;
 }
 function pickU(u){fU=u;rOrd();}
 function adjQ(day,id,d){
@@ -762,10 +810,22 @@ function showCm(){
   var st=0,nt=0,i,id,qty,m;
   for(i=0;i<sik.length;i++){id=sik[i];qty=sQ[id]||0;m=findFL(id,sm);if(m)st+=m.price*qty;}
   for(i=0;i<nik.length;i++){id=nik[i];qty=nQ[id]||0;m=findFL(id,nm);if(m)nt+=m.price*qty;}
+  /* Compute discount for confirmation modal */
+  var _sq2=0,_nq2=0;
+  var _sm2=satM(),_nm2=sunM();
+  for(var _ii=0;_ii<_sm2.length;_ii++)_sq2+=(sQ[_sm2[_ii].id]||0);
+  for(var _jj=0;_jj<_nm2.length;_jj++)_nq2+=(nQ[_nm2[_jj].id]||0);
+  var _dc=calcDiscount(st+nt,_sq2+_nq2,enteredCode,_sq2,_nq2);
   var h='<div class="mov" id="cm"><div class="mbx"><div class="mhd"><div class="mpl"></div><div class="mir"><div class="mic">📋</div><div><div class="mt2">確認您的訂單</div><div class="ms">請確認以下資訊正確後再送出</div></div></div></div><div class="mbd"><div class="msec"><div class="mst">👤 基本資料</div><div class="mrow"><span class="ml">所屬單位</span><span class="mv">'+eh(unit)+'</span></div><div class="mrow"><span class="ml">區域</span><span class="mv">'+eh(fA.trim())+' 區</span></div><div class="mrow"><span class="ml">姓名</span><span class="mv">'+eh(fN.trim())+'</span></div><div class="mrow"><span class="ml">聯絡電話</span><span class="mv">'+eh(fP.trim())+'</span></div></div>';
   if(sik.length){h+='<div class="msec"><div class="mst">🌅 '+eh(S.sat.dayLabel)+' '+eh(S.sat.date)+' 早餐</div>';for(i=0;i<sik.length;i++){id=sik[i];qty=sQ[id]||0;m=findFL(id,sm);if(m)h+='<div class="mit"><span class="min">'+(m.ico||'🍽')+' <span>'+eh(m.name)+'</span></span><div class="mir2"><span class="mpr">$'+m.price+' × '+qty+'</span><span class="mbs">'+qty+' 份</span></div></div>';}h+='</div>';}
   if(nik.length){h+='<div class="msec"><div class="mst">🌄 '+eh(S.sun.dayLabel)+' '+eh(S.sun.date)+' 早餐</div>';for(i=0;i<nik.length;i++){id=nik[i];qty=nQ[id]||0;m=findFL(id,nm);if(m)h+='<div class="mit"><span class="min">'+(m.ico||'🍽')+' <span>'+eh(m.name)+'</span></span><div class="mir2"><span class="mpr">$'+m.price+' × '+qty+'</span><span class="mbn">'+qty+' 份</span></div></div>';}h+='</div>';}
-  if(st+nt>0)h+='<div class="mtot"><span class="mtl">💰 合計金額</span><span class="mtv">$ '+(st+nt)+' 元</span></div>';
+  if(st+nt>0)if(_dc.saved>0){
+    h+='<div class="mtot"><span class="mtl">💰 原價</span><span class="mtv" style="text-decoration:line-through;opacity:.6">$ '+(st+nt)+' 元</span></div>';
+    h+='<div class="mtot" style="background:linear-gradient(135deg,#F97316,#FBBF24)"><span class="mtl">🎁 '+eh(_dc.label)+'</span><span class="mtv">-$ '+_dc.saved+' 元</span></div>';
+    h+='<div class="mtot"><span class="mtl">💰 實付金額</span><span class="mtv">$ '+_dc.final+' 元</span></div>';
+  }else{
+    h+='<div class="mtot"><span class="mtl">💰 合計金額</span><span class="mtv">$ '+(st+nt)+' 元</span></div>';
+  }
   h+='<div class="mwn">⚠️ 訂單送出後即無法修改，請確認以上資訊完全正確。</div></div><div class="mft"><button class="cta ctao" onclick="clCm()">✏️ 修改訂單</button><button class="cta ctag" onclick="subO()">✅ 確認送出</button></div></div></div>';
   var w=document.getElementById('W');if(w){var d=document.createElement('div');d.innerHTML=h;w.appendChild(d.firstChild);}
   var cm=document.getElementById('cm');if(cm)cm.addEventListener('click',function(e){if(e.target===cm)clCm();});
@@ -782,6 +842,17 @@ async function subO(){
     try{
       var _sm=satM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
       var _nm=sunM().map(function(m){return{id:m.id,name:m.name,price:m.price};});
+      /* Calculate final price with discount */
+      var _smAll=satM(),_nmAll=sunM(),_sq3=0,_nq3=0;
+      for(var _ki=0;_ki<_smAll.length;_ki++)_sq3+=(sQ[_smAll[_ki].id]||0);
+      for(var _kj=0;_kj<_nmAll.length;_kj++)_nq3+=(nQ[_nmAll[_kj].id]||0);
+      var _satTotal=0,_sunTotal=0;
+      for(var _pi=0;_pi<_smAll.length;_pi++)_satTotal+=(_sq3>0?(sQ[_smAll[_pi].id]||0):0)*(_smAll[_pi].price||0);
+      for(var _pj=0;_pj<_nmAll.length;_pj++)_sunTotal+=(_nq3>0?(nQ[_nmAll[_pj].id]||0):0)*(_nmAll[_pj].price||0);
+      var _dcSub=calcDiscount(_satTotal+_sunTotal,_sq3+_nq3,enteredCode,_sq3,_nq3);
+      order.discountLabel=_dcSub.label||'';
+      order.discountSaved=_dcSub.saved||0;
+      order.finalPrice=_dcSub.final;
       var _d=encodeURIComponent(JSON.stringify({order:order,satMenu:_sm,sunMenu:_nm}));
       var _url=gasUrl+'?action=add&sheet='+encodeURIComponent(gasSheet||GAS_SHEET||'Order')+'&data='+_d;
       fetch(_url).catch(function(){});
@@ -1097,7 +1168,7 @@ function rAdm(){
           +(draft.titleStyle.bg?'<div style="margin-top:9px;display:flex;align-items:center;gap:9px"><input type="color" value="'+draft.titleStyle.bgColor+'" oninput="draft.titleStyle.bgColor=this.value" style="width:38px;height:34px;border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;padding:2px;background:#fff"><span style="font-size:.72rem;color:var(--mu)">底色顏色</span></div>':'')
         +'</div>'
       +'</div>'
-      +'<div class="fcd" style="margin-top:10px">'+'<div class="fcdt">⏰ 訂購截止時間</div>'+'<div class="fi"><label class="fl">截止日期 & 時間</label>'+'<input type="datetime-local" class="inp" value="'+(draft.orderDeadline||orderDeadline||'')+'" oninput="if(!draft)iDr();draft.orderDeadline=this.value;orderDeadline=this.value;rOrd();startCountdown();"></div>'+'<div style="font-size:.71rem;color:var(--mu);margin-top:2px;margin-bottom:10px">設定後系統自動顯示倒數計時器，超過時間後訂購關閉。留空則不顯示計時器。</div>'+'<div class="fcdt" style="margin-top:8px">📢 開放期間訊息視窗</div>'+'<div class="fi"><label class="fl">系統開放時顯示的訊息</label>'+'<textarea class="inp" rows="3" style="resize:vertical" oninput="if(!draft)iDr();draft.noticeMsg=this.value;noticeMsg=this.value">'+(draft.noticeMsg!==undefined?eh(draft.noticeMsg):eh(noticeMsg))+'</textarea></div>'+'<div class="fcdt" style="margin-top:8px">🔒 截止後訊息視窗</div>'+'<div class="fi"><label class="fl">訂購截止後顯示的訊息</label>'+'<textarea class="inp" rows="3" style="resize:vertical" oninput="if(!draft)iDr();draft.closedMsg=this.value;closedMsg=this.value">'+(draft.closedMsg!==undefined?eh(draft.closedMsg):eh(closedMsg))+'</textarea></div>'+'<div style="font-size:.71rem;color:var(--mu);margin-top:4px">留空則不顯示。儲存後所有裝置即時同步。</div>'+'</div>'+'<div class="fi"><label class="fl">說明文字</label><textarea class="inp" oninput="draft.description=this.value">'+eh(draft.description)+'</textarea></div>'
+      +'<div class="fcd" style="margin-top:10px">'+'<div class="fcdt">⏰ 訂購截止時間</div>'+'<div class="fi"><label class="fl">截止日期 & 時間</label>'+'<input type="datetime-local" class="inp" value="'+(draft.orderDeadline||orderDeadline||'')+'" oninput="if(!draft)iDr();draft.orderDeadline=this.value;orderDeadline=this.value;rOrd();startCountdown();"></div>'+'<div style="font-size:.71rem;color:var(--mu);margin-top:2px;margin-bottom:10px">設定後系統自動顯示倒數計時器，超過時間後訂購關閉。留空則不顯示計時器。</div>'+'<div class="fcdt" style="margin-top:8px">📢 開放期間訊息視窗</div>'+'<div class="fi"><label class="fl">系統開放時顯示的訊息</label>'+'<textarea class="inp" rows="3" style="resize:vertical" oninput="if(!draft)iDr();draft.noticeMsg=this.value;noticeMsg=this.value">'+(draft.noticeMsg!==undefined?eh(draft.noticeMsg):eh(noticeMsg))+'</textarea></div>'+'<div class="fcd" style="margin-top:10px">'+'<div class="fcdt">🎁 訂購優惠設定</div>'+'<div class="fi">'+'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px">'+'<input type="checkbox"'+(draft.discount&&draft.discount.enabled?' checked':'')+' style="width:16px;height:16px;accent-color:var(--or);cursor:pointer" onchange="if(!draft.discount)draft.discount={};draft.discount.enabled=this.checked;discount.enabled=this.checked;rOrd();"> <span style="font-size:.86rem;font-weight:700">啟用優惠方案</span></label>'+(draft.discount&&draft.discount.enabled?  '<div style="background:#FFF8F0;border:1.5px solid #FFD580;border-radius:12px;padding:12px 14px;margin-bottom:8px">'  +'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px">'+'<input type="checkbox"'+(draft.discount.pctOn?' checked':'')+' style="width:15px;height:15px;accent-color:var(--or);cursor:pointer" onchange="draft.discount.pctOn=this.checked;discount.pctOn=this.checked;updBar();"> <span style="font-size:.82rem;font-weight:700">打折（百分比）</span></label>'  +'<div style="display:flex;align-items:center;gap:8px;padding-left:24px"><span style="font-size:.8rem;color:var(--mu)">價錢 × </span><input type="number" min="1" max="99" value="'+(draft.discount.pct||90)+'" style="width:60px;padding:7px 10px;border:1.5px solid var(--bd);border-radius:9px;font-size:.85rem;text-align:center" onchange="draft.discount.pct=Number(this.value);discount.pct=Number(this.value);updBar();"><span style="font-size:.8rem;color:var(--mu)"> %</span></div></div>'  +'<div style="background:#F0FFF4;border:1.5px solid #A7F3D0;border-radius:12px;padding:12px 14px;margin-bottom:8px">'  +'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px">'+'<input type="checkbox"'+(draft.discount.secondOn?' checked':'')+' style="width:15px;height:15px;accent-color:var(--na);cursor:pointer" onchange="draft.discount.secondOn=this.checked;discount.secondOn=this.checked;updBar();"> <span style="font-size:.82rem;font-weight:700">第二件優惠</span></label>'  +'<div style="display:flex;align-items:center;gap:8px;padding-left:24px"><span style="font-size:.8rem;color:var(--mu)">第二件優惠 </span><input type="number" min="0" value="'+(draft.discount.secondAmt||0)+'" style="width:72px;padding:7px 10px;border:1.5px solid var(--bd);border-radius:9px;font-size:.85rem;text-align:center" onchange="draft.discount.secondAmt=Number(this.value);discount.secondAmt=Number(this.value);updBar();"><span style="font-size:.8rem;color:var(--mu)"> 元</span></div></div>'  +'<div style="background:#F0F4FF;border:1.5px solid #BAC8FF;border-radius:12px;padding:12px 14px">'  +'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px">'+'<input type="checkbox"'+(draft.discount.codeOn?' checked':'')+' style="width:15px;height:15px;accent-color:#4361EE;cursor:pointer" onchange="draft.discount.codeOn=this.checked;discount.codeOn=this.checked;"> <span style="font-size:.82rem;font-weight:700">輸入優惠碼</span></label>'  +'<div style="padding-left:24px"><input class="inp" placeholder="優惠碼（如 BKFAST）" value="'+(draft.discount.code||'')+'" style="margin-bottom:7px" oninput="draft.discount.code=this.value;discount.code=this.value;">'  +'<div style="display:flex;align-items:center;gap:7px"><span style="font-size:.8rem;color:var(--mu)">折扣金額 </span><input type="number" min="0" value="'+(draft.discount.codeDisc||0)+'" style="width:80px;padding:7px 10px;border:1.5px solid var(--bd);border-radius:9px;font-size:.85rem;text-align:center" onchange="draft.discount.codeDisc=Number(this.value);discount.codeDisc=Number(this.value);"><span style="font-size:.8rem;color:var(--mu)"> 元</span></div></div></div>':'')+'</div></div>'+'<div class="fcdt" style="margin-top:8px">🔒 截止後訊息視窗</div>'+'<div class="fi"><label class="fl">訂購截止後顯示的訊息</label>'+'<textarea class="inp" rows="3" style="resize:vertical" oninput="if(!draft)iDr();draft.closedMsg=this.value;closedMsg=this.value">'+(draft.closedMsg!==undefined?eh(draft.closedMsg):eh(closedMsg))+'</textarea></div>'+'<div style="font-size:.71rem;color:var(--mu);margin-top:4px">留空則不顯示。儲存後所有裝置即時同步。</div>'+'</div>'+'<div class="fi"><label class="fl">說明文字</label><textarea class="inp" oninput="draft.description=this.value">'+eh(draft.description)+'</textarea></div>'
       +'<div style="background:#F9FAFB;border-radius:13px;padding:13px;margin-bottom:10px">'
         +'<div style="font-size:.69rem;font-weight:700;color:var(--mu);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px"><span style="width:3px;height:12px;border-radius:2px;background:linear-gradient(#1e3c72,#2a5298);display:inline-block"></span>說明文字排版樣式</div>'
         +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
@@ -1238,7 +1309,8 @@ function shSv(){var w=document.getElementById('W');if(!w)return;var d=document.c
 function clSv(){var m=document.getElementById('svM');if(m)m.remove();}
 async function doSv(){clSv();if(draft&&draft.noticeMsg!==undefined)noticeMsg=draft.noticeMsg;
   if(draft&&draft.closedMsg!==undefined)closedMsg=draft.closedMsg;
-  if(draft&&draft.orderDeadline!==undefined)orderDeadline=draft.orderDeadline;S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);
+  if(draft&&draft.orderDeadline!==undefined)orderDeadline=draft.orderDeadline;
+  if(draft&&draft.discount)discount=Object.assign({},discount,draft.discount);S={title:draft.title,description:draft.description,titleStyle:cx(draft.titleStyle||DEF.titleStyle),descStyle:cx(draft.descStyle||DEF.descStyle),textPos:cx(draft.textPos||DEF.textPos),sat:{date:draft.sat.date,dayLabel:draft.sat.dayLabel,title:draft.sat.title,items:draft.sat.items.map(function(m){return cx(m);})},sun:{date:draft.sun.date,dayLabel:draft.sun.dayLabel,title:draft.sun.title,items:draft.sun.items.map(function(m){return cx(m);})}};await svSt(SK,S);
   await gasSaveConfig(); /* Saves S + images + gasSheet to GAS for all devices */rOrd();rSum();var msg=document.getElementById('aSv');if(msg)msg.innerHTML='<div class="al alok">✓ 已儲存！所有裝置即時更新。</div>';setTimeout(function(){var m=document.getElementById('aSv');if(m)m.innerHTML='';},3000);}
 
 /* ── DELETE ORDER ── */

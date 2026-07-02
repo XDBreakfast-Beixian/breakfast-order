@@ -283,7 +283,7 @@ window.onerror=function(msg,src,line,col,err){
 };
 var UN=['中和','精明','通化','正宗','賢德','其他'];
 /* ══ DEPLOY SETTINGS — Fill in before uploading to GitHub ══ */
-var GAS_URL   = 'https://script.google.com/macros/s/AKfycbwlsk5ypkxbGXoCi2_J8uzh3pj7kd_aBGbaSeCvH5hL8S4ZCyEF5r4qoWCUTm5axYYw/exec';
+var GAS_URL   = 'https://script.google.com/macros/s/AKfycbx8GmNaQa5D6jbD1kFX2AbY5yJcx659ZW_XNcQ_tdX4AyWA-MB-EBhn2xN7YMRELqCb/exec';
 var GAS_SHEET = 'Order'; /* <-- Your Google Sheet tab name */
 /* ═══════════════════════════════════════════════════════════ */
 var AID='184179',APW='twt@031',SK='bfv5s',OK='bfv5o';
@@ -1424,7 +1424,9 @@ async function saveEdit(){
           satItems:editOrder.satItems,
           sunItems:editOrder.sunItems,
           satMenu:satM(),
-          sunMenu:sunM()
+          sunMenu:sunM(),
+          discount:discount,
+          enteredCode:enteredCode||''
         }));
       /* Await the fetch so we know GAS processed it */
       await fetch(_up,{credentials:'omit'}).catch(function(){});
